@@ -1,22 +1,10 @@
 package domain
 
-import (
-	repository "store/repository/interface"
-	"time"
-)
+import data "store/data"
 
 type BookReceipt struct {
-	Id repository.EntityId
-	Number string
-	CreatedAt time.Time
+	data.BookReceipt
 }
 
-type BookReceiptItem struct {
-	BookReceiptId repository.EntityId
-	BookId repository.EntityId
-	Qty int
-}
-
-func CreateBookReceipt(books []Book, transaction repository.Transaction) {
-
+func CreateBookReceipt(books []data.Book, transaction *data.Transaction) (*BookReceipt, error) {
 }

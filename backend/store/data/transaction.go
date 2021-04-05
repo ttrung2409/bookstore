@@ -1,10 +1,10 @@
-package repository
+package data
 
 type Transaction interface {
-	Commit()
+	Commit() error
 	Rollback()
 }
 
 type TransactionFactory interface {
-	New() Transaction
+	New() *Transaction
 }

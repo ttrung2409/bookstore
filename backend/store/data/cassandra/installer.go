@@ -1,8 +1,7 @@
-package repository
+package data
 
 import (
-	repository "store/repository/interface"
-
+	"store/data"
 	"store/utils"
 
 	"github.com/gocql/gocql"
@@ -15,13 +14,13 @@ var session *gocqlx.Session
 func Install(builder *di.Builder) {
 	builder.Add([]di.Def{
 		{
-			Name: utils.Nameof((*repository.BookRepository)(nil)),
+			Name: utils.Nameof((*data.BookRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return &bookRepository{}, nil
+				return bookRepositoryInstance, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*repository.TransactionFactory)(nil)),
+			Name: utils.Nameof((*data.TransactionFactory)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return &transactionFactory{}, nil
 			},

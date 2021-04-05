@@ -1,7 +1,7 @@
 package container
 
 import (
-	"store/repository"
+	data "store/data/cassandra"
 
 	"github.com/sarulabs/di"
 )
@@ -10,8 +10,8 @@ var Container di.Container
 
 func install() {
 	builder, _ := di.NewBuilder()
-	repository.Install(builder)
+	data.Install(builder)
 	Container = builder.Build()
 
-	repository.Connect()
+	data.Connect()
 }

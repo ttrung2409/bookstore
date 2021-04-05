@@ -1,10 +1,7 @@
 package domain
 
-import repository "store/repository/interface"
+import data "store/data"
 
 type Customer struct {
-	Id              repository.EntityId
-	Name            string
-	Phone           string
-	DeliveryAddress string
+	data.Customer
 }
