@@ -25,6 +25,6 @@ func CreateBookIfNotExist(book data.Book, transaction *data.Transaction) (*Book,
 	return createdBook, nil
 }
 
-func (book *Book) Update(entity Book) {
+func (book *Book) Update(entity data.Book) {
 	bookRepository.Update(book, book, nil)
 } 

@@ -24,34 +24,36 @@ func (r *cassandraRepository) Get(id data.EntityId) (interface{}, error) {
 }
 
 func (r *cassandraRepository) Create(entity interface{}, transaction *transaction) (data.EntityId, error) {
+	id := data.NewEntityId()
+
 	if transaction != nil {
-		query := session.Query(r.tableDef.Insert()).BindStruct(entity)
+		query := session.Query(r.tableDef.Insert()).BindStruct(entity).BindMap(id.ToMap())
 		
 		transaction.commands = append(transaction.commands, Command{Statement: query.Statement(), Args: query.Names})
 
-		return data.EmptyEntityId, nil
+		return id, nil
 	}
 
-	query := session.Query(r.tableDef.Insert()).BindStruct(entity)
+	query := session.Query(r.tableDef.Insert()).BindStruct(entity).BindMap(id.ToMap())
 
 	if err := query.ExecRelease(); err != nil {
-		return data.EmptyEntityId, err
+		return id, err
 	}
 
-	return data.EmptyEntityId, nil
+	return id, nil
 }
 
 
 func (r *cassandraRepository) Update(id data.EntityId, entity interface{}, transaction *transaction) error {
 	if transaction != nil {
-		query := session.Query(r.tableDef.Update(utils.FieldsOfObject(entity)...)).BindStruct(entity)
+		query := session.Query(r.tableDef.Update(utils.FieldsOfObject(entity)...)).BindStruct(entity).BindMap(id.ToMap())
 		
 		transaction.commands = append(transaction.commands, Command{Statement: query.Statement(), Args: query.Names})
 
 		return nil
 	}
 
-	query := session.Query(r.tableDef.Update(utils.FieldsOfObject(entity)...)).BindStruct(entity)
+	query := session.Query(r.tableDef.Update(utils.FieldsOfObject(entity)...)).BindStruct(entity).BindMap(qb.M{"id": id})
 
 	if err := query.ExecRelease(); err != nil {
 		return err

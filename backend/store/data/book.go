@@ -5,7 +5,6 @@ import (
 )
 
 type Book struct {
-	Id       EntityId
 	StoreId EntityId
 	GoogleBookId  string
 	Title         string
@@ -17,10 +16,12 @@ type Book struct {
 	AverageRating float32
 	RatingsCount  int32
 	ThumbnailUrl  string
+	OnhandQty int
+	PreservedQty int
 }
 
 type BookRepository interface {
 	repositoryBase
-	GetByGoogleBookId(googleBookId string) (interface{}, error)
+	MakeId(googleBookId string) string
 	CreateIfNotExist(book Book, transaction *Transaction) error
 }

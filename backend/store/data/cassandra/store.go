@@ -1,9 +1,14 @@
 package data
 
-import "github.com/google/uuid"
+import (
+	"store/data"
 
-var storeId = uuid.NewString()
+	"github.com/google/uuid"
+)
 
-func StoreId() string {
+
+var storeId = data.EntityId(uuid.NewString())
+
+func StoreId() data.EntityId {
 	return storeId
 }
