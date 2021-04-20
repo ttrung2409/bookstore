@@ -1,4 +1,4 @@
-package data
+package cassandra
 
 import (
 	"store/data"
@@ -20,9 +20,15 @@ func Install(builder *di.Builder) {
 			},
 		},
 		{
+			Name: utils.Nameof((*data.BookReceiptRepository)(nil)),
+			Build: func(ctn di.Container) (interface{}, error) {
+				return bookReceiptRepositoryInstance, nil
+			},
+		},
+		{
 			Name: utils.Nameof((*data.TransactionFactory)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return &transactionFactory{}, nil
+				return transactionFactory{}, nil
 			},
 		},
 	}...)
@@ -37,11 +43,11 @@ func Connect() *gocqlx.Session {
 	cluster.Keyspace = "bookstore"
 
 	sessionValue, err := gocqlx.WrapSession(cluster.CreateSession())
-	
+
 	if err != nil {
 		panic(err)
 	}
-	
+
 	session = &sessionValue
 
 	return session

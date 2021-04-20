@@ -1,11 +1,36 @@
 package data
 
 import (
+	"fmt"
+	"strings"
 	"time"
 )
 
+type BookId EntityId
+
+func (id BookId) Value() EntityId {
+	return (EntityId)(id)
+}
+
+func (id BookId) ToMap() map[string]interface{} {
+	return map[string]interface{}{"store_id": StoreId(), "google_book_id": googleBookId(id)}
+}
+
+func googleBookId(id BookId) string {
+	return strings.Split(id.Value().ToString(), "@")[1]
+}
+
+func NewBookId(googleBookId string) BookId {
+	return (BookId)(fmt.Sprintf("%s@%s", StoreId(), googleBookId))
+}
+
+func EmptyBookId() BookId {
+	return BookId(EmptyEntityId)
+}
+
 type Book struct {
-	StoreId EntityId
+	Id            BookId
+	StoreId       EntityId
 	GoogleBookId  string
 	Title         string
 	Subtitle      string
@@ -16,12 +41,11 @@ type Book struct {
 	AverageRating float32
 	RatingsCount  int32
 	ThumbnailUrl  string
-	OnhandQty int
-	PreservedQty int
+	OnhandQty     int
+	PreservedQty  int
 }
 
 type BookRepository interface {
 	repositoryBase
-	MakeId(googleBookId string) string
-	CreateIfNotExist(book Book, transaction *Transaction) error
+	UpdateOnhandQty(id BookId, qty, transaction *Transaction) error
 }

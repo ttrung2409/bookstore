@@ -13,8 +13,9 @@ const (
 )
 
 type Order struct {
-	Id        EntityId
-	Number    string
-	CreatedAt time.Time
-	Status    OrderStatus
+	Id         EntityId
+	Number     string
+	CreatedAt  time.Time
+	CustomerId EntityId
+	Status     OrderStatus
 }

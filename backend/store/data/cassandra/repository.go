@@ -1,10 +1,10 @@
-package data
+package cassandra
 
 import (
 	data "store/data"
 	"store/utils"
 
-	"github.com/scylladb/gocqlx/v2/qb"
+	"github.com/scylladb/gocqlx/v2"
 	"github.com/scylladb/gocqlx/v2/table"
 )
 
@@ -12,53 +12,85 @@ type cassandraRepository struct {
 	tableDef *table.Table
 }
 
-func (r *cassandraRepository) Get(id data.EntityId) (interface{}, error) {
+func (r *cassandraRepository) Get(id data.Identifier) (interface{}, error) {
 	var entity interface{}
-	query := session.Query(r.tableDef.Get()).BindMap(qb.M{"id": id})
+	query := session.Query(r.tableDef.Get()).BindMap(id.ToMap())
 
 	if err := query.GetRelease(&entity); err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	return entity, nil
 }
 
-func (r *cassandraRepository) Create(entity interface{}, transaction *transaction) (data.EntityId, error) {
+func (r *cassandraRepository) Create(
+	entity interface{},
+	transaction *transaction,
+) (data.Identifier, error) {
 	id := data.NewEntityId()
 
-	if transaction != nil {
-		query := session.Query(r.tableDef.Insert()).BindStruct(entity).BindMap(id.ToMap())
-		
-		transaction.commands = append(transaction.commands, Command{Statement: query.Statement(), Args: query.Names})
+	command := session.Query(
+		r.tableDef.InsertBuilder().LitColumn("created_at", "toTimestamp(now())").ToCql(),
+	).BindStruct(
+		entity,
+	).BindMap(
+		id.ToMap(),
+	)
 
-		return id, nil
-	}
+	err := r.executeCommand(command, transaction)
 
-	query := session.Query(r.tableDef.Insert()).BindStruct(entity).BindMap(id.ToMap())
-
-	if err := query.ExecRelease(); err != nil {
-		return id, err
-	}
-
-	return id, nil
+	return id, err
 }
 
+func (r *cassandraRepository) CreateIfNotExist(
+	entity interface{},
+	transaction *transaction,
+) (data.Identifier, error) {
+	id := data.NewEntityId()
 
-func (r *cassandraRepository) Update(id data.EntityId, entity interface{}, transaction *transaction) error {
+	command := session.Query(
+		r.tableDef.InsertBuilder().LitColumn("created_at", "toTimestamp(now())").Unique().ToCql(),
+	).BindStruct(
+		entity,
+	).BindMap(
+		id.ToMap(),
+	)
+
+	err := r.executeCommand(command, transaction)
+
+	return id, err
+}
+
+func (r *cassandraRepository) Update(
+	id data.Identifier,
+	entity interface{},
+	transaction *transaction,
+) error {
+	command := session.Query(
+		r.tableDef.Update(utils.FieldsOfObject(entity)...),
+	).BindStruct(
+		entity,
+	).BindMap(
+		id.ToMap(),
+	)
+
+	err := r.executeCommand(command, transaction)
+
+	return err
+}
+
+func (r cassandraRepository) executeCommand(
+	command *gocqlx.Queryx,
+	transaction *transaction,
+) error {
 	if transaction != nil {
-		query := session.Query(r.tableDef.Update(utils.FieldsOfObject(entity)...)).BindStruct(entity).BindMap(id.ToMap())
-		
-		transaction.commands = append(transaction.commands, Command{Statement: query.Statement(), Args: query.Names})
+		transaction.commands = append(
+			transaction.commands,
+			Command{Statement: command.Statement(), Args: command.Names},
+		)
 
 		return nil
 	}
 
-	query := session.Query(r.tableDef.Update(utils.FieldsOfObject(entity)...)).BindStruct(entity).BindMap(qb.M{"id": id})
-
-	if err := query.ExecRelease(); err != nil {
-		return err
-	}
-
-	return nil
+	return command.ExecRelease()
 }
-

@@ -1,4 +1,4 @@
-package data
+package cassandra
 
 import "github.com/gocql/gocql"
 
@@ -25,4 +25,7 @@ func (t *transaction) Commit() error {
 	}
 
 	return session.ExecuteBatch(batch)
+}
+
+func (t *transaction) Rollback() {
 }
