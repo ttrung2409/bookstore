@@ -2,7 +2,7 @@ package domain
 
 import (
 	module "store"
-	data "store/data"
+	data "store/app/data"
 	"store/utils"
 )
 
@@ -12,7 +12,7 @@ type Book struct {
 
 var bookRepository = module.Container.Get(utils.Nameof((*data.BookRepository)(nil))).(data.BookRepository)
 
-func CreateBookIfNotExist(book data.Book, transaction *data.Transaction) (*Book, error) {
+func (Book) CreateIfNotExist(book data.Book, transaction *data.Transaction) (*Book, error) {
 	id, err := bookRepository.CreateIfNotExist(book, transaction)
 
 	if err != nil {

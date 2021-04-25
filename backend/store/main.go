@@ -1,17 +1,17 @@
 package container
 
 import (
-	data "store/data/cassandra"
+	cassandra "store/cassandra"
 
 	"github.com/sarulabs/di"
 )
 
 var Container di.Container
 
-func install() {
+func main() {
 	builder, _ := di.NewBuilder()
-	data.Install(builder)
+	cassandra.Install(builder)
 	Container = builder.Build()
 
-	data.Connect()
+	cassandra.Connect()
 }

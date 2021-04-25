@@ -41,6 +41,7 @@ type Book struct {
 	AverageRating float32
 	RatingsCount  int32
 	ThumbnailUrl  string
+	PreviewUrl    string
 	OnhandQty     int
 	PreservedQty  int
 }

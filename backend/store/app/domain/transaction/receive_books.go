@@ -2,28 +2,28 @@ package domain
 
 import (
 	module "store"
+	data "store/app/data"
 	"store/app/domain"
-	data "store/data"
 	"store/utils"
 )
 
 var transactionFactory = module.Container.Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
 
-func receiveBooks(books []data.Book, qty map[string]int) (*domain.BookReceipt, error) {
+func ReceiveBooks(items []domain.ReceivingBook) (*domain.BookReceipt, error) {
 	transaction := transactionFactory.New()
 
 	var err error
 
-	for _, book := range books {
-		domainBook, err := domain.CreateBookIfNotExist(book, transaction)
+	for _, item := range items {
+		book, err := domain.Book{}.CreateIfNotExist(item.Book, transaction)
 		if err != nil {
 			break
 		}
 
-		domainBook.UpdateOnhandQty(qty[domainBook.Id.Value().ToString()], transaction)
+		book.UpdateOnhandQty(item.Qty, transaction)
 	}
 
-	receipt, err := domain.CreateBookReceipt(books, qty, transaction)
+	receipt, err := domain.BookReceipt{}.Create(items, transaction)
 
 	err = (*transaction).Commit()
 

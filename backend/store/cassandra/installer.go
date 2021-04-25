@@ -1,7 +1,7 @@
 package cassandra
 
 import (
-	"store/data"
+	"store/app/data"
 	"store/utils"
 
 	"github.com/gocql/gocql"
@@ -23,6 +23,12 @@ func Install(builder *di.Builder) {
 			Name: utils.Nameof((*data.BookReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return bookReceiptRepositoryInstance, nil
+			},
+		},
+		{
+			Name: utils.Nameof((*data.OrderRepository)(nil)),
+			Build: func(ctn di.Container) (interface{}, error) {
+				return orderRepositoryInstance, nil
 			},
 		},
 		{

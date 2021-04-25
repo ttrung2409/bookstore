@@ -19,3 +19,8 @@ type Order struct {
 	CustomerId EntityId
 	Status     OrderStatus
 }
+
+type OrderRepository interface {
+	repositoryBase
+	FindByStatus(status string) ([]Order, error)
+}

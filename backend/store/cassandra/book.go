@@ -2,7 +2,7 @@ package cassandra
 
 import (
 	"fmt"
-	data "store/data"
+	data "store/app/data"
 	"store/utils"
 	"store/utils/strings"
 

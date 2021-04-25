@@ -1,7 +1,7 @@
 package cassandra
 
 import (
-	data "store/data"
+	data "store/app/data"
 	"store/utils"
 
 	"github.com/scylladb/gocqlx/v2/table"

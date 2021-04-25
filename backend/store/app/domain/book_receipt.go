@@ -2,12 +2,17 @@ package domain
 
 import (
 	module "store"
-	data "store/data"
+	data "store/app/data"
 	"store/utils"
 )
 
 type BookReceipt struct {
 	data.BookReceipt
+}
+
+type ReceivingBook struct {
+	Book data.Book
+	Qty  int
 }
 
 var bookReceiptRepository = module.Container.Get(utils.Nameof((*data.BookReceiptRepository)(nil))).(data.BookReceiptRepository)
@@ -16,9 +21,8 @@ var bookReceiptItemRepository = module.Container.Get(utils.Nameof((*data.BookRec
 
 var transactionFactory = module.Container.Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
 
-func CreateBookReceipt(
-	books []data.Book,
-	qty map[string]int,
+func (BookReceipt) Create(
+	items []ReceivingBook,
 	transaction *data.Transaction,
 ) (*BookReceipt, error) {
 	receipt := data.BookReceipt{
@@ -33,11 +37,11 @@ func CreateBookReceipt(
 
 	_, err = bookReceiptRepository.Create(receipt, transaction)
 
-	for _, book := range books {
+	for _, item := range items {
 		_, err = bookReceiptItemRepository.Create(data.BookReceiptItem{
-			BookId:        book.Id.Value(),
+			BookId:        item.Book.Id.Value(),
 			BookReceiptId: receipt.Id,
-			Qty:           qty[book.Id.Value().ToString()],
+			Qty:           item.Qty,
 		}, transaction)
 	}
 
