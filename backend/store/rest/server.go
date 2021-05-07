@@ -14,5 +14,10 @@ func Start() {
 		BookReceiptRoutes(r)
 	}
 
+	r.Group(("/order"))
+	{
+		OrderRoutes(r)
+	}
+
 	r.Run(":8080")
 }

@@ -8,11 +8,12 @@ import (
 
 type BookReceipt struct {
 	data.BookReceipt
+	Items []data.BookReceiptItem
 }
 
 type ReceivingBook struct {
-	Book data.Book
-	Qty  int
+	data.Book
+	Qty int
 }
 
 var bookReceiptRepository = module.Container.Get(utils.Nameof((*data.BookReceiptRepository)(nil))).(data.BookReceiptRepository)
@@ -22,11 +23,12 @@ var bookReceiptItemRepository = module.Container.Get(utils.Nameof((*data.BookRec
 var transactionFactory = module.Container.Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
 
 func (BookReceipt) Create(
-	items []ReceivingBook,
+	books []ReceivingBook,
 	transaction *data.Transaction,
 ) (*BookReceipt, error) {
 	receipt := data.BookReceipt{
-		Id: data.NewEntityId(),
+		Id:      data.NewEntityId(),
+		StoreId: data.StoreId(),
 	}
 
 	var err error
@@ -36,17 +38,29 @@ func (BookReceipt) Create(
 	}
 
 	_, err = bookReceiptRepository.Create(receipt, transaction)
+	if err != nil {
+		return nil, err
+	}
 
-	for _, item := range items {
-		_, err = bookReceiptItemRepository.Create(data.BookReceiptItem{
-			BookId:        item.Book.Id.Value(),
+	items := []data.BookReceiptItem{}
+
+	for _, book := range books {
+		item := data.BookReceiptItem{
+			BookId:        book.Id,
 			BookReceiptId: receipt.Id,
-			Qty:           item.Qty,
-		}, transaction)
+			Qty:           book.Qty,
+		}
+
+		_, err = bookReceiptItemRepository.Create(item, transaction)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, item)
 	}
 
 	if transaction != nil {
-		return &BookReceipt{receipt}, err
+		return &BookReceipt{BookReceipt: receipt, Items: items}, nil
 	}
 
 	err = (*transaction).Commit()
@@ -56,5 +70,5 @@ func (BookReceipt) Create(
 		return nil, err
 	}
 
-	return &BookReceipt{receipt}, nil
+	return &BookReceipt{BookReceipt: receipt, Items: items}, nil
 }

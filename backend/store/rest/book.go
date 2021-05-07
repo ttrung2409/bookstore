@@ -10,14 +10,17 @@ import (
 )
 
 func BookRoutes(r *gin.Engine) {
-	r.GET("/", find())
+	controller := &bookController{}
+	r.GET("/", controller.find())
 }
 
-var bookFinder = module.Container.Get(utils.Nameof((*op.FindBooks)(nil))).(op.FindBooks)
+var googleBookQuery = module.Container.Get(utils.Nameof((*op.GoogleBookQuery)(nil))).(op.GoogleBookQuery)
 
-func find() gin.HandlerFunc {
+type bookController struct{}
+
+func (c *bookController) find() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		books, err := bookFinder.Find(c.Query("term"))
+		books, err := googleBookQuery.Find(c.Query("term"))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}

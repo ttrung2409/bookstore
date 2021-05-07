@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-type BookId EntityId
+type BookId string
 
 func (id BookId) Value() EntityId {
-	return (EntityId)(id)
+	return FromStringToEntityId(string(id))
 }
 
 func (id BookId) ToMap() map[string]interface{} {
@@ -21,12 +21,10 @@ func googleBookId(id BookId) string {
 }
 
 func NewBookId(googleBookId string) BookId {
-	return (BookId)(fmt.Sprintf("%s@%s", StoreId(), googleBookId))
+	return BookId(fmt.Sprintf("%s@%s", StoreId(), googleBookId))
 }
 
-func EmptyBookId() BookId {
-	return BookId(EmptyEntityId)
-}
+const EmptyBookId BookId = ""
 
 type Book struct {
 	Id            BookId
@@ -48,5 +46,5 @@ type Book struct {
 
 type BookRepository interface {
 	repositoryBase
-	UpdateOnhandQty(id BookId, qty, transaction *Transaction) error
+	AdjustOnhandQty(id BookId, qty int, transaction *Transaction) error
 }

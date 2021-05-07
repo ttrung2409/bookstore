@@ -9,5 +9,10 @@ type Order struct {
 	Number     string
 	CreatedAt  time.Time
 	CustomerId string
-	Status     int
+	Status     string
+	Items []
+}
+
+type OrderItem struct {
+	
 }

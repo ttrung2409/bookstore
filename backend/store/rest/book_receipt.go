@@ -10,12 +10,15 @@ import (
 )
 
 func BookReceiptRoutes(r *gin.Engine) {
-	r.POST("/", create())
+	controller := bookReceiptController{}
+	r.POST("/", controller.create())
 }
 
-var bookReceiver = module.Container.Get(utils.Nameof((*op.ReceiveBooks)(nil))).(op.ReceiveBooks)
+var receiveBook = module.Container.Get(utils.Nameof((*op.ReceiveBooks)(nil))).(op.ReceiveBooks)
 
-func create() gin.HandlerFunc {
+type bookReceiptController struct{}
+
+func (c *bookReceiptController) create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request op.ReceiveBooksRequest
 		err := c.BindJSON(&request)
@@ -23,7 +26,7 @@ func create() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, err)
 		}
 
-		err = bookReceiver.Receive(request)
+		err = receiveBook.Receive(request)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}

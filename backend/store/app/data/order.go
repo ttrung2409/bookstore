@@ -2,14 +2,14 @@ package data
 
 import "time"
 
-type OrderStatus int
+type OrderStatus string
 
 const (
-	Queued      OrderStatus = iota
-	Accepted    OrderStatus = iota
-	Receiving   OrderStatus = iota
-	StockFilled OrderStatus = iota
-	Rejected    OrderStatus = iota
+	OrderStatusQueued      OrderStatus = "Queued"
+	OrderStatusAccepted    OrderStatus = "Accepted"
+	OrderStatusReceiving   OrderStatus = "Receiving"
+	OrderStatusStockFilled OrderStatus = "StockFilled"
+	OrderStatusRejected    OrderStatus = "Rejected"
 )
 
 type Order struct {
@@ -20,7 +20,18 @@ type Order struct {
 	Status     OrderStatus
 }
 
+type OrderItem struct {
+	OrderId EntityId
+	BookId  BookId
+	Qty     int
+}
+
 type OrderRepository interface {
 	repositoryBase
-	FindByStatus(status string) ([]Order, error)
+	FindByStatus(statuses []string) ([]Order, error)
+}
+
+type OrderItemRepository interface {
+	repositoryBase
+	GetByOrderId(orderId EntityId) ([]OrderItem, error)
 }

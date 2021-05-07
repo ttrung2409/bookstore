@@ -12,12 +12,16 @@ type orderRepository struct {
 	cassandraRepository
 }
 
-func (r *orderRepository) FindByStatus(status string) ([]data.Order, error) {
+func (r *orderRepository) FindByStatus(statuses []string) ([]data.Order, error) {
 	var orders []data.Order
-	query := session.Query(r.tableDef.Select()).BindMap(qb.M{"status": status})
+	query := session.Query(
+		r.tableDef.SelectBuilder().Where(qb.In("status")).ToCql(),
+	).BindMap(
+		qb.M{"status": statuses},
+	)
 
 	if err := query.GetRelease(&orders); err != nil {
-		return nil, err
+		return nil, r.convertToDataError(err)
 	}
 
 	return orders, nil

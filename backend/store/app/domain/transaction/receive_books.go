@@ -15,12 +15,12 @@ func ReceiveBooks(items []domain.ReceivingBook) (*domain.BookReceipt, error) {
 	var err error
 
 	for _, item := range items {
-		book, err := domain.Book{}.CreateIfNotExist(item.Book, transaction)
+		_, err := domain.Book{}.CreateIfNotExist(item.Book, transaction)
 		if err != nil {
 			break
 		}
 
-		book.UpdateOnhandQty(item.Qty, transaction)
+		book.AdjustOnhandQty(item.Qty, transaction)
 	}
 
 	receipt, err := domain.BookReceipt{}.Create(items, transaction)

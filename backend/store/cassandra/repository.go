@@ -1,9 +1,11 @@
 package cassandra
 
 import (
+	"errors"
 	data "store/app/data"
 	"store/utils"
 
+	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
 	"github.com/scylladb/gocqlx/v2/table"
 )
@@ -17,7 +19,7 @@ func (r *cassandraRepository) Get(id data.Identifier) (interface{}, error) {
 	query := session.Query(r.tableDef.Get()).BindMap(id.ToMap())
 
 	if err := query.GetRelease(&entity); err != nil {
-		return nil, err
+		return nil, r.convertToDataError(err)
 	}
 
 	return entity, nil
@@ -93,4 +95,12 @@ func (r cassandraRepository) executeCommand(
 	}
 
 	return command.ExecRelease()
+}
+
+func (r cassandraRepository) convertToDataError(err error) error {
+	if errors.Is(err, gocql.ErrNotFound) {
+		return data.ErrNotFound
+	}
+
+	return err
 }

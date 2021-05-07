@@ -2,10 +2,9 @@ package operation
 
 import (
 	"store/app/data"
-	"store/app/domain"
 )
 
-func (b *Book) toDataObject() data.Book {
+func (b Book) toDataObject() data.Book {
 	return data.Book{
 		GoogleBookId:  b.GoogleBookId,
 		Title:         b.Title,
@@ -19,7 +18,7 @@ func (b *Book) toDataObject() data.Book {
 	}
 }
 
-func (Book) fromDomainObject(b domain.Book) Book {
+func (Book) fromDataObject(b data.Book) Book {
 	return Book{
 		GoogleBookId:  b.GoogleBookId,
 		Title:         b.Title,

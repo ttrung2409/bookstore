@@ -12,19 +12,16 @@ type Book struct {
 
 var bookRepository = module.Container.Get(utils.Nameof((*data.BookRepository)(nil))).(data.BookRepository)
 
-func (Book) CreateIfNotExist(book data.Book, transaction *data.Transaction) (*Book, error) {
+func (Book) CreateIfNotExist(book data.Book, transaction *data.Transaction) (data.BookId, error) {
 	id, err := bookRepository.CreateIfNotExist(book, transaction)
 
 	if err != nil {
-		return nil, err
+		return data.EmptyBookId, err
 	}
 
-	createdBook := &Book{book}
-	createdBook.Id = data.BookId(id.Value())
-
-	return createdBook, nil
+	return data.BookId(id.Value()), nil
 }
 
-func (book *Book) UpdateOnhandQty(qty int, transaction *data.Transaction) {
-	bookRepository.Update(book.Id, qty, transaction)
+func (book *Book) AdjustOnhandQty(qty int, transaction *data.Transaction) {
+	bookRepository.AdjustOnhandQty(book.Id, qty, transaction)
 }

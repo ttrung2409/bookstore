@@ -1,12 +1,12 @@
 package operation
 
-type receivingBook struct {
-	Book Book
-	Qty  int
+type ReceivingBook struct {
+	Book
+	Qty int
 }
 
 type ReceiveBooksRequest struct {
-	items []receivingBook
+	Items []ReceivingBook
 }
 
 type ReceiveBooks interface {

@@ -1,5 +1,5 @@
 package operation
 
-type FindBooks interface {
+type GoogleBookQuery interface {
 	Find(term string) ([]Book, error)
 }

@@ -1,15 +1,13 @@
 package operation
 
-import (
-	"store/app/domain"
-)
+import "store/app/data"
 
-func (Order) fromDomainObject(o domain.Order) Order {
+func (Order) fromDataObject(o data.Order) Order {
 	return Order{
 		Id:         o.Id.ToString(),
 		Number:     o.Number,
 		CreatedAt:  o.CreatedAt,
 		CustomerId: o.CustomerId.ToString(),
-		Status:     int(o.Status),
+		Status:     string(o.Status),
 	}
 }

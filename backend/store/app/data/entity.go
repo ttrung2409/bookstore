@@ -28,3 +28,7 @@ const EmptyEntityId EntityId = ""
 func NewEntityId() EntityId {
 	return EntityId(uuid.NewString())
 }
+
+func FromStringToEntityId(id string) EntityId {
+	return EntityId(id)
+}

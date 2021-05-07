@@ -11,7 +11,7 @@ type BookReceipt struct {
 
 type BookReceiptItem struct {
 	BookReceiptId EntityId
-	BookId        EntityId
+	BookId        BookId
 	Qty           int
 }
 
