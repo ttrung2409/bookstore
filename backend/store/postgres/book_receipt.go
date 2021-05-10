@@ -10,10 +10,10 @@ type bookReceiptItemRepository struct {
 	postgresRepository
 }
 
-var bookReceiptRepositoryInstance = bookRepository{postgresRepository{newEntity: func() interface{} {
+var bookReceiptRepositoryInstance = bookRepository{postgresRepository{newEntity: func() data.Entity {
 	return &data.BookReceipt{}
 }}}
 
-var bookReceiptItemRepositoryInstance = bookRepository{postgresRepository{newEntity: func() interface{} {
+var bookReceiptItemRepositoryInstance = bookRepository{postgresRepository{newEntity: func() data.Entity {
 	return &data.BookReceiptItem{}
 }}}

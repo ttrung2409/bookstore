@@ -21,8 +21,8 @@ type Book struct {
 	PreservedQty  int
 }
 
-func (b *Book) GetId() (EntityId, string) {
-	return b.Id, "id"
+func (b *Book) GetId() EntityId {
+	return b.Id
 }
 
 func (b *Book) SetId(id EntityId) {

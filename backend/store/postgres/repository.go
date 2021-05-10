@@ -12,17 +12,17 @@ import (
 )
 
 type postgresRepository struct {
-	newEntity func() interface{}
+	newEntity func() data.Entity
 }
 
 func (r *postgresRepository) Get(id data.EntityId) (interface{}, error) {
-	entity := r.newEntity().(data.Entity)
+	entity := r.newEntity()
 	key := getPrimaryKey(entity)
 	if key == "" {
 		return nil, errors.New("No primary key found")
 	}
 
-	if result := Db().Where(fmt.Sprintf("%s = ?", key)).Find(&entity); result.Error != nil {
+	if result := Db().Where(fmt.Sprintf("%s = ?", key)).Find(entity); result.Error != nil {
 		return nil, toDataQueryError(result.Error)
 	}
 
@@ -59,7 +59,8 @@ func (r *postgresRepository) Update(
 		db = tx.db
 	}
 
-	result := db.Model(r.newEntity()).Omit(clause.Associations).Updates(entity)
+	entity.SetId(id)
+	result := db.Model(entity).Omit(clause.Associations).Updates(entity)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -67,7 +68,7 @@ func (r *postgresRepository) Update(
 	return nil
 }
 
-func getPrimaryKey(entity interface{}) string {
+func getPrimaryKey(entity data.Entity) string {
 	entityType := reflect.TypeOf(entity).Elem()
 	for i := 0; i < entityType.NumField(); i++ {
 		field := entityType.Field(i)

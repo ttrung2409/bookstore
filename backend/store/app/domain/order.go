@@ -15,7 +15,12 @@ type Order struct {
 var orderRepository = module.Container().Get(utils.Nameof((*data.OrderRepository)(nil))).(data.OrderRepository)
 
 func (Order) Get(id data.EntityId) (*Order, error) {
-	result, err := orderRepository.Query(&data.Order{}).Include("Items").Where("id = ?", id).First()
+	result, err := orderRepository.
+		Query(&data.Order{}).
+		IncludeMany("Items").
+		Where("id = ?", id).
+		First()
+
 	if err != nil {
 		return nil, err
 	}
@@ -25,16 +30,16 @@ func (Order) Get(id data.EntityId) (*Order, error) {
 	return &Order{dataOrder}, nil
 }
 
-func (o *Order) Accept() error {
-	if o.Status != data.OrderStatusQueued && o.Status != data.OrderStatusStockFilled {
-		return errors.New(fmt.Sprintf("Order status '%s' is invalid for this operation", o.Status))
+func (order *Order) Accept() error {
+	if order.Status != data.OrderStatusQueued && order.Status != data.OrderStatusStockFilled {
+		return errors.New(fmt.Sprintf("Order status '%s' is invalid for this operation", order.Status))
 	}
 
 	tx := transactionFactory.New()
 
 	orderRepository.Update(
-		o.Id,
-		struct{ status data.OrderStatus }{status: data.OrderStatusAccepted},
+		order.Id,
+		&data.Order{Status: data.OrderStatusAccepted},
 		tx,
 	)
 

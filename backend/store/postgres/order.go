@@ -8,6 +8,6 @@ type orderRepository struct {
 	postgresRepository
 }
 
-var orderRepositoryInstance = orderRepository{postgresRepository{newEntity: func() interface{} {
+var orderRepositoryInstance = orderRepository{postgresRepository{newEntity: func() data.Entity {
 	return &data.Order{}
 }}}

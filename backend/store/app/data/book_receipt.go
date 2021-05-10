@@ -9,10 +9,27 @@ type BookReceipt struct {
 	UpdatedAt time.Time
 }
 
+func (r *BookReceipt) GetId() EntityId {
+	return r.Id
+}
+
+func (r *BookReceipt) SetId(id EntityId) {
+	r.Id = id
+}
+
 type BookReceiptItem struct {
-	BookReceiptId EntityId `gorm:"primaryKey"`
-	BookId        EntityId `gorm:"primaryKey"`
+	Id            EntityId `gorm:"primaryKey"`
+	BookReceiptId EntityId
+	BookId        EntityId
 	Qty           int
+}
+
+func (i *BookReceiptItem) GetId() EntityId {
+	return i.Id
+}
+
+func (i *BookReceiptItem) SetId(id EntityId) {
+	i.Id = id
 }
 
 type BookReceiptRepository interface {

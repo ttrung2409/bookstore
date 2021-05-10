@@ -37,7 +37,7 @@ func (BookReceipt) Create(
 		tx = transactionFactory.New()
 	}
 
-	_, err = bookReceiptRepository.Create(receipt, tx)
+	_, err = bookReceiptRepository.Create(&receipt, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (BookReceipt) Create(
 			Qty:           book.ReceivingQty,
 		}
 
-		_, err = bookReceiptItemRepository.Create(item, tx)
+		_, err = bookReceiptItemRepository.Create(&item, tx)
 		if err != nil {
 			return nil, err
 		}

@@ -48,6 +48,6 @@ func (r *bookRepository) AdjustOnhandQty(
 	return nil
 }
 
-var bookRepositoryInstance = bookRepository{postgresRepository{newEntity: func() interface{} {
+var bookRepositoryInstance = bookRepository{postgresRepository{newEntity: func() data.Entity {
 	return &data.Book{}
 }}}

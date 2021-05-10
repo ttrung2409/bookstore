@@ -22,6 +22,14 @@ type Order struct {
 	Items      []OrderItem `gorm:"foreignKey:OrderId"`
 }
 
+func (o *Order) GetId() EntityId {
+	return o.Id
+}
+
+func (o *Order) SetId(id EntityId) {
+	o.Id = id
+}
+
 type OrderItem struct {
 	OrderId EntityId `gorm:"primaryKey"`
 	BookId  EntityId `gorm:"primaryKey"`

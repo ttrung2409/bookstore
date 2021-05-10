@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	module "store"
 	data "store/app/data"
 	"store/utils"
@@ -24,5 +25,9 @@ func (Book) CreateIfNotExists(book data.Book, tx data.Transaction) (*Book, error
 }
 
 func (book *Book) AdjustOnhandQty(qty int, tx data.Transaction) error {
+	if book.OnhandQty+qty < 0 {
+		return errors.New("There is not enough stock")
+	}
+
 	return bookRepository.AdjustOnhandQty(book.Id, qty, tx)
 }

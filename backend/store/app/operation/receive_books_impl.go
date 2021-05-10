@@ -7,7 +7,7 @@ import (
 
 type receiveBooks struct{}
 
-func (r *receiveBooks) Receive(request ReceiveBooksRequest) error {
+func (*receiveBooks) Receive(request ReceiveBooksRequest) error {
 	var receivingItems []domain.ReceivingBook
 	for _, item := range request.Items {
 		receivingItems = append(
