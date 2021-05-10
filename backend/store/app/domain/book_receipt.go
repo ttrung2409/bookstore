@@ -13,31 +13,31 @@ type BookReceipt struct {
 
 type ReceivingBook struct {
 	data.Book
-	Qty int
+	ReceivingQty int
 }
 
-var bookReceiptRepository = module.Container.Get(utils.Nameof((*data.BookReceiptRepository)(nil))).(data.BookReceiptRepository)
+var bookReceiptRepository = module.Container().Get(utils.Nameof((*data.BookReceiptRepository)(nil))).(data.BookReceiptRepository)
 
-var bookReceiptItemRepository = module.Container.Get(utils.Nameof((*data.BookReceiptItemRepository)(nil))).(data.BookReceiptItemRepository)
+var bookReceiptItemRepository = module.Container().Get(utils.Nameof((*data.BookReceiptItemRepository)(nil))).(data.BookReceiptItemRepository)
 
-var transactionFactory = module.Container.Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
+var transactionFactory = module.Container().Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
 
 func (BookReceipt) Create(
 	books []ReceivingBook,
-	transaction *data.Transaction,
+	ambientTx data.Transaction,
 ) (*BookReceipt, error) {
 	receipt := data.BookReceipt{
-		Id:      data.NewEntityId(),
-		StoreId: data.StoreId(),
+		Id: data.NewEntityId(),
 	}
 
 	var err error
 
-	if transaction == nil {
-		transaction = transactionFactory.New()
+	tx := ambientTx
+	if tx == nil {
+		tx = transactionFactory.New()
 	}
 
-	_, err = bookReceiptRepository.Create(receipt, transaction)
+	_, err = bookReceiptRepository.Create(receipt, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,12 +46,12 @@ func (BookReceipt) Create(
 
 	for _, book := range books {
 		item := data.BookReceiptItem{
-			BookId:        book.Id,
 			BookReceiptId: receipt.Id,
-			Qty:           book.Qty,
+			BookId:        book.Id,
+			Qty:           book.ReceivingQty,
 		}
 
-		_, err = bookReceiptItemRepository.Create(item, transaction)
+		_, err = bookReceiptItemRepository.Create(item, tx)
 		if err != nil {
 			return nil, err
 		}
@@ -59,15 +59,13 @@ func (BookReceipt) Create(
 		items = append(items, item)
 	}
 
-	if transaction != nil {
-		return &BookReceipt{BookReceipt: receipt, Items: items}, nil
-	}
+	if ambientTx == nil {
+		err = tx.Commit()
+		if err != nil {
+			tx.Rollback()
 
-	err = (*transaction).Commit()
-	if err != nil {
-		(*transaction).Rollback()
-
-		return nil, err
+			return nil, err
+		}
 	}
 
 	return &BookReceipt{BookReceipt: receipt, Items: items}, nil

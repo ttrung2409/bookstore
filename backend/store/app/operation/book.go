@@ -7,7 +7,7 @@ type Book struct {
 	Description   string
 	Authors       []string
 	AverageRating float32
-	RatingsCount  int32
+	RatingsCount  int
 	ThumbnailUrl  string
 	PreviewUrl    string
 	OnhandQty     int

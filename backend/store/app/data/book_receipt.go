@@ -3,15 +3,15 @@ package data
 import "time"
 
 type BookReceipt struct {
-	Id        EntityId
-	StoreId   EntityId
-	Number    string
+	Id        EntityId `gorm:"primaryKey"`
+	Number    uint     `gorm:"autoIncrement"`
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type BookReceiptItem struct {
-	BookReceiptId EntityId
-	BookId        BookId
+	BookReceiptId EntityId `gorm:"primaryKey"`
+	BookId        EntityId `gorm:"primaryKey"`
 	Qty           int
 }
 

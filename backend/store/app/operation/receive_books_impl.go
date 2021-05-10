@@ -2,7 +2,7 @@ package operation
 
 import (
 	"store/app/domain"
-	transaction "store/app/domain/transaction"
+	tx "store/app/domain/transaction"
 )
 
 type receiveBooks struct{}
@@ -12,11 +12,11 @@ func (r *receiveBooks) Receive(request ReceiveBooksRequest) error {
 	for _, item := range request.Items {
 		receivingItems = append(
 			receivingItems,
-			domain.ReceivingBook{Book: item.Book.toDataObject(), Qty: item.Qty},
+			domain.ReceivingBook{Book: item.Book.toDataObject(), ReceivingQty: item.Qty},
 		)
 	}
 
-	_, err := transaction.ReceiveBooks(receivingItems)
+	_, err := tx.ReceiveBooks(receivingItems)
 
 	return err
 }

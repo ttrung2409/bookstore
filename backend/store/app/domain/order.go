@@ -10,27 +10,19 @@ import (
 
 type Order struct {
 	data.Order
-	Items []data.OrderItem
 }
 
-var orderRepository = module.Container.Get(utils.Nameof((*data.OrderRepository)(nil))).(data.OrderRepository)
-
-var orderItemRepository = module.Container.Get(utils.Nameof((*data.OrderItemRepository)(nil))).(data.OrderItemRepository)
+var orderRepository = module.Container().Get(utils.Nameof((*data.OrderRepository)(nil))).(data.OrderRepository)
 
 func (Order) Get(id data.EntityId) (*Order, error) {
-	dataOrder, err := orderRepository.Get(id)
+	result, err := orderRepository.Query(&data.Order{}).Include("Items").Where("id = ?", id).First()
 	if err != nil {
 		return nil, err
 	}
 
-	dataOrder, ok := dataOrder.(data.Order)
-	if !ok {
-		return nil, nil
-	}
+	dataOrder := result.(data.Order)
 
-	items, err := orderItemRepository.GetByOrderId(id)
-
-	return &Order{dataOrder, Items: items}, nil
+	return &Order{dataOrder}, nil
 }
 
 func (o *Order) Accept() error {
@@ -38,18 +30,18 @@ func (o *Order) Accept() error {
 		return errors.New(fmt.Sprintf("Order status '%s' is invalid for this operation", o.Status))
 	}
 
-	transaction := transactionFactory.New()
+	tx := transactionFactory.New()
 
 	orderRepository.Update(
 		o.Id,
 		struct{ status data.OrderStatus }{status: data.OrderStatusAccepted},
-		transaction,
+		tx,
 	)
 
-	err := (*transaction).Commit()
+	err := tx.Commit()
 
 	if err != nil {
-		(*transaction).Rollback()
+		tx.Rollback()
 
 		return err
 	}

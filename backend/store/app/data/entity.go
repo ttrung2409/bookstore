@@ -4,23 +4,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type Identifier interface {
-	Value() EntityId
-	ToMap() map[string]interface{}
+type Entity interface {
+	GetId() EntityId
+	SetId(id EntityId)
 }
 
 type EntityId string
 
-func (id EntityId) Value() EntityId {
-	return (EntityId)(id)
-}
-
-func (id EntityId) ToMap() map[string]interface{} {
-	return map[string]interface{}{"id": id}
-}
-
 func (id EntityId) ToString() string {
-	return (string)(id)
+	return string(id)
 }
 
 const EmptyEntityId EntityId = ""

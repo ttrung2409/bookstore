@@ -14,7 +14,7 @@ func BookRoutes(r *gin.Engine) {
 	r.GET("/", controller.find())
 }
 
-var googleBookQuery = module.Container.Get(utils.Nameof((*op.GoogleBookQuery)(nil))).(op.GoogleBookQuery)
+var googleBookQuery = module.Container().Get(utils.Nameof((*op.GoogleBookQuery)(nil))).(op.GoogleBookQuery)
 
 type bookController struct{}
 

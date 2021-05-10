@@ -2,12 +2,25 @@ package operation
 
 import "store/app/data"
 
-func (Order) fromDataObject(o data.Order) Order {
+func (Order) fromDataObject(order data.Order) Order {
+	items := []OrderItem{}
+	for _, dataItem := range order.Items {
+		items = append(items, OrderItem{}.fromDataObject(dataItem))
+	}
+
 	return Order{
-		Id:         o.Id.ToString(),
-		Number:     o.Number,
-		CreatedAt:  o.CreatedAt,
-		CustomerId: o.CustomerId.ToString(),
-		Status:     string(o.Status),
+		Id:         order.Id.ToString(),
+		Number:     order.Number,
+		CreatedAt:  order.CreatedAt,
+		CustomerId: order.CustomerId.ToString(),
+		Status:     string(order.Status),
+		Items:      items,
+	}
+}
+
+func (OrderItem) fromDataObject(item data.OrderItem) OrderItem {
+	return OrderItem{
+		Book: Book{}.fromDataObject(item.Book),
+		Qty:  item.Qty,
 	}
 }

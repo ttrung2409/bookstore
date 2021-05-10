@@ -7,29 +7,37 @@ import (
 	"store/utils"
 )
 
-var transactionFactory = module.Container.Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
+var transactionFactory = module.Container().Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
 
-func ReceiveBooks(items []domain.ReceivingBook) (*domain.BookReceipt, error) {
-	transaction := transactionFactory.New()
-
+func ReceiveBooks(books []domain.ReceivingBook) (*domain.BookReceipt, error) {
+	tx := transactionFactory.New()
 	var err error
 
-	for _, item := range items {
-		_, err := domain.Book{}.CreateIfNotExist(item.Book, transaction)
+	defer func() {
 		if err != nil {
-			break
+			tx.Rollback()
+		}
+	}()
+
+	for _, receivingBook := range books {
+		book, err := domain.Book{}.CreateIfNotExists(receivingBook.Book, tx)
+		if err != nil {
+			return nil, err
 		}
 
-		book.AdjustOnhandQty(item.Qty, transaction)
+		err = book.AdjustOnhandQty(receivingBook.ReceivingQty, tx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	receipt, err := domain.BookReceipt{}.Create(items, transaction)
-
-	err = (*transaction).Commit()
-
+	receipt, err := domain.BookReceipt{}.Create(books, tx)
 	if err != nil {
-		(*transaction).Rollback()
+		return nil, err
+	}
 
+	err = tx.Commit()
+	if err != nil {
 		return nil, err
 	}
 

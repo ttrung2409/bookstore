@@ -2,9 +2,9 @@ package data
 
 type Transaction interface {
 	Commit() error
-	Rollback()
+	Rollback() error
 }
 
 type TransactionFactory interface {
-	New() *Transaction
+	New() Transaction
 }

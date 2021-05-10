@@ -17,8 +17,8 @@ func OrderRoutes(r *gin.Engine) {
 	r.PUT("/:id/accept", controller.accept())
 }
 
-var orderQuery = module.Container.Get(utils.Nameof((*op.OrderQuery)(nil))).(op.OrderQuery)
-var acceptOrder = module.Container.Get(utils.Nameof((*op.AcceptOrder)(nil))).(op.AcceptOrder)
+var orderQuery = module.Container().Get(utils.Nameof((*op.OrderQuery)(nil))).(op.OrderQuery)
+var acceptOrder = module.Container().Get(utils.Nameof((*op.AcceptOrder)(nil))).(op.AcceptOrder)
 
 type orderController struct{}
 

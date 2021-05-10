@@ -10,9 +10,10 @@ type Order struct {
 	CreatedAt  time.Time
 	CustomerId string
 	Status     string
-	Items []
+	Items      []OrderItem
 }
 
 type OrderItem struct {
-	
+	Book Book
+	Qty  int
 }

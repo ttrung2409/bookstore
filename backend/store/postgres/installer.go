@@ -1,15 +1,16 @@
-package cassandra
+package postgres
 
 import (
 	"store/app/data"
 	"store/utils"
 
-	"github.com/gocql/gocql"
 	"github.com/sarulabs/di"
-	"github.com/scylladb/gocqlx/v2"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
-var session *gocqlx.Session
+var db *gorm.DB
 
 func Install(builder *di.Builder) {
 	builder.Add([]di.Def{
@@ -23,6 +24,12 @@ func Install(builder *di.Builder) {
 			Name: utils.Nameof((*data.BookReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return bookReceiptRepositoryInstance, nil
+			},
+		},
+		{
+			Name: utils.Nameof((*data.BookReceiptItemRepository)(nil)),
+			Build: func(ctn di.Container) (interface{}, error) {
+				return bookReceiptItemRepositoryInstance, nil
 			},
 		},
 		{
@@ -40,21 +47,28 @@ func Install(builder *di.Builder) {
 	}...)
 }
 
-func Connect() *gocqlx.Session {
-	if session != nil {
-		return session
+func Db() *gorm.DB {
+	if db == nil {
+		db = connect()
 	}
 
-	cluster := gocql.NewCluster("localhost:9042")
-	cluster.Keyspace = "bookstore"
+	return db
+}
 
-	sessionValue, err := gocqlx.WrapSession(cluster.CreateSession())
+func connect() *gorm.DB {
+	dsn := "host=localhost user=postgres password=admin dbname=bookstore port=5432"
+	db, err := gorm.Open(
+		postgres.Open(dsn),
+		&gorm.Config{
+			SkipDefaultTransaction: true,
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			}},
+	)
 
 	if err != nil {
 		panic(err)
 	}
 
-	session = &sessionValue
-
-	return session
+	return db
 }

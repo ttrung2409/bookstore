@@ -14,7 +14,7 @@ func BookReceiptRoutes(r *gin.Engine) {
 	r.POST("/", controller.create())
 }
 
-var receiveBook = module.Container.Get(utils.Nameof((*op.ReceiveBooks)(nil))).(op.ReceiveBooks)
+var receiveBook = module.Container().Get(utils.Nameof((*op.ReceiveBooks)(nil))).(op.ReceiveBooks)
 
 type bookReceiptController struct{}
 
