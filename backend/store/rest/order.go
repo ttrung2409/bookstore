@@ -39,7 +39,7 @@ func (c *orderController) find() gin.HandlerFunc {
 
 func (c *orderController) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		order, err := orderQuery.Get(c.Query("id"))
+		order, err := orderQuery.GetWithItems(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return

@@ -11,13 +11,14 @@ var orderRepository = module.Container().Get(utils.Nameof((*data.OrderRepository
 type orderQuery struct{}
 
 func (Order) FindByStatus(statuses []string) ([]Order, error) {
-	dataOrders, err := orderRepository.FindByStatus(statuses)
+	records, err := orderRepository.Query(&data.Order{}).Where("status IN ?", statuses).Find()
 	if err != nil {
 		return nil, err
 	}
 
 	var orders []Order
-	for _, dataOrder := range dataOrders {
+	for _, record := range records {
+		dataOrder := record.(data.Order)
 		orders = append(orders, Order{}.fromDataObject(dataOrder))
 	}
 
@@ -28,7 +29,7 @@ func (s *orderQuery) GetWithItems(id string) (*Order, error) {
 	orderId := data.FromStringToEntityId(id)
 	result, err := orderRepository.
 		Query(&data.Order{}).
-		Include("Items").
+		IncludeMany("Items").
 		ThenInclude("Book").
 		Where("id = ?", orderId).
 		First()

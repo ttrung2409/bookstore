@@ -16,29 +16,29 @@ func newQuery(entityType interface{}) *query {
 	return &query{db: Db().Model(entityType), includeChain: ""}
 }
 
-func (q *query) Select(columns ...string) *query {
-	q.db = q.db.Select(columns)
+func (q *query) Select(fields ...string) *query {
+	q.db = q.db.Select(fields)
 	return q
 }
 
-func (q *query) Include(relation string) *query {
+func (q *query) Include(ref string) *query {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
-		q.includeChain = relation
+		q.includeChain = ref
 	}
 
-	q.db = q.db.Joins(relation)
+	q.db = q.db.Joins(ref)
 
 	return q
 }
 
-func (q *query) IncludeArray(relation string) *query {
+func (q *query) IncludeMany(ref string) *query {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
-		q.includeChain = relation
+		q.includeChain = ref
 	}
 
-	q.db = q.db.Preload(relation)
+	q.db = q.db.Preload(ref)
 
 	return q
 }
@@ -53,13 +53,13 @@ func (q *query) Where(condition string, args ...interface{}) *query {
 	return q
 }
 
-func (q *query) OrderBy(column string) *query {
-	q.db = q.db.Order(fmt.Sprintf("%s asc", column))
+func (q *query) OrderBy(field string) *query {
+	q.db = q.db.Order(fmt.Sprintf("%s asc", field))
 	return q
 }
 
-func (q *query) OrderByDesc(column string) *query {
-	q.db = q.db.Order(fmt.Sprintf("%s desc", column))
+func (q *query) OrderByDesc(field string) *query {
+	q.db = q.db.Order(fmt.Sprintf("%s desc", field))
 	return q
 }
 
