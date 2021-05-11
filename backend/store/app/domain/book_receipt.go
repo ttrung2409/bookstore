@@ -1,9 +1,7 @@
 package domain
 
 import (
-	module "store"
 	data "store/app/data"
-	"store/utils"
 )
 
 type BookReceipt struct {
@@ -15,12 +13,6 @@ type ReceivingBook struct {
 	data.Book
 	ReceivingQty int
 }
-
-var bookReceiptRepository = module.Container().Get(utils.Nameof((*data.BookReceiptRepository)(nil))).(data.BookReceiptRepository)
-
-var bookReceiptItemRepository = module.Container().Get(utils.Nameof((*data.BookReceiptItemRepository)(nil))).(data.BookReceiptItemRepository)
-
-var transactionFactory = module.Container().Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
 
 func (BookReceipt) Create(
 	books []ReceivingBook,
@@ -34,10 +26,10 @@ func (BookReceipt) Create(
 
 	tx := ambientTx
 	if tx == nil {
-		tx = transactionFactory.New()
+		tx = TransactionFactory.New()
 	}
 
-	_, err = bookReceiptRepository.Create(&receipt, tx)
+	_, err = BookReceiptRepository.Create(&receipt, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,12 +38,13 @@ func (BookReceipt) Create(
 
 	for _, book := range books {
 		item := data.BookReceiptItem{
+			Id:            data.NewEntityId(),
 			BookReceiptId: receipt.Id,
 			BookId:        book.Id,
 			Qty:           book.ReceivingQty,
 		}
 
-		_, err = bookReceiptItemRepository.Create(&item, tx)
+		_, err = BookReceiptItemRepository.Create(&item, tx)
 		if err != nil {
 			return nil, err
 		}

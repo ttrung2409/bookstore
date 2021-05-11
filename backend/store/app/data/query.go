@@ -1,7 +1,7 @@
 package data
 
 type Query interface {
-	Select(fields ...string)
+	Select(fields ...string) Query
 	Include(ref string) Query
 	IncludeMany(ref string) Query
 	ThenInclude(ref string) Query

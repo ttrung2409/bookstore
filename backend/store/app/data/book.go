@@ -31,6 +31,6 @@ func (b *Book) SetId(id EntityId) {
 
 type BookRepository interface {
 	repositoryBase
-	CreateIfNotExists(book Book, tx Transaction) (EntityId, error)
+	CreateIfNotExists(book *Book, tx Transaction) (EntityId, error)
 	AdjustOnhandQty(id EntityId, qty int, tx Transaction) error
 }

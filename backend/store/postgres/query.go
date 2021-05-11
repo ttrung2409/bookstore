@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"store/app/data"
 	"strings"
 
 	"gorm.io/gorm"
@@ -12,16 +13,21 @@ type query struct {
 	includeChain string
 }
 
-func newQuery(entityType interface{}) *query {
-	return &query{db: Db().Model(entityType), includeChain: ""}
+func newQuery(entityType interface{}, tx data.Transaction) data.Query {
+	db := Db()
+	if tx != nil {
+		db = tx.(*transaction).db
+	}
+
+	return &query{db: db.Model(entityType), includeChain: ""}
 }
 
-func (q *query) Select(fields ...string) *query {
+func (q *query) Select(fields ...string) data.Query {
 	q.db = q.db.Select(fields)
 	return q
 }
 
-func (q *query) Include(ref string) *query {
+func (q *query) Include(ref string) data.Query {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 		q.includeChain = ref
@@ -32,7 +38,7 @@ func (q *query) Include(ref string) *query {
 	return q
 }
 
-func (q *query) IncludeMany(ref string) *query {
+func (q *query) IncludeMany(ref string) data.Query {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 		q.includeChain = ref
@@ -43,22 +49,22 @@ func (q *query) IncludeMany(ref string) *query {
 	return q
 }
 
-func (q *query) ThenInclude(relation string) *query {
+func (q *query) ThenInclude(relation string) data.Query {
 	q.includeChain = fmt.Sprintf("%s.%s", q.includeChain, relation)
 	return q
 }
 
-func (q *query) Where(condition string, args ...interface{}) *query {
+func (q *query) Where(condition string, args ...interface{}) data.Query {
 	q.db = q.db.Where(condition, args)
 	return q
 }
 
-func (q *query) OrderBy(field string) *query {
+func (q *query) OrderBy(field string) data.Query {
 	q.db = q.db.Order(fmt.Sprintf("%s asc", field))
 	return q
 }
 
-func (q *query) OrderByDesc(field string) *query {
+func (q *query) OrderByDesc(field string) data.Query {
 	q.db = q.db.Order(fmt.Sprintf("%s desc", field))
 	return q
 }

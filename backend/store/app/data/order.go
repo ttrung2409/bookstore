@@ -31,9 +31,10 @@ func (o *Order) SetId(id EntityId) {
 }
 
 type OrderItem struct {
-	OrderId EntityId `gorm:"primaryKey"`
-	BookId  EntityId `gorm:"primaryKey"`
-	Book    Book     `gorm:"foreignKey:Id"`
+	Id      EntityId `gorm:"primaryKey"`
+	OrderId EntityId
+	BookId  EntityId
+	Book    Book `gorm:"foreignKey:Id"`
 	Qty     int
 }
 

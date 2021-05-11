@@ -1,16 +1,12 @@
 package domain
 
 import (
-	module "store"
-	data "store/app/data"
+	"store/app/data"
 	"store/app/domain"
-	"store/utils"
 )
 
-var transactionFactory = module.Container().Get(utils.Nameof((*data.TransactionFactory)(nil))).(data.TransactionFactory)
-
-func ReceiveBooks(books []domain.ReceivingBook) (*domain.BookReceipt, error) {
-	tx := transactionFactory.New()
+func ReceiveBooks(receivingBooks []domain.ReceivingBook) (*domain.BookReceipt, error) {
+	tx := domain.TransactionFactory.New()
 	var err error
 
 	defer func() {
@@ -19,8 +15,21 @@ func ReceiveBooks(books []domain.ReceivingBook) (*domain.BookReceipt, error) {
 		}
 	}()
 
-	for _, receivingBook := range books {
-		book, err := domain.Book{}.CreateIfNotExists(receivingBook.Book, tx)
+	// create book receipt
+	receipt, err := domain.BookReceipt{}.Create(receivingBooks, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	// increase onhand qty of receiving books
+	stock := data.Stock{}
+	for _, receivingBook := range receivingBooks {
+		id, err := domain.Book{}.CreateIfNotExists(receivingBook.Book, tx)
+		if err != nil {
+			return nil, err
+		}
+
+		book, err := domain.Book{}.Get(id, tx)
 		if err != nil {
 			return nil, err
 		}
@@ -29,11 +38,21 @@ func ReceiveBooks(books []domain.ReceivingBook) (*domain.BookReceipt, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		stock[id] = data.StockItem{
+			BookId:       book.Id,
+			OnhandQty:    book.OnhandQty + receivingBook.ReceivingQty,
+			PreservedQty: book.PreservedQty,
+		}
 	}
 
-	receipt, err := domain.BookReceipt{}.Create(books, tx)
-	if err != nil {
-		return nil, err
+	// Update order status to StockFilled for any orders
+	// that can be fulfilled by the new stock
+	orders, err := domain.Order{}.GetReceivingOrders(tx)
+	if err == nil {
+		for _, order := range orders {
+			stock, err = order.TryUpdateToStockFilled(stock, tx)
+		}
 	}
 
 	err = tx.Commit()

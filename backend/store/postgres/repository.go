@@ -15,31 +15,36 @@ type postgresRepository struct {
 	newEntity func() data.Entity
 }
 
-func (r *postgresRepository) Get(id data.EntityId) (interface{}, error) {
+func (r *postgresRepository) Get(id data.EntityId, tx data.Transaction) (interface{}, error) {
+	db := Db()
+	if tx != nil {
+		db = tx.(*transaction).db
+	}
+
 	entity := r.newEntity()
 	key := getPrimaryKey(entity)
 	if key == "" {
 		return nil, errors.New("No primary key found")
 	}
 
-	if result := Db().Where(fmt.Sprintf("%s = ?", key)).Find(entity); result.Error != nil {
+	if result := db.Where(fmt.Sprintf("%s = ?", key)).Find(entity); result.Error != nil {
 		return nil, toDataQueryError(result.Error)
 	}
 
 	return entity, nil
 }
 
-func (r *postgresRepository) Query(entityType interface{}) *query {
-	return newQuery(entityType)
+func (r *postgresRepository) Query(entityType interface{}, tx data.Transaction) data.Query {
+	return newQuery(entityType, tx)
 }
 
 func (r *postgresRepository) Create(
 	entity data.Entity,
-	tx *transaction,
+	tx data.Transaction,
 ) (data.EntityId, error) {
 	db := Db()
 	if tx != nil {
-		db = tx.db
+		db = tx.(*transaction).db
 	}
 
 	if result := db.Omit(clause.Associations).Create(entity); result.Error != nil {
@@ -52,11 +57,11 @@ func (r *postgresRepository) Create(
 func (r *postgresRepository) Update(
 	id data.EntityId,
 	entity data.Entity,
-	tx *transaction,
+	tx data.Transaction,
 ) error {
 	db := Db()
 	if tx != nil {
-		db = tx.db
+		db = tx.(*transaction).db
 	}
 
 	entity.SetId(id)

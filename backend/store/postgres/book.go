@@ -11,15 +11,15 @@ type bookRepository struct {
 }
 
 func (r *bookRepository) CreateIfNotExist(
-	book data.Book,
-	tx *transaction,
+	book *data.Book,
+	tx data.Transaction,
 ) (data.EntityId, error) {
 	db := Db()
-	if tx.db != nil {
-		db = tx.db
+	if tx != nil {
+		db = tx.(*transaction).db
 	}
 
-	if result := db.Where("google_book_id = ?", book.GoogleBookId).FirstOrCreate(&book); result.Error != nil {
+	if result := db.Where("google_book_id = ?", book.GoogleBookId).FirstOrCreate(book); result.Error != nil {
 		return data.EmptyEntityId, result.Error
 	}
 
@@ -29,11 +29,11 @@ func (r *bookRepository) CreateIfNotExist(
 func (r *bookRepository) AdjustOnhandQty(
 	id data.EntityId,
 	qty int,
-	tx *transaction,
+	tx data.Transaction,
 ) error {
 	db := Db()
 	if tx != nil {
-		db = tx.db
+		db = tx.(*transaction).db
 	}
 
 	result := db.

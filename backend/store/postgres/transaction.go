@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"store/app/data"
+
 	"gorm.io/gorm"
 )
 
@@ -10,7 +12,7 @@ type transaction struct {
 
 type transactionFactory struct{}
 
-func (f *transactionFactory) New() *transaction {
+func (f *transactionFactory) New() data.Transaction {
 	var tx *gorm.DB
 	if tx := Db().Begin(); tx.Error != nil {
 		return nil

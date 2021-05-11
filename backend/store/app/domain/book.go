@@ -2,26 +2,31 @@ package domain
 
 import (
 	"errors"
-	module "store"
 	data "store/app/data"
-	"store/utils"
 )
 
 type Book struct {
 	data.Book
 }
 
-var bookRepository = module.Container().Get(utils.Nameof((*data.BookRepository)(nil))).(data.BookRepository)
-
-func (Book) CreateIfNotExists(book data.Book, tx data.Transaction) (*Book, error) {
-	book.Id = data.NewEntityId()
-	_, err := bookRepository.CreateIfNotExists(book, tx)
-
+func (Book) Get(id data.EntityId, tx data.Transaction) (*Book, error) {
+	record, err := BookRepository.Get(id, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Book{book}, nil
+	return &Book{record.(data.Book)}, nil
+}
+
+func (Book) CreateIfNotExists(book data.Book, tx data.Transaction) (data.EntityId, error) {
+	book.Id = data.NewEntityId()
+	id, err := BookRepository.CreateIfNotExists(&book, tx)
+
+	if err != nil {
+		return data.EmptyEntityId, err
+	}
+
+	return id, nil
 }
 
 func (book *Book) AdjustOnhandQty(qty int, tx data.Transaction) error {
@@ -29,5 +34,5 @@ func (book *Book) AdjustOnhandQty(qty int, tx data.Transaction) error {
 		return errors.New("There is not enough stock")
 	}
 
-	return bookRepository.AdjustOnhandQty(book.Id, qty, tx)
+	return BookRepository.AdjustOnhandQty(book.Id, qty, tx)
 }
