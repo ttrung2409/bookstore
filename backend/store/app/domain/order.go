@@ -65,9 +65,9 @@ func (order *Order) Accept(tx data.Transaction) error {
 }
 
 func (order *Order) TryUpdateToStockFilled(
-	stock data.Stock,
+	stock Stock,
 	tx data.Transaction,
-) (data.Stock, error) {
+) (Stock, error) {
 	if order.Status != data.OrderStatusReceiving {
 		return stock, errors.New(
 			fmt.Sprintf("Order status '%s' is invalid for StockFilled", order.Status),

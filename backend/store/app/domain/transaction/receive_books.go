@@ -22,7 +22,7 @@ func ReceiveBooks(receivingBooks []domain.ReceivingBook) (*domain.BookReceipt, e
 	}
 
 	// increase onhand qty of receiving books
-	stock := data.Stock{}
+	stock := domain.Stock{}
 	for _, receivingBook := range receivingBooks {
 		id, err := domain.Book{}.CreateIfNotExists(receivingBook.Book, tx)
 		if err != nil {
