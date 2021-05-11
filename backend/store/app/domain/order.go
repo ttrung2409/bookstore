@@ -75,7 +75,7 @@ func (order *Order) TryUpdateToStockFilled(
 	}
 
 	if !stock.Enough(order.Items) {
-		return stock, nil
+		return stock, errors.New("Not enough stock")
 	}
 
 	err := OrderRepository.Update(

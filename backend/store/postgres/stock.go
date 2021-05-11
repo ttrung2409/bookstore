@@ -28,6 +28,12 @@ func (r *stockRepository) GetByOrderItems(
 	stock := data.Stock{}
 	for _, record := range records {
 		book := record.(data.Book)
-		stock[book.Id] = 
+		stock[book.Id] = data.StockItem{
+			BookId:       book.Id,
+			OnhandQty:    book.OnhandQty,
+			PreservedQty: book.PreservedQty,
+		}
 	}
+
+	return stock, nil
 }
