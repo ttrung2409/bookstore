@@ -10,7 +10,7 @@ var orderRepository = module.Container().Get(utils.Nameof((*data.OrderRepository
 
 type orderQuery struct{}
 
-func (Order) FindByStatus(statuses []string) ([]Order, error) {
+func (*orderQuery) FindByStatus(statuses []string) ([]Order, error) {
 	records, err := orderRepository.Query(&data.Order{}, nil).Where("status IN ?", statuses).Find()
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (Order) FindByStatus(statuses []string) ([]Order, error) {
 	return orders, nil
 }
 
-func (s *orderQuery) GetWithItems(id string) (*Order, error) {
+func (*orderQuery) GetWithItems(id string) (*Order, error) {
 	orderId := data.FromStringToEntityId(id)
 	result, err := orderRepository.
 		Query(&data.Order{}, nil).
