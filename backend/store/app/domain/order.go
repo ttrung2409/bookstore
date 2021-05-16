@@ -51,7 +51,7 @@ func (order *Order) Accept(tx data.Transaction) error {
 		return errors.New(fmt.Sprintf("Order status '%s' is invalid for accepting", order.Status))
 	}
 
-	_, err := RunInTransaction(func(tx data.Transaction) (interface{}, error) {
+	_, err := TransactionFactory.RunInTransaction(func(tx data.Transaction) (interface{}, error) {
 		err := OrderRepository.Update(
 			order.Id,
 			&data.Order{Status: data.OrderStatusAccepted},
@@ -88,7 +88,7 @@ func (order *Order) PlaceAsBackOrder(tx data.Transaction) error {
 		)
 	}
 
-	_, err := RunInTransaction(func(tx data.Transaction) (interface{}, error) {
+	_, err := TransactionFactory.RunInTransaction(func(tx data.Transaction) (interface{}, error) {
 		err := OrderRepository.Update(order.Id, &data.Order{Status: data.OrderStatusReceiving}, tx)
 		if err != nil {
 			return nil, err
@@ -127,31 +127,34 @@ func (order *Order) TryUpdateToStockFilled(
 		return stock, errors.New("Not enough stock")
 	}
 
-	adjustedStock, err := RunInTransaction(func(tx data.Transaction) (interface{}, error) {
-		err := OrderRepository.Update(
-			order.Id,
-			&data.Order{Status: data.OrderStatusStockFilled},
-			tx,
-		)
+	adjustedStock, err := TransactionFactory.RunInTransaction(
+		func(tx data.Transaction) (interface{}, error) {
+			err := OrderRepository.Update(
+				order.Id,
+				&data.Order{Status: data.OrderStatusStockFilled},
+				tx,
+			)
 
-		for _, item := range order.Items {
-			book, subErr := Book{}.Get(item.BookId, tx)
-			if err = subErr; err != nil {
+			for _, item := range order.Items {
+				book, subErr := Book{}.Get(item.BookId, tx)
+				if err = subErr; err != nil {
+					return stock, err
+				}
+
+				subErr = book.AdjustPreservedQty(-item.Qty, tx)
+				if err = subErr; err != nil {
+					return stock, err
+				}
+			}
+
+			if err != nil {
 				return stock, err
 			}
 
-			subErr = book.AdjustPreservedQty(-item.Qty, tx)
-			if err = subErr; err != nil {
-				return stock, err
-			}
-		}
-
-		if err != nil {
-			return stock, err
-		}
-
-		return stock.Issue(order.Items), nil
-	}, tx)
+			return stock.Issue(order.Items), nil
+		},
+		tx,
+	)
 
 	return adjustedStock.(Stock), err
 }
