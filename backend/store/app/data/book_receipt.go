@@ -7,6 +7,7 @@ type BookReceipt struct {
 	Number    uint     `gorm:"autoIncrement"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Items     []BookReceiptItem
 }
 
 func (r *BookReceipt) GetId() EntityId {

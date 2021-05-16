@@ -15,10 +15,11 @@ func OrderRoutes(r *gin.Engine) {
 	r.GET("/", controller.find())
 	r.GET("/:id", controller.get())
 	r.PUT("/:id/accept", controller.accept())
+	r.PUT("/:id/place-as-back-order", controller.placeAsBackOrder())
 }
 
 var orderQuery = module.Container().Get(utils.Nameof((*op.OrderQuery)(nil))).(op.OrderQuery)
-var acceptOrder = module.Container().Get(utils.Nameof((*op.AcceptOrder)(nil))).(op.AcceptOrder)
+var orderCommand = module.Container().Get(utils.Nameof((*op.OrderCommand)(nil))).(op.OrderCommand)
 
 type orderController struct{}
 
@@ -51,7 +52,19 @@ func (c *orderController) get() gin.HandlerFunc {
 
 func (c *orderController) accept() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := acceptOrder.Accept(c.Query("id"))
+		err := orderCommand.Accept(c.Query("id"))
+		if err != nil {
+			c.JSON(getHttpStatusByError(err), err)
+			return
+		}
+
+		c.JSON(http.StatusNoContent, nil)
+	}
+}
+
+func (c *orderController) placeAsBackOrder() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		err := orderCommand.PlaceAsBackOrder(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return

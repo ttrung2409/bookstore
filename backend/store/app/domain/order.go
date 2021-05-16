@@ -51,17 +51,66 @@ func (order *Order) Accept(tx data.Transaction) error {
 		return errors.New(fmt.Sprintf("Order status '%s' is invalid for accepting", order.Status))
 	}
 
-	err := OrderRepository.Update(
-		order.Id,
-		&data.Order{Status: data.OrderStatusAccepted},
-		tx,
-	)
+	_, err := RunInTransaction(func(tx data.Transaction) (interface{}, error) {
+		err := OrderRepository.Update(
+			order.Id,
+			&data.Order{Status: data.OrderStatusAccepted},
+			tx,
+		)
 
-	if err != nil {
-		return err
+		if err != nil {
+			return nil, err
+		}
+
+		// decrease on-hand qty of books associated with the order items
+		for _, item := range order.Items {
+			book, subErr := Book{}.Get(item.BookId, tx)
+			if err = subErr; err != nil {
+				return nil, err
+			}
+
+			subErr = book.AdjustOnhandQty(-item.Qty, tx)
+			if err = subErr; err != nil {
+				return nil, err
+			}
+		}
+
+		return nil, nil
+	}, tx)
+
+	return err
+}
+
+func (order *Order) PlaceAsBackOrder(tx data.Transaction) error {
+	if order.Status != data.OrderStatusQueued {
+		return errors.New(
+			fmt.Sprintf("Order status '%s' is invalid to be placed as backorder", order.Status),
+		)
 	}
 
-	return nil
+	_, err := RunInTransaction(func(tx data.Transaction) (interface{}, error) {
+		err := OrderRepository.Update(order.Id, &data.Order{Status: data.OrderStatusReceiving}, tx)
+		if err != nil {
+			return nil, err
+		}
+
+		// increase preserved qty of books associated with the order items
+		for _, item := range order.Items {
+			book, subErr := Book{}.Get(item.BookId, tx)
+			if err = subErr; err != nil {
+				return nil, err
+			}
+
+			subErr = book.AdjustPreservedQty(item.Qty, tx)
+			if err = subErr; err != nil {
+				return nil, err
+			}
+		}
+
+		return nil, nil
+	}, tx)
+
+	return err
 }
 
 func (order *Order) TryUpdateToStockFilled(
@@ -78,15 +127,44 @@ func (order *Order) TryUpdateToStockFilled(
 		return stock, errors.New("Not enough stock")
 	}
 
-	err := OrderRepository.Update(
-		order.Id,
-		&data.Order{Status: data.OrderStatusStockFilled},
-		tx,
-	)
+	adjustedStock, err := RunInTransaction(func(tx data.Transaction) (interface{}, error) {
+		err := OrderRepository.Update(
+			order.Id,
+			&data.Order{Status: data.OrderStatusStockFilled},
+			tx,
+		)
 
-	if err != nil {
-		return stock, err
+		for _, item := range order.Items {
+			book, subErr := Book{}.Get(item.BookId, tx)
+			if err = subErr; err != nil {
+				return stock, err
+			}
+
+			subErr = book.AdjustPreservedQty(-item.Qty, tx)
+			if err = subErr; err != nil {
+				return stock, err
+			}
+		}
+
+		if err != nil {
+			return stock, err
+		}
+
+		return stock.Issue(order.Items), nil
+	}, tx)
+
+	return adjustedStock.(Stock), err
+}
+
+func (order *Order) Reject(tx data.Transaction) error {
+	if order.Status != data.OrderStatusQueued && order.Status != data.OrderStatusStockFilled {
+		return errors.New(fmt.Sprintf("Order status '%s' is invalid for rejecting", order.Status))
 	}
 
-	return stock.Issue(order.Items), nil
+	err := OrderRepository.Update(order.Id, &data.Order{Status: data.OrderStatusRejected}, tx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

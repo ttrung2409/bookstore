@@ -36,3 +36,7 @@ func (book *Book) AdjustOnhandQty(qty int, tx data.Transaction) error {
 
 	return BookRepository.AdjustOnhandQty(book.Id, qty, tx)
 }
+
+func (book *Book) AdjustPreservedQty(qty int, tx data.Transaction) error {
+	return BookRepository.AdjustPreservedQty(book.Id, qty, tx)
+}

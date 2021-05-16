@@ -48,6 +48,28 @@ func (r *bookRepository) AdjustOnhandQty(
 	return nil
 }
 
+func (r *bookRepository) AdjustPreservedQty(
+	id data.EntityId,
+	qty int,
+	tx data.Transaction,
+) error {
+	db := Db()
+	if tx != nil {
+		db = tx.(*transaction).db
+	}
+
+	result := db.
+		Model(&data.Book{}).
+		Where("id = ?", id).
+		Update("preserved_qty", gorm.Expr("preservedQty + ?", qty))
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 var bookRepositoryInstance = bookRepository{postgresRepository{newEntity: func() data.Entity {
 	return &data.Book{}
 }}}

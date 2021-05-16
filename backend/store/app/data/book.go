@@ -33,4 +33,5 @@ type BookRepository interface {
 	repositoryBase
 	CreateIfNotExists(book *Book, tx Transaction) (EntityId, error)
 	AdjustOnhandQty(id EntityId, qty int, tx Transaction) error
+	AdjustPreservedQty(id EntityId, qty int, tx Transaction) error
 }
