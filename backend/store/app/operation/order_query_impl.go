@@ -1,17 +1,13 @@
 package operation
 
 import (
-	module "store"
 	"store/app/data"
-	"store/utils"
 )
-
-var orderRepository = module.Container().Get(utils.Nameof((*data.OrderRepository)(nil))).(data.OrderRepository)
 
 type orderQuery struct{}
 
 func (*orderQuery) FindByStatus(statuses []string) ([]Order, error) {
-	records, err := orderRepository.Query(&data.Order{}, nil).Where("status IN ?", statuses).Find()
+	records, err := OrderRepository.Query(&data.Order{}, nil).Where("status IN ?", statuses).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +23,7 @@ func (*orderQuery) FindByStatus(statuses []string) ([]Order, error) {
 
 func (*orderQuery) GetWithItems(id string) (*Order, error) {
 	orderId := data.FromStringToEntityId(id)
-	result, err := orderRepository.
+	result, err := OrderRepository.
 		Query(&data.Order{}, nil).
 		IncludeMany("Items").
 		ThenInclude("Book").

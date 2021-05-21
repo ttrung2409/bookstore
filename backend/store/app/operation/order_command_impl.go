@@ -8,14 +8,20 @@ import (
 type orderCommand struct{}
 
 func (*orderCommand) Accept(id string) error {
-	_, err := domain.TransactionFactory.RunInTransaction(
+	_, err := TransactionFactory.RunInTransaction(
 		func(tx data.Transaction) (interface{}, error) {
-			order, err := domain.Order{}.Get(data.FromStringToEntityId(id), tx)
+			dataOrder, err := OrderRepository.Get(data.FromStringToEntityId(id), tx)
 			if err != nil {
 				return nil, err
 			}
 
+			order := domain.Order{}.New(dataOrder)
+
 			if err = order.Accept(tx); err != nil {
+				return nil, err
+			}
+
+			if err = OrderRepository.Update(&order.Order, tx); err != nil {
 				return nil, err
 			}
 
@@ -28,14 +34,20 @@ func (*orderCommand) Accept(id string) error {
 }
 
 func (*orderCommand) PlaceAsBackOrder(id string) error {
-	_, err := domain.TransactionFactory.RunInTransaction(
+	_, err := TransactionFactory.RunInTransaction(
 		func(tx data.Transaction) (interface{}, error) {
-			order, err := domain.Order{}.Get(data.FromStringToEntityId(id), tx)
+			dataOrder, err := OrderRepository.Get(data.FromStringToEntityId(id), tx)
 			if err != nil {
 				return nil, err
 			}
 
+			order := domain.Order{}.New(dataOrder)
+
 			if err = order.PlaceAsBackOrder(tx); err != nil {
+				return nil, err
+			}
+
+			if err = OrderRepository.Update(&order.Order, tx); err != nil {
 				return nil, err
 			}
 
@@ -48,14 +60,20 @@ func (*orderCommand) PlaceAsBackOrder(id string) error {
 }
 
 func (*orderCommand) Reject(id string) error {
-	_, err := domain.TransactionFactory.RunInTransaction(
+	_, err := TransactionFactory.RunInTransaction(
 		func(tx data.Transaction) (interface{}, error) {
-			order, err := domain.Order{}.Get(data.FromStringToEntityId(id), tx)
+			dataOrder, err := OrderRepository.Get(data.FromStringToEntityId(id), tx)
 			if err != nil {
 				return nil, err
 			}
 
+			order := domain.Order{}.New(dataOrder)
+
 			if err = order.Reject(tx); err != nil {
+				return nil, err
+			}
+
+			if err = OrderRepository.Update(&order.Order, tx); err != nil {
 				return nil, err
 			}
 

@@ -11,5 +11,5 @@ type Book struct {
 	ThumbnailUrl  string
 	PreviewUrl    string
 	OnhandQty     int
-	PreservedQty  int
+	ReservedQty   int
 }

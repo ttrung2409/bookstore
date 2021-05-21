@@ -29,7 +29,7 @@ func (Book) fromDataObject(b data.Book) Book {
 		RatingsCount:  b.RatingsCount,
 		ThumbnailUrl:  b.ThumbnailUrl,
 		PreviewUrl:    b.PreviewUrl,
-		PreservedQty:  b.PreservedQty,
+		ReservedQty:   b.ReservedQty,
 		OnhandQty:     b.OnhandQty,
 	}
 }

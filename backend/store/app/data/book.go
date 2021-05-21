@@ -18,7 +18,7 @@ type Book struct {
 	ThumbnailUrl  string
 	PreviewUrl    string
 	OnhandQty     int
-	PreservedQty  int
+	ReservedQty   int
 }
 
 func (b *Book) GetId() EntityId {
@@ -32,6 +32,4 @@ func (b *Book) SetId(id EntityId) {
 type BookRepository interface {
 	repositoryBase
 	CreateIfNotExists(book *Book, tx Transaction) (EntityId, error)
-	AdjustOnhandQty(id EntityId, qty int, tx Transaction) error
-	AdjustPreservedQty(id EntityId, qty int, tx Transaction) error
 }

@@ -15,7 +15,11 @@ type postgresRepository struct {
 	newEntity func() data.Entity
 }
 
-func (r *postgresRepository) Get(id data.EntityId, tx data.Transaction) (interface{}, error) {
+func (r *postgresRepository) Query(entityType interface{}, tx data.Transaction) data.Query {
+	return newQuery(entityType, tx)
+}
+
+func (r *postgresRepository) get(id data.EntityId, tx data.Transaction) (interface{}, error) {
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
@@ -34,11 +38,7 @@ func (r *postgresRepository) Get(id data.EntityId, tx data.Transaction) (interfa
 	return entity, nil
 }
 
-func (r *postgresRepository) Query(entityType interface{}, tx data.Transaction) data.Query {
-	return newQuery(entityType, tx)
-}
-
-func (r *postgresRepository) Create(
+func (r *postgresRepository) create(
 	entity data.Entity,
 	tx data.Transaction,
 ) (data.EntityId, error) {
@@ -54,7 +54,7 @@ func (r *postgresRepository) Create(
 	return entity.GetId(), nil
 }
 
-func (r *postgresRepository) Update(
+func (r *postgresRepository) update(
 	id data.EntityId,
 	entity data.Entity,
 	tx data.Transaction,

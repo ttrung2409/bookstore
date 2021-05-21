@@ -20,6 +20,7 @@ type Order struct {
 	CustomerId EntityId
 	Status     OrderStatus
 	Items      []OrderItem `gorm:"foreignKey:OrderId"`
+	Stock      Stock       `gorm:"-"`
 }
 
 func (o *Order) GetId() EntityId {
@@ -40,4 +41,7 @@ type OrderItem struct {
 
 type OrderRepository interface {
 	repositoryBase
+	Get(id EntityId, tx Transaction) (*Order, error)
+	GetReceivingOrders(tx Transaction) ([]*Order, error)
+	Update(order *Order, tx Transaction) error
 }
