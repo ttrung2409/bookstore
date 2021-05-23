@@ -1,4 +1,4 @@
-package operation
+package query
 
 import (
 	"encoding/json"

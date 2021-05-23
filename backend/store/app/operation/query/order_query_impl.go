@@ -1,4 +1,4 @@
-package operation
+package query
 
 import (
 	"store/app/data"
@@ -7,7 +7,7 @@ import (
 type orderQuery struct{}
 
 func (*orderQuery) FindByStatus(statuses []string) ([]Order, error) {
-	records, err := OrderRepository.Query(&data.Order{}, nil).Where("status IN ?", statuses).Find()
+	records, err := OrderRepository.Query(&Order{}, nil).Where("status IN ?", statuses).Find()
 	if err != nil {
 		return nil, err
 	}
