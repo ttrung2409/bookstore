@@ -5,7 +5,7 @@ import (
 )
 
 type BookReceipt struct {
-	data.BookReceipt
+	state *data.BookReceipt
 }
 
 type ReceivingBook struct {
@@ -13,8 +13,13 @@ type ReceivingBook struct {
 	ReceivingQty int
 }
 
+func (BookReceipt) New(state *data.BookReceipt) *BookReceipt {
+	receipt := &BookReceipt{state: state}
+	return receipt
+}
+
 func (BookReceipt) NewFromReceivingBooks(books []ReceivingBook) *BookReceipt {
-	receipt := data.BookReceipt{
+	receipt := &data.BookReceipt{
 		Id: data.NewEntityId(),
 	}
 
@@ -33,16 +38,14 @@ func (BookReceipt) NewFromReceivingBooks(books []ReceivingBook) *BookReceipt {
 
 	receipt.Items = items
 
-	return &BookReceipt{BookReceipt: receipt}
+	return &BookReceipt{state: receipt}
 }
 
-func (BookReceipt) New(dataReceipt *data.BookReceipt) *BookReceipt {
-	receipt := &BookReceipt{BookReceipt: *dataReceipt}
-	return receipt
+func (receipt *BookReceipt) State() *data.BookReceipt {
+	return receipt.state.Clone()
 }
 
-func (receipt *BookReceipt) IncreaseStock() Stock {
-	stock := Stock{Stock: receipt.Stock}
-	receipt.Stock = stock.IncreaseByReceipt(receipt).Stock
-	return stock
+func (receipt *BookReceipt) IncreaseStock() {
+	stock := Stock{}.New(receipt.state.Stock)
+	receipt.state.Stock = stock.increaseByReceipt(receipt).state
 }

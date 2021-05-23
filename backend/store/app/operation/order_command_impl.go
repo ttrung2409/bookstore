@@ -17,11 +17,11 @@ func (*orderCommand) Accept(id string) error {
 
 			order := domain.Order{}.New(dataOrder)
 
-			if err = order.Accept(tx); err != nil {
+			if err = order.Accept(); err != nil {
 				return nil, err
 			}
 
-			if err = OrderRepository.Update(&order.Order, tx); err != nil {
+			if err = OrderRepository.Update(order.State(), tx); err != nil {
 				return nil, err
 			}
 
@@ -43,11 +43,11 @@ func (*orderCommand) PlaceAsBackOrder(id string) error {
 
 			order := domain.Order{}.New(dataOrder)
 
-			if err = order.PlaceAsBackOrder(tx); err != nil {
+			if err = order.PlaceAsBackOrder(); err != nil {
 				return nil, err
 			}
 
-			if err = OrderRepository.Update(&order.Order, tx); err != nil {
+			if err = OrderRepository.Update(order.State(), tx); err != nil {
 				return nil, err
 			}
 
@@ -69,11 +69,11 @@ func (*orderCommand) Reject(id string) error {
 
 			order := domain.Order{}.New(dataOrder)
 
-			if err = order.Reject(tx); err != nil {
+			if err = order.Reject(); err != nil {
 				return nil, err
 			}
 
-			if err = OrderRepository.Update(&order.Order, tx); err != nil {
+			if err = OrderRepository.Update(order.State(), tx); err != nil {
 				return nil, err
 			}
 

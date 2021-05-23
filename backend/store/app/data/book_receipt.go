@@ -19,6 +19,20 @@ func (r *BookReceipt) SetId(id EntityId) {
 	r.Id = id
 }
 
+func (r *BookReceipt) Clone() *BookReceipt {
+	items := []BookReceiptItem{}
+	for _, item := range r.Items {
+		items = append(items, item.Clone())
+	}
+
+	return &BookReceipt{
+		Id:     r.Id,
+		Number: r.Number,
+		Items:  items,
+		Stock:  r.Stock.Clone(),
+	}
+}
+
 type BookReceiptItem struct {
 	Id            EntityId `gorm:"primaryKey"`
 	BookReceiptId EntityId
@@ -27,12 +41,22 @@ type BookReceiptItem struct {
 	Qty           int
 }
 
-func (i *BookReceiptItem) GetId() EntityId {
-	return i.Id
+func (item BookReceiptItem) GetId() EntityId {
+	return item.Id
 }
 
-func (i *BookReceiptItem) SetId(id EntityId) {
-	i.Id = id
+func (item BookReceiptItem) SetId(id EntityId) {
+	item.Id = id
+}
+
+func (item BookReceiptItem) Clone() BookReceiptItem {
+	return BookReceiptItem{
+		Id:            item.Id,
+		BookReceiptId: item.BookReceiptId,
+		BookId:        item.BookId,
+		Book:          item.Book,
+		Qty:           item.Qty,
+	}
 }
 
 type BookReceiptRepository interface {

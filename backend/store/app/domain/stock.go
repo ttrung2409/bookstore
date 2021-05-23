@@ -3,26 +3,21 @@ package domain
 import "store/app/data"
 
 type Stock struct {
-	data.Stock
+	state data.Stock
+}
+
+func (Stock) New(stock data.Stock) Stock {
+	return Stock{state: stock}
 }
 
 func (stock Stock) Clone() Stock {
-	clone := data.Stock{}
-	for key, value := range stock.Stock {
-		clone[key] = data.StockItem{
-			BookId:      value.BookId,
-			OnhandQty:   value.OnhandQty,
-			ReservedQty: value.ReservedQty,
-		}
-	}
-
-	return Stock{Stock: clone}
+	return Stock{state: stock.state.Clone()}
 }
 
-func (stock Stock) EnoughForOrder(order *Order) bool {
+func (stock Stock) enoughForOrder(order *Order) bool {
 	enoughStock := true
-	for _, item := range order.Items {
-		if item.Qty > stock.Stock[item.BookId].OnhandQty {
+	for _, item := range order.state.Items {
+		if item.Qty > stock.state[item.BookId].OnhandQty {
 			enoughStock = false
 		}
 	}
@@ -30,52 +25,52 @@ func (stock Stock) EnoughForOrder(order *Order) bool {
 	return enoughStock
 }
 
-func (stock Stock) IncreaseByReceipt(receipt *BookReceipt) Stock {
+func (stock Stock) increaseByReceipt(receipt *BookReceipt) Stock {
 	newStock := stock.Clone()
-	for _, item := range receipt.Items {
-		newStock.Stock[item.BookId] = data.StockItem{
+	for _, item := range receipt.state.Items {
+		newStock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.Stock[item.BookId].OnhandQty + item.Qty,
-			ReservedQty: newStock.Stock[item.BookId].ReservedQty,
+			OnhandQty:   newStock.state[item.BookId].OnhandQty + item.Qty,
+			ReservedQty: newStock.state[item.BookId].ReservedQty,
 		}
 	}
 
 	return newStock
 }
 
-func (stock Stock) DecreaseByOrder(order *Order) Stock {
+func (stock Stock) decreaseByOrder(order *Order) Stock {
 	newStock := stock.Clone()
-	for _, item := range order.Items {
-		newStock.Stock[item.BookId] = data.StockItem{
+	for _, item := range order.state.Items {
+		newStock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.Stock[item.BookId].OnhandQty - item.Qty,
-			ReservedQty: newStock.Stock[item.BookId].ReservedQty,
+			OnhandQty:   newStock.state[item.BookId].OnhandQty - item.Qty,
+			ReservedQty: newStock.state[item.BookId].ReservedQty,
 		}
 	}
 
 	return newStock
 }
 
-func (stock Stock) ReserveForOrder(order *Order) Stock {
+func (stock Stock) reserveForOrder(order *Order) Stock {
 	newStock := stock.Clone()
-	for _, item := range order.Items {
-		newStock.Stock[item.BookId] = data.StockItem{
+	for _, item := range order.state.Items {
+		newStock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.Stock[item.BookId].OnhandQty,
-			ReservedQty: newStock.Stock[item.BookId].ReservedQty + item.Qty,
+			OnhandQty:   newStock.state[item.BookId].OnhandQty,
+			ReservedQty: newStock.state[item.BookId].ReservedQty + item.Qty,
 		}
 	}
 
 	return newStock
 }
 
-func (stock Stock) ReleaseReservation(order *Order) Stock {
+func (stock Stock) releaseReservation(order *Order) Stock {
 	newStock := stock.Clone()
-	for _, item := range order.Items {
-		newStock.Stock[item.BookId] = data.StockItem{
+	for _, item := range order.state.Items {
+		newStock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.Stock[item.BookId].OnhandQty,
-			ReservedQty: newStock.Stock[item.BookId].ReservedQty - item.Qty,
+			OnhandQty:   newStock.state[item.BookId].OnhandQty,
+			ReservedQty: newStock.state[item.BookId].ReservedQty - item.Qty,
 		}
 	}
 

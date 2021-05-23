@@ -51,7 +51,19 @@ func (r *orderRepository) GetReceivingOrders(tx data.Transaction) ([]*data.Order
 
 	orders := []*data.Order{}
 	for _, record := range records {
-		orders = append(orders, record.(*data.Order))
+		order := record.(*data.Order)
+
+		stock := data.Stock{}
+		for _, item := range order.Items {
+			stock[item.BookId] = data.StockItem{
+				BookId:      item.BookId,
+				OnhandQty:   item.Book.OnhandQty,
+				ReservedQty: item.Book.ReservedQty,
+			}
+		}
+
+		order.Stock = stock
+		orders = append(orders, order)
 	}
 
 	return orders, nil

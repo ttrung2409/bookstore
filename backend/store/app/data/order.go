@@ -31,12 +31,38 @@ func (o *Order) SetId(id EntityId) {
 	o.Id = id
 }
 
+func (o *Order) Clone() *Order {
+	items := []OrderItem{}
+	for _, item := range o.Items {
+		items = append(items, item.Clone())
+	}
+
+	return &Order{
+		Id:         o.Id,
+		Number:     o.Number,
+		CustomerId: o.CustomerId,
+		Status:     o.Status,
+		Items:      items,
+		Stock:      o.Stock.Clone(),
+	}
+}
+
 type OrderItem struct {
 	Id      EntityId `gorm:"primaryKey"`
 	OrderId EntityId
 	BookId  EntityId
 	Book    Book `gorm:"foreignKey:Id"`
 	Qty     int
+}
+
+func (item OrderItem) Clone() OrderItem {
+	return OrderItem{
+		Id:      item.Id,
+		OrderId: item.OrderId,
+		BookId:  item.BookId,
+		Book:    item.Book,
+		Qty:     item.Qty,
+	}
 }
 
 type OrderRepository interface {

@@ -7,71 +7,83 @@ import (
 )
 
 type Order struct {
-	data.Order
+	state *data.Order
 }
 
-func (Order) New(dataOrder *data.Order) *Order {
-	return &Order{Order: *dataOrder}
+func (Order) New(state *data.Order) *Order {
+	return &Order{state: state}
 }
 
-func (order *Order) Accept(tx data.Transaction) error {
-	if order.Status != data.OrderStatusQueued && order.Status != data.OrderStatusStockFilled {
-		return errors.New(fmt.Sprintf("Order status '%s' is invalid for accepting", order.Status))
+func (order *Order) State() *data.Order {
+	return order.state.Clone()
+}
+
+func (order *Order) Accept() error {
+	if order.state.Status != data.OrderStatusQueued &&
+		order.state.Status != data.OrderStatusStockFilled {
+		return errors.New(fmt.Sprintf("Order status '%s' is invalid for accepting", order.state.Status))
 	}
 
-	order.Status = data.OrderStatusAccepted
+	order.state.Status = data.OrderStatusAccepted
 
-	stock := Stock{Stock: order.Stock}
-	if !stock.EnoughForOrder(order) {
+	stock := Stock{}.New(order.state.Stock)
+	if !stock.enoughForOrder(order) {
 		return errors.New("Not enough stock")
 	}
 
-	order.Stock = stock.DecreaseByOrder(order).Stock
+	order.state.Stock = stock.decreaseByOrder(order).state
 
 	return nil
 }
 
-func (order *Order) PlaceAsBackOrder(tx data.Transaction) error {
-	if order.Status != data.OrderStatusQueued {
+func (order *Order) PlaceAsBackOrder() error {
+	if order.state.Status != data.OrderStatusQueued {
 		return errors.New(
-			fmt.Sprintf("Order status '%s' is invalid to be placed as backorder", order.Status),
+			fmt.Sprintf("Order status '%s' is invalid to be placed as backorder", order.state.Status),
 		)
 	}
 
-	order.Status = data.OrderStatusReceiving
+	order.state.Status = data.OrderStatusReceiving
 
-	stock := Stock{Stock: order.Stock}
-	order.Stock = stock.ReserveForOrder(order).Stock
+	stock := Stock{}.New(order.state.Stock)
+	order.state.Stock = stock.reserveForOrder(order).state
 
 	return nil
 }
 
-func (order *Order) TryUpdateToStockFilled(
-	stock Stock,
-	tx data.Transaction,
-) (Stock, error) {
-	if order.Status != data.OrderStatusReceiving {
-		return stock, errors.New(
-			fmt.Sprintf("Order status '%s' is invalid for StockFilled", order.Status),
+func (order *Order) TryUpdateToStockFilled() (bool, error) {
+	if order.state.Status != data.OrderStatusReceiving {
+		return false, errors.New(
+			fmt.Sprintf("Order status '%s' is invalid for StockFilled", order.state.Status),
 		)
 	}
 
-	if !stock.EnoughForOrder(order) {
-		return stock, errors.New("Not enough stock")
+	stock := Stock{}.New(order.state.Stock)
+	if !stock.enoughForOrder(order) {
+		return false, errors.New("Not enough stock")
 	}
 
-	order.Status = data.OrderStatusStockFilled
-	order.Stock = stock.Clone().Stock
+	if order.state.Status == data.OrderStatusReceiving {
+		order.state.Stock = stock.releaseReservation(order).state
+	}
 
-	return stock.DecreaseByOrder(order), nil
+	order.state.Status = data.OrderStatusStockFilled
+
+	return true, nil
 }
 
-func (order *Order) Reject(tx data.Transaction) error {
-	if order.Status != data.OrderStatusQueued && order.Status != data.OrderStatusStockFilled {
-		return errors.New(fmt.Sprintf("Order status '%s' is invalid for rejecting", order.Status))
+func (order *Order) Reject() error {
+	if order.state.Status == data.OrderStatusAccepted ||
+		order.state.Status == data.OrderStatusRejected {
+		return errors.New(fmt.Sprintf("Order status '%s' is invalid for rejecting", order.state.Status))
 	}
 
-	order.Status = data.OrderStatusRejected
+	stock := Stock{}.New(order.state.Stock)
+	if order.state.Status == data.OrderStatusReceiving {
+		order.state.Stock = stock.releaseReservation(order).state
+	}
+
+	order.state.Status = data.OrderStatusRejected
 
 	return nil
 }

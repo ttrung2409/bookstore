@@ -16,13 +16,11 @@ func (*receiveBooks) Receive(request ReceiveBooksRequest) error {
 		)
 	}
 
-	var stock domain.Stock
-
 	_, err := TransactionFactory.RunInTransaction(
 		func(tx data.Transaction) (interface{}, error) {
 			// create book receipt
 			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(receivingBooks)
-			receiptId, err := BookReceiptRepository.Create(&newReceipt.BookReceipt, tx)
+			receiptId, err := BookReceiptRepository.Create(newReceipt.State(), tx)
 			if err != nil {
 				return nil, err
 			}
@@ -44,23 +42,27 @@ func (*receiveBooks) Receive(request ReceiveBooksRequest) error {
 			receipt := domain.BookReceipt{}.New(dataReceipt)
 
 			// increase on-hand qty of receiving books associated with the receipt items
-			stock = receipt.IncreaseStock()
+			receipt.IncreaseStock()
 
-			err = BookReceiptRepository.Update(&receipt.BookReceipt, tx)
+			err = BookReceiptRepository.Update(receipt.State(), tx)
 
 			return receipt, err
 		}, nil)
 
 	channel := make(chan error)
 
-	go updateOrdersToStockFilled(stock, channel)
+	go updateOrdersToStockFilled(channel)
 
 	return err
 }
 
 // Update order status to StockFilled for any orders
 // that can be fulfilled by the new stock
-func updateOrdersToStockFilled(stock domain.Stock, channel chan error) {
+func updateOrdersToStockFilled(channel chan error) {
+	defer func() {
+		close(channel)
+	}()
+
 	dataOrders, err := OrderRepository.GetReceivingOrders(nil)
 	if err != nil {
 		channel <- err
@@ -68,16 +70,9 @@ func updateOrdersToStockFilled(stock domain.Stock, channel chan error) {
 	}
 
 	for _, dataOrder := range dataOrders {
-		order := &domain.Order{*dataOrder}
-		stock, err = order.TryUpdateToStockFilled(stock, nil)
-		if err != nil {
-			channel <- err
-		}
-
-		if err = OrderRepository.Update(&order.Order, nil); err != nil {
-			channel <- err
+		order := domain.Order{}.New(dataOrder)
+		if ok, _ := order.TryUpdateToStockFilled(); ok {
+			OrderRepository.Update(order.State(), nil)
 		}
 	}
-
-	channel <- nil
 }
