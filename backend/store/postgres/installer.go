@@ -27,12 +27,6 @@ func Install(builder *di.Builder) {
 			},
 		},
 		{
-			Name: utils.Nameof((*data.BookReceiptItemRepository)(nil)),
-			Build: func(ctn di.Container) (interface{}, error) {
-				return bookReceiptItemRepositoryInstance, nil
-			},
-		},
-		{
 			Name: utils.Nameof((*data.OrderRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return orderRepositoryInstance, nil
