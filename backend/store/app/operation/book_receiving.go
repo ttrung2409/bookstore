@@ -9,6 +9,6 @@ type ReceiveBooksRequest struct {
 	Items []ReceivingBook
 }
 
-type ReceiveBooks interface {
+type BookReceiving interface {
 	Receive(request ReceiveBooksRequest) error
 }
