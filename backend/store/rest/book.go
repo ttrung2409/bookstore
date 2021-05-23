@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 	module "store"
-	op "store/app/operation"
+	query "store/app/operation/query"
 	"store/utils"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ func BookRoutes(r *gin.Engine) {
 	r.GET("/", controller.find())
 }
 
-var googleBookQuery = module.Container().Get(utils.Nameof((*op.GoogleBookQuery)(nil))).(op.GoogleBookQuery)
+var googleBookQuery = module.Container().Get(utils.Nameof((*query.GoogleBookQuery)(nil))).(query.GoogleBookQuery)
 
 type bookController struct{}
 

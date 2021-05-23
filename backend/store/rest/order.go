@@ -3,8 +3,8 @@ package rest
 import (
 	"net/http"
 	module "store"
-	"store/app/data"
-	op "store/app/operation"
+	command "store/app/operation/command"
+	query "store/app/operation/query"
 	"store/utils"
 
 	"github.com/gin-gonic/gin"
@@ -19,29 +19,27 @@ func OrderRoutes(r *gin.Engine) {
 	r.PUT("/:id/reject", controller.reject())
 }
 
-var orderQuery = module.Container().Get(utils.Nameof((*op.OrderQuery)(nil))).(op.OrderQuery)
-var orderCommand = module.Container().Get(utils.Nameof((*op.OrderCommand)(nil))).(op.OrderCommand)
+var orderQuery = module.Container().Get(utils.Nameof((*query.OrderQuery)(nil))).(query.OrderQuery)
+
+var orderCommand = module.Container().Get(utils.Nameof((*command.OrderCommand)(nil))).(command.OrderCommand)
 
 type orderController struct{}
 
 func (c *orderController) find() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		books, err := orderQuery.FindByStatus(
-			[]string{string(data.OrderStatusQueued), string(data.OrderStatusStockFilled)},
-		)
-
+		orders, err := orderQuery.FindOrdersToDeliver()
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
 		}
 
-		c.JSON(http.StatusOK, books)
+		c.JSON(http.StatusOK, orders)
 	}
 }
 
 func (c *orderController) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		order, err := orderQuery.GetWithItems(c.Query("id"))
+		order, err := orderQuery.GetOrderToView(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
