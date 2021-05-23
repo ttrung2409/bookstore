@@ -13,13 +13,13 @@ type query struct {
 	includeChain string
 }
 
-func newQuery(entityType interface{}, tx data.Transaction) data.Query {
+func newQuery(model interface{}, tx data.Transaction) data.Query {
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
 
-	return &query{db: db.Model(entityType), includeChain: ""}
+	return &query{db: db.Model(model), includeChain: ""}
 }
 
 func (q *query) Select(fields ...string) data.Query {

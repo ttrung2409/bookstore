@@ -15,8 +15,8 @@ type postgresRepository struct {
 	newEntity func() data.Entity
 }
 
-func (r *postgresRepository) Query(entityType interface{}, tx data.Transaction) data.Query {
-	return newQuery(entityType, tx)
+func (r *postgresRepository) Query(model interface{}, tx data.Transaction) data.Query {
+	return newQuery(model, tx)
 }
 
 func (r *postgresRepository) get(id data.EntityId, tx data.Transaction) (interface{}, error) {
