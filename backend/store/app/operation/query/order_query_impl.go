@@ -28,7 +28,7 @@ func (*orderQuery) FindOrdersToDeliver() ([]*Order, error) {
 func (*orderQuery) GetOrderToView(id string) (*Order, error) {
 	orderId := data.FromStringToEntityId(id)
 	record, err := OrderRepository.
-		Query(&data.Order{}, nil).
+		Query(&Order{}, nil).
 		IncludeMany("Items").
 		ThenInclude("Book").
 		Where("id = ?", orderId).

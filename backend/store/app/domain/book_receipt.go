@@ -18,7 +18,7 @@ func (BookReceipt) New(state *data.BookReceipt) *BookReceipt {
 	return receipt
 }
 
-func (BookReceipt) NewFromReceivingBooks(books []ReceivingBook) *BookReceipt {
+func (BookReceipt) NewFromReceivingBooks(books []*ReceivingBook) *BookReceipt {
 	receipt := &data.BookReceipt{
 		Id: data.NewEntityId(),
 	}
@@ -43,9 +43,4 @@ func (BookReceipt) NewFromReceivingBooks(books []ReceivingBook) *BookReceipt {
 
 func (receipt *BookReceipt) State() *data.BookReceipt {
 	return receipt.state.Clone()
-}
-
-func (receipt *BookReceipt) IncreaseStock() {
-	stock := Stock{}.New(receipt.state.Stock)
-	receipt.state.Stock = stock.increaseByReceipt(receipt).state
 }

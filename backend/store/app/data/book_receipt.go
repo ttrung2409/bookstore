@@ -8,7 +8,6 @@ type BookReceipt struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Items     []BookReceiptItem
-	Stock     Stock `gorm:"-"`
 }
 
 func (r *BookReceipt) GetId() EntityId {
@@ -29,7 +28,6 @@ func (r *BookReceipt) Clone() *BookReceipt {
 		Id:     r.Id,
 		Number: r.Number,
 		Items:  items,
-		Stock:  r.Stock.Clone(),
 	}
 }
 

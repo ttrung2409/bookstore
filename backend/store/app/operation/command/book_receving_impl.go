@@ -3,50 +3,48 @@ package operation
 import (
 	"store/app/data"
 	"store/app/domain"
+
+	funk "github.com/thoas/go-funk"
 )
 
 type receiveBooks struct{}
 
 func (*receiveBooks) Receive(request ReceiveBooksRequest) error {
-	receivingBooks := []domain.ReceivingBook{}
+	receivingBooks := map[string]*domain.ReceivingBook{}
 	for _, item := range request.Items {
-		receivingBooks = append(
-			receivingBooks,
-			domain.ReceivingBook{Book: item.toDataObject(), ReceivingQty: item.Qty},
-		)
+		receivingBooks[item.GoogleBookId] = &domain.ReceivingBook{
+			Book:         item.toDataObject(),
+			ReceivingQty: item.Qty,
+		}
 	}
 
 	_, err := TransactionFactory.RunInTransaction(
 		func(tx data.Transaction) (interface{}, error) {
+			// create books if not exists
+			for _, item := range request.Items {
+				dataBook := item.Book.toDataObject()
+				bookId, err := BookRepository.CreateIfNotExists(&dataBook, tx)
+				if err != nil {
+					return nil, err
+				}
+
+				receivingBooks[item.GoogleBookId].Id = bookId
+			}
+
 			// create book receipt
-			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(receivingBooks)
+			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(funk.Map(
+				receivingBooks,
+				func(key string, value *domain.ReceivingBook) *domain.ReceivingBook {
+					return value
+				},
+			).([]*domain.ReceivingBook))
+
 			receiptId, err := BookReceiptRepository.Create(newReceipt.State(), tx)
 			if err != nil {
 				return nil, err
 			}
 
-			// create books if not exists
-			for _, item := range request.Items {
-				dataBook := item.Book.toDataObject()
-				_, err := BookRepository.CreateIfNotExists(&dataBook, tx)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			dataReceipt, err := BookReceiptRepository.Get(receiptId, tx)
-			if err != nil {
-				return nil, err
-			}
-
-			receipt := domain.BookReceipt{}.New(dataReceipt)
-
-			// increase on-hand qty of receiving books associated with the receipt items
-			receipt.IncreaseStock()
-
-			err = BookReceiptRepository.Update(receipt.State(), tx)
-
-			return receipt, err
+			return receiptId, err
 		}, nil)
 
 	channel := make(chan error)
@@ -71,7 +69,7 @@ func updateOrdersToStockFilled(channel chan error) {
 
 	for _, dataOrder := range dataOrders {
 		order := domain.Order{}.New(dataOrder)
-		if ok, _ := order.TryUpdateToStockFilled(); ok {
+		if ok, _ := order.UpdateToStockFilled(); ok {
 			OrderRepository.Update(order.State(), nil)
 		}
 	}

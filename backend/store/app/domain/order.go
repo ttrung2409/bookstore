@@ -51,7 +51,7 @@ func (order *Order) PlaceAsBackOrder() error {
 	return nil
 }
 
-func (order *Order) TryUpdateToStockFilled() (bool, error) {
+func (order *Order) UpdateToStockFilled() (bool, error) {
 	if order.state.Status != data.OrderStatusReceiving {
 		return false, errors.New(
 			fmt.Sprintf("Order status '%s' is invalid for StockFilled", order.state.Status),

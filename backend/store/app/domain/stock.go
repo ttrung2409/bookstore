@@ -25,19 +25,6 @@ func (stock Stock) enoughForOrder(order *Order) bool {
 	return enoughStock
 }
 
-func (stock Stock) increaseByReceipt(receipt *BookReceipt) Stock {
-	newStock := stock.Clone()
-	for _, item := range receipt.state.Items {
-		newStock.state[item.BookId] = data.StockItem{
-			BookId:      item.BookId,
-			OnhandQty:   newStock.state[item.BookId].OnhandQty + item.Qty,
-			ReservedQty: newStock.state[item.BookId].ReservedQty,
-		}
-	}
-
-	return newStock
-}
-
 func (stock Stock) decreaseByOrder(order *Order) Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
