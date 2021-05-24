@@ -1,4 +1,4 @@
-package operation
+package command
 
 type OrderCommand interface {
 	Accept(id string) error

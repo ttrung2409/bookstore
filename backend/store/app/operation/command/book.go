@@ -1,4 +1,4 @@
-package operation
+package command
 
 type Book struct {
 	GoogleBookId  string
