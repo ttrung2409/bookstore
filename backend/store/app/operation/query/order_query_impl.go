@@ -6,9 +6,9 @@ import (
 
 type orderQuery struct{}
 
-func (*orderQuery) FindOrdersToDeliver() ([]*Order, error) {
+func (*orderQuery) FindOrdersToDeliver() ([]Order, error) {
 	records, err := OrderRepository.
-		Query(&Order{}, nil).
+		Query(&data.Order{}, nil).
 		Where("status IN ?",
 			[]string{string(data.OrderStatusQueued), string(data.OrderStatusStockFilled)}).
 		Find()
@@ -17,9 +17,10 @@ func (*orderQuery) FindOrdersToDeliver() ([]*Order, error) {
 		return nil, err
 	}
 
-	var orders []*Order
+	var orders []Order
 	for _, record := range records {
-		orders = append(orders, record.(*Order))
+		dataOrder := record.(data.Order)
+		orders = append(orders, Order{}.fromDataObject(dataOrder))
 	}
 
 	return orders, nil
@@ -28,7 +29,7 @@ func (*orderQuery) FindOrdersToDeliver() ([]*Order, error) {
 func (*orderQuery) GetOrderToView(id string) (*Order, error) {
 	orderId := data.FromStringToEntityId(id)
 	record, err := OrderRepository.
-		Query(&Order{}, nil).
+		Query(&data.Order{}, nil).
 		IncludeMany("Items").
 		ThenInclude("Book").
 		Where("id = ?", orderId).
@@ -38,5 +39,7 @@ func (*orderQuery) GetOrderToView(id string) (*Order, error) {
 		return nil, err
 	}
 
-	return record.(*Order), nil
+	order := Order{}.fromDataObject(record.(data.Order))
+
+	return &order, nil
 }
