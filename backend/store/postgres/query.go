@@ -5,6 +5,7 @@ import (
 	"store/app/data"
 	"strings"
 
+	"github.com/thoas/go-funk"
 	"gorm.io/gorm"
 )
 
@@ -70,21 +71,21 @@ func (q *query) OrderByDesc(field string) data.Query {
 }
 
 func (q *query) Find() ([]interface{}, error) {
-	result, err := q.exec()
+	records, err := q.exec()
 	if err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return records, nil
 }
 
 func (q *query) First() (interface{}, error) {
-	result, err := q.exec()
+	records, err := q.exec()
 	if err != nil {
 		return nil, err
 	}
 
-	return result[0], nil
+	return records[0], nil
 }
 
 func (q *query) exec() ([]interface{}, error) {
@@ -97,5 +98,7 @@ func (q *query) exec() ([]interface{}, error) {
 		return nil, toDataQueryError(result.Error)
 	}
 
-	return records, nil
+	return funk.Map(records, func(record interface{}) interface{} {
+		return &record
+	}).([]interface{}), nil
 }

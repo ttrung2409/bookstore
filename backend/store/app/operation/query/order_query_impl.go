@@ -6,7 +6,7 @@ import (
 
 type orderQuery struct{}
 
-func (*orderQuery) FindOrdersToDeliver() ([]Order, error) {
+func (*orderQuery) FindOrdersToDeliver() ([]*Order, error) {
 	records, err := OrderRepository.
 		Query(&data.Order{}, nil).
 		Where("status IN ?",
@@ -17,9 +17,9 @@ func (*orderQuery) FindOrdersToDeliver() ([]Order, error) {
 		return nil, err
 	}
 
-	var orders []Order
+	var orders []*Order
 	for _, record := range records {
-		dataOrder := record.(data.Order)
+		dataOrder := record.(*data.Order)
 		orders = append(orders, Order{}.fromDataObject(dataOrder))
 	}
 
@@ -39,7 +39,7 @@ func (*orderQuery) GetOrderToView(id string) (*Order, error) {
 		return nil, err
 	}
 
-	order := Order{}.fromDataObject(record.(data.Order))
+	order := Order{}.fromDataObject(record.(*data.Order))
 
-	return &order, nil
+	return order, nil
 }

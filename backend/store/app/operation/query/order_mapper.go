@@ -2,13 +2,13 @@ package query
 
 import "store/app/data"
 
-func (Order) fromDataObject(order data.Order) Order {
+func (Order) fromDataObject(order *data.Order) *Order {
 	items := []OrderItem{}
 	for _, dataItem := range order.Items {
 		items = append(items, OrderItem{}.fromDataObject(dataItem))
 	}
 
-	return Order{
+	return &Order{
 		Id:         order.Id.ToString(),
 		Number:     order.Number,
 		CreatedAt:  order.CreatedAt,

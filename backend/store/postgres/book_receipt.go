@@ -25,7 +25,7 @@ func (r *bookReceiptRepository) Get(
 	tx data.Transaction,
 ) (*data.BookReceipt, error) {
 	record, err := r.
-		Query(data.BookReceipt{}, tx).
+		Query(&data.BookReceipt{}, tx).
 		Include("Items").
 		ThenInclude("Book").
 		Where("id == ?", id).
