@@ -51,7 +51,9 @@ func (r *bookReceiptRepository) Create(
 		if _, err = bookReceiptItemRepositoryInstance.create(&item, tx); err != nil {
 			return data.EmptyEntityId, err
 		}
+	}
 
+	for _, item := range receipt.OnhandStockAdjustment {
 		bookRepositoryInstance.AdjustOnhandQty(item.BookId, item.Qty, tx)
 	}
 

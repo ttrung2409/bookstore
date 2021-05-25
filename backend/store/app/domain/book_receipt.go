@@ -2,6 +2,8 @@ package domain
 
 import (
 	data "store/app/data"
+
+	"github.com/thoas/go-funk"
 )
 
 type BookReceipt struct {
@@ -37,6 +39,9 @@ func (BookReceipt) NewFromReceivingBooks(books []*ReceivingBook) *BookReceipt {
 	}
 
 	receipt.Items = items
+	receipt.OnhandStockAdjustment = funk.Map(receipt.Items, func(item data.BookReceiptItem) data.StockAdjustmentItem {
+		return data.StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty}
+	}).(data.StockAdjustment)
 
 	return &BookReceipt{state: receipt}
 }

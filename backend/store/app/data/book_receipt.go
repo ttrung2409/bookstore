@@ -1,13 +1,18 @@
 package data
 
-import "time"
+import (
+	"time"
+
+	"github.com/thoas/go-funk"
+)
 
 type BookReceipt struct {
-	Id        EntityId `gorm:"primaryKey"`
-	Number    uint     `gorm:"autoIncrement"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Items     []BookReceiptItem
+	Id                    EntityId `gorm:"primaryKey"`
+	Number                uint     `gorm:"autoIncrement"`
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+	Items                 []BookReceiptItem
+	OnhandStockAdjustment StockAdjustment
 }
 
 func (r *BookReceipt) GetId() EntityId {
@@ -19,15 +24,13 @@ func (r *BookReceipt) SetId(id EntityId) {
 }
 
 func (r *BookReceipt) Clone() *BookReceipt {
-	items := []BookReceiptItem{}
-	for _, item := range r.Items {
-		items = append(items, item.Clone())
-	}
-
 	return &BookReceipt{
 		Id:     r.Id,
 		Number: r.Number,
-		Items:  items,
+		Items: funk.Map(r.Items, func(item BookReceiptItem) BookReceiptItem {
+			return item.Clone()
+		}).([]BookReceiptItem),
+		OnhandStockAdjustment: r.OnhandStockAdjustment.Clone(),
 	}
 }
 
@@ -61,7 +64,6 @@ type BookReceiptRepository interface {
 	repositoryBase
 	Get(id EntityId, tx Transaction) (*BookReceipt, error)
 	Create(receipt *BookReceipt, tx Transaction) (EntityId, error)
-	Update(receipt *BookReceipt, tx Transaction) error
 }
 
 type BookReceiptItemRepository interface {
