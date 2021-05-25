@@ -16,7 +16,7 @@ func (stock Stock) Clone() Stock {
 
 func (stock Stock) enoughForOrder(order *Order) bool {
 	for _, item := range order.state.Items {
-		if item.Qty > stock.state[item.BookId].OnhandQty {
+		if item.Qty > stock.state[item.BookId].OnhandQty-stock.state[item.BookId].ReservedQty {
 			return false
 		}
 	}
