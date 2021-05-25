@@ -37,7 +37,8 @@ func (order *Order) Accept() error {
 }
 
 func (order *Order) PlaceAsBackOrder() error {
-	if order.state.Status != data.OrderStatusQueued {
+	if order.state.Status != data.OrderStatusQueued &&
+		order.state.Status != data.OrderStatusStockFilled {
 		return errors.New(
 			fmt.Sprintf("Order status '%s' is invalid to be placed as backorder", order.state.Status),
 		)
@@ -63,10 +64,7 @@ func (order *Order) UpdateToStockFilled() (bool, error) {
 		return false, errors.New("Not enough stock")
 	}
 
-	if order.state.Status == data.OrderStatusReceiving {
-		order.state.Stock = stock.releaseReservation(order).state
-	}
-
+	order.state.Stock = stock.releaseReservation(order).state
 	order.state.Status = data.OrderStatusStockFilled
 
 	return true, nil
