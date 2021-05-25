@@ -11,16 +11,13 @@ type StockItem struct {
 }
 
 func (stock Stock) Clone() Stock {
-	clone := Stock{}
-	for key, value := range stock {
-		clone[key] = StockItem{
+	return funk.Map(stock, func(key EntityId, value StockItem) (EntityId, StockItem) {
+		return key, StockItem{
 			BookId:      value.BookId,
 			OnhandQty:   value.OnhandQty,
 			ReservedQty: value.ReservedQty,
 		}
-	}
-
-	return clone
+	}).(Stock)
 }
 
 type StockAdjustment []StockAdjustmentItem

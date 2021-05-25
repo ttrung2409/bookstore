@@ -2,6 +2,8 @@ package postgres
 
 import (
 	data "store/app/data"
+
+	"github.com/thoas/go-funk"
 )
 
 type orderRepository struct {
@@ -21,17 +23,13 @@ func (r *orderRepository) Get(id data.EntityId, tx data.Transaction) (*data.Orde
 	}
 
 	order := record.(*data.Order)
-
-	stock := data.Stock{}
-	for _, item := range order.Items {
-		stock[item.BookId] = data.StockItem{
+	order.Stock = funk.Map(order.Items, func(item data.OrderItem) data.StockItem {
+		return data.StockItem{
 			BookId:      item.BookId,
 			OnhandQty:   item.Book.OnhandQty,
 			ReservedQty: item.Book.ReservedQty,
 		}
-	}
-
-	order.Stock = stock
+	}).(data.Stock)
 
 	return order, nil
 }
@@ -52,17 +50,14 @@ func (r *orderRepository) GetReceivingOrders(tx data.Transaction) ([]*data.Order
 	orders := []*data.Order{}
 	for _, record := range records {
 		order := record.(*data.Order)
-
-		stock := data.Stock{}
-		for _, item := range order.Items {
-			stock[item.BookId] = data.StockItem{
+		order.Stock = funk.Map(order.Items, func(item data.OrderItem) data.StockItem {
+			return data.StockItem{
 				BookId:      item.BookId,
 				OnhandQty:   item.Book.OnhandQty,
 				ReservedQty: item.Book.ReservedQty,
 			}
-		}
+		}).(data.Stock)
 
-		order.Stock = stock
 		orders = append(orders, order)
 	}
 
