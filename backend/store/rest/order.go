@@ -21,7 +21,11 @@ func OrderRoutes(r *gin.Engine) {
 
 var orderQuery = module.Container().Get(utils.Nameof((*query.OrderQuery)(nil))).(query.OrderQuery)
 
-var orderCommand = module.Container().Get(utils.Nameof((*command.OrderCommand)(nil))).(command.OrderCommand)
+var acceptOrderCommand = module.Container().Get(utils.Nameof((*command.AcceptOrderCommand)(nil))).(command.AcceptOrderCommand)
+
+var placeAsBackOrderCommand = module.Container().Get(utils.Nameof((*command.PlaceAsBackOrderCommand)(nil))).(command.PlaceAsBackOrderCommand)
+
+var rejectOrderCommand = module.Container().Get(utils.Nameof((*command.RejectOrderCommand)(nil))).(command.RejectOrderCommand)
 
 type orderController struct{}
 
@@ -51,7 +55,7 @@ func (c *orderController) get() gin.HandlerFunc {
 
 func (c *orderController) accept() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := orderCommand.Accept(c.Query("id"))
+		err := acceptOrderCommand.Execute(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
@@ -63,7 +67,7 @@ func (c *orderController) accept() gin.HandlerFunc {
 
 func (c *orderController) placeAsBackOrder() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := orderCommand.PlaceAsBackOrder(c.Query("id"))
+		err := placeAsBackOrderCommand.Execute(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
@@ -75,7 +79,7 @@ func (c *orderController) placeAsBackOrder() gin.HandlerFunc {
 
 func (c *orderController) reject() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := orderCommand.Reject(c.Query("id"))
+		err := rejectOrderCommand.Execute(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return

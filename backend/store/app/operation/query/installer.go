@@ -14,5 +14,11 @@ func Install(builder *di.Builder) {
 				return googleBookQuery{}, nil
 			},
 		},
+		{
+			Name: utils.Nameof((*OrderQuery)(nil)),
+			Build: func(ctn di.Container) (interface{}, error) {
+				return orderQuery{}, nil
+			},
+		},
 	}...)
 }

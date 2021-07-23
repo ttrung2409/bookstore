@@ -14,7 +14,7 @@ func BookReceiptRoutes(r *gin.Engine) {
 	r.POST("/", controller.create())
 }
 
-var bookReceiving = module.Container().Get(utils.Nameof((*command.BookReceiving)(nil))).(command.BookReceiving)
+var receiveBookCommand = module.Container().Get(utils.Nameof((*command.ReceiveBookCommand)(nil))).(command.ReceiveBookCommand)
 
 type bookReceiptController struct{}
 
@@ -26,7 +26,7 @@ func (c *bookReceiptController) create() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, err)
 		}
 
-		err = bookReceiving.Receive(request)
+		err = receiveBookCommand.Execute(request)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
