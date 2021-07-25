@@ -1,9 +1,32 @@
 package com.bookstore.ecommerce.app.domain;
 
-public class Order {
-  private com.bookstore.ecommerce.app.data.Order state;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.UUID;
 
-  public Order(com.bookstore.ecommerce.app.data.Order order) {
-    this.state = order;
+import com.bookstore.ecommerce.app.domain.data.Book;
+import com.bookstore.ecommerce.app.domain.data.Customer;
+import com.bookstore.ecommerce.app.domain.data.OrderItem;
+import com.bookstore.ecommerce.app.domain.data.OrderStatus;
+
+import lombok.Getter;
+
+public class Order {
+  @Getter
+  private final com.bookstore.ecommerce.app.domain.data.Order state;
+
+  public Order(Customer customer, Book[] books) {
+    final var id = UUID.randomUUID().toString();
+
+    final var items = new ArrayList<OrderItem>();
+    for (final var book : books) {
+      items.add(OrderItem.builder().key(OrderItem.newPartitionKey(id, book.getId())).bookTitle(book.getTitle())
+          .bookSubTitle(book.getSubTitle()).bookDescription(book.getDescription()).build());
+    }
+
+    this.state = com.bookstore.ecommerce.app.domain.data.Order.builder().id(id).number(id).createdAt(Instant.now())
+        .status(OrderStatus.Queued.toString()).customerName(customer.getName()).customerPhone(customer.getPhone())
+        .customerDeliveryAddress(customer.getDeliveryAddress()).items(items.toArray(new OrderItem[items.size()]))
+        .build();
   }
 }

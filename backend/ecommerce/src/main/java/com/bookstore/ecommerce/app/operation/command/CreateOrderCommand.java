@@ -1,5 +1,5 @@
 package com.bookstore.ecommerce.app.operation.command;
 
 public interface CreateOrderCommand {
-  String execute(Order order);
+  void execute(CreateOrderRequest request) throws Exception;
 }

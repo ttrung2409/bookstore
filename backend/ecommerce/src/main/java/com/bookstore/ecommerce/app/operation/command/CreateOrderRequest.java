@@ -3,7 +3,7 @@ package com.bookstore.ecommerce.app.operation.command;
 import lombok.Data;
 
 @Data
-public class Order {
+public class CreateOrderRequest {
   private Customer customer;
-  private OrderItem[] items;
+  private Book[] books;
 }
