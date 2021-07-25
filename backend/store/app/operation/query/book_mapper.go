@@ -1,6 +1,6 @@
 package query
 
-import "store/app/data"
+import "store/app/domain/data"
 
 func (Book) fromDataObject(b data.Book) Book {
 	return Book{

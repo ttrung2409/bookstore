@@ -59,13 +59,3 @@ func (item BookReceiptItem) Clone() BookReceiptItem {
 		Qty:           item.Qty,
 	}
 }
-
-type BookReceiptRepository interface {
-	repositoryBase
-	Get(id EntityId, tx Transaction) (*BookReceipt, error)
-	Create(receipt *BookReceipt, tx Transaction) (EntityId, error)
-}
-
-type BookReceiptItemRepository interface {
-	repositoryBase
-}

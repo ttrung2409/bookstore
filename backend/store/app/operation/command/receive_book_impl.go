@@ -1,8 +1,8 @@
 package command
 
 import (
-	"store/app/data"
 	"store/app/domain"
+	repo "store/app/repository"
 
 	funk "github.com/thoas/go-funk"
 )
@@ -19,7 +19,7 @@ func (*receiveBookCommand) Execute(request ReceiveBooksRequest) error {
 	}
 
 	_, err := TransactionFactory.RunInTransaction(
-		func(tx data.Transaction) (interface{}, error) {
+		func(tx repo.Transaction) (interface{}, error) {
 			// create books if not exists
 			for _, item := range request.Items {
 				dataBook := item.Book.toDataObject()

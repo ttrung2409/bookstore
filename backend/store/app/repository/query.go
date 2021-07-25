@@ -1,4 +1,4 @@
-package data
+package repository
 
 type Query interface {
 	Select(fields ...string) Query

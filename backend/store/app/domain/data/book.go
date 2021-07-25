@@ -28,8 +28,3 @@ func (b *Book) GetId() EntityId {
 func (b *Book) SetId(id EntityId) {
 	b.Id = id
 }
-
-type BookRepository interface {
-	repositoryBase
-	CreateIfNotExists(book *Book, tx Transaction) (EntityId, error)
-}

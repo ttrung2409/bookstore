@@ -1,7 +1,8 @@
 package postgres
 
 import (
-	"store/app/data"
+	"store/app/domain/data"
+	repo "store/app/repository"
 )
 
 type bookReceiptRepository struct {
@@ -22,7 +23,7 @@ var bookReceiptItemRepositoryInstance = bookReceiptItemRepository{postgresReposi
 
 func (r *bookReceiptRepository) Get(
 	id data.EntityId,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) (*data.BookReceipt, error) {
 	record, err := r.
 		Query(&data.BookReceipt{}, tx).
@@ -40,7 +41,7 @@ func (r *bookReceiptRepository) Get(
 
 func (r *bookReceiptRepository) Create(
 	receipt *data.BookReceipt,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) (data.EntityId, error) {
 	receiptId, err := r.create(receipt, tx)
 	if err != nil {

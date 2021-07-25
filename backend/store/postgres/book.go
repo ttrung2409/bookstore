@@ -1,7 +1,8 @@
 package postgres
 
 import (
-	data "store/app/data"
+	data "store/app/domain/data"
+	repo "store/app/repository"
 
 	"gorm.io/gorm"
 )
@@ -12,7 +13,7 @@ type bookRepository struct {
 
 func (r *bookRepository) CreateIfNotExist(
 	book *data.Book,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) (data.EntityId, error) {
 	book.Id = data.NewEntityId()
 
@@ -31,7 +32,7 @@ func (r *bookRepository) CreateIfNotExist(
 func (r *bookRepository) AdjustOnhandQty(
 	id data.EntityId,
 	qty int,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) error {
 	db := Db()
 	if tx != nil {
@@ -53,7 +54,7 @@ func (r *bookRepository) AdjustOnhandQty(
 func (r *bookRepository) AdjustReservedQty(
 	id data.EntityId,
 	qty int,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) error {
 	db := Db()
 	if tx != nil {

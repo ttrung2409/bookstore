@@ -1,7 +1,7 @@
 package query
 
 import (
-	"store/app/data"
+	"store/app/domain/data"
 )
 
 type orderQuery struct{}

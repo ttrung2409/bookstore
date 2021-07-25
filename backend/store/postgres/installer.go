@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"store/app/data"
+	repo "store/app/repository"
 	"store/utils"
 
 	"github.com/sarulabs/di"
@@ -15,25 +15,25 @@ var db *gorm.DB
 func Install(builder *di.Builder) {
 	builder.Add([]di.Def{
 		{
-			Name: utils.Nameof((*data.BookRepository)(nil)),
+			Name: utils.Nameof((*repo.BookRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return bookRepositoryInstance, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*data.BookReceiptRepository)(nil)),
+			Name: utils.Nameof((*repo.BookReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return bookReceiptRepositoryInstance, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*data.OrderRepository)(nil)),
+			Name: utils.Nameof((*repo.OrderRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return orderRepositoryInstance, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*data.TransactionFactory)(nil)),
+			Name: utils.Nameof((*repo.TransactionFactory)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return transactionFactory{}, nil
 			},

@@ -1,7 +1,7 @@
 package command
 
 import (
-	"store/app/data"
+	"store/app/domain/data"
 )
 
 func (b Book) toDataObject() data.Book {

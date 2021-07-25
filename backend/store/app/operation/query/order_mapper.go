@@ -1,6 +1,6 @@
 package query
 
-import "store/app/data"
+import "store/app/domain/data"
 
 func (Order) fromDataObject(order *data.Order) *Order {
 	items := []OrderItem{}

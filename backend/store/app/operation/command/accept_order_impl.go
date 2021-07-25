@@ -1,15 +1,16 @@
 package command
 
 import (
-	"store/app/data"
 	"store/app/domain"
+	"store/app/domain/data"
+	repo "store/app/repository"
 )
 
 type acceptOrderCommand struct{}
 
 func (*acceptOrderCommand) Execute(id string) error {
 	_, err := TransactionFactory.RunInTransaction(
-		func(tx data.Transaction) (interface{}, error) {
+		func(tx repo.Transaction) (interface{}, error) {
 			dataOrder, err := OrderRepository.Get(data.FromStringToEntityId(id), tx)
 			if err != nil {
 				return nil, err

@@ -1,7 +1,7 @@
 package domain
 
 import (
-	data "store/app/data"
+	data "store/app/domain/data"
 
 	"github.com/thoas/go-funk"
 )

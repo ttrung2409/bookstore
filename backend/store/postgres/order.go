@@ -1,7 +1,8 @@
 package postgres
 
 import (
-	data "store/app/data"
+	data "store/app/domain/data"
+	repo "store/app/repository"
 
 	"github.com/thoas/go-funk"
 )
@@ -10,7 +11,7 @@ type orderRepository struct {
 	postgresRepository
 }
 
-func (r *orderRepository) Get(id data.EntityId, tx data.Transaction) (*data.Order, error) {
+func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*data.Order, error) {
 	record, err := r.
 		Query(&data.Order{}, tx).
 		IncludeMany("Items").
@@ -34,7 +35,7 @@ func (r *orderRepository) Get(id data.EntityId, tx data.Transaction) (*data.Orde
 	return order, nil
 }
 
-func (r *orderRepository) GetReceivingOrders(tx data.Transaction) ([]*data.Order, error) {
+func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*data.Order, error) {
 	records, err := r.
 		Query(&data.Order{}, tx).
 		Where("status = ?", data.OrderStatusReceiving).
@@ -64,7 +65,7 @@ func (r *orderRepository) GetReceivingOrders(tx data.Transaction) ([]*data.Order
 	return orders, nil
 }
 
-func (r *orderRepository) Update(order *data.Order, tx data.Transaction) error {
+func (r *orderRepository) Update(order *data.Order, tx repo.Transaction) error {
 	if err := r.update(order.Id, order, tx); err != nil {
 		return err
 	}

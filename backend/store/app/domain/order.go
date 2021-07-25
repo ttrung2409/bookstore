@@ -3,7 +3,7 @@ package domain
 import (
 	"errors"
 	"fmt"
-	"store/app/data"
+	"store/app/domain/data"
 )
 
 type Order struct {

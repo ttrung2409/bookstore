@@ -64,10 +64,3 @@ func (item OrderItem) Clone() OrderItem {
 		Qty:     item.Qty,
 	}
 }
-
-type OrderRepository interface {
-	repositoryBase
-	Get(id EntityId, tx Transaction) (*Order, error)
-	GetReceivingOrders(tx Transaction) ([]*Order, error)
-	Update(order *Order, tx Transaction) error
-}

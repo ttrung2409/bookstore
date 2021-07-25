@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	data "store/app/data"
+	data "store/app/domain/data"
+	repo "store/app/repository"
 	"strings"
 
 	"gorm.io/gorm"
@@ -15,11 +16,11 @@ type postgresRepository struct {
 	newEntity func() data.Entity
 }
 
-func (r *postgresRepository) Query(model interface{}, tx data.Transaction) data.Query {
+func (r *postgresRepository) Query(model interface{}, tx repo.Transaction) repo.Query {
 	return newQuery(model, tx)
 }
 
-func (r *postgresRepository) get(id data.EntityId, tx data.Transaction) (interface{}, error) {
+func (r *postgresRepository) get(id data.EntityId, tx repo.Transaction) (interface{}, error) {
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
@@ -40,7 +41,7 @@ func (r *postgresRepository) get(id data.EntityId, tx data.Transaction) (interfa
 
 func (r *postgresRepository) create(
 	entity data.Entity,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) (data.EntityId, error) {
 	db := Db()
 	if tx != nil {
@@ -57,7 +58,7 @@ func (r *postgresRepository) create(
 func (r *postgresRepository) update(
 	id data.EntityId,
 	entity data.Entity,
-	tx data.Transaction,
+	tx repo.Transaction,
 ) error {
 	db := Db()
 	if tx != nil {
@@ -87,7 +88,7 @@ func getPrimaryKey(entity data.Entity) string {
 
 func toDataQueryError(err error) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return data.ErrNotFound
+		return repo.ErrNotFound
 	}
 
 	return err

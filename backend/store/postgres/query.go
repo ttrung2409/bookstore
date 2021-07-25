@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"fmt"
-	"store/app/data"
+	repo "store/app/repository"
 	"strings"
 
 	"github.com/thoas/go-funk"
@@ -14,7 +14,7 @@ type query struct {
 	includeChain string
 }
 
-func newQuery(model interface{}, tx data.Transaction) data.Query {
+func newQuery(model interface{}, tx repo.Transaction) repo.Query {
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
@@ -23,12 +23,12 @@ func newQuery(model interface{}, tx data.Transaction) data.Query {
 	return &query{db: db.Model(model), includeChain: ""}
 }
 
-func (q *query) Select(fields ...string) data.Query {
+func (q *query) Select(fields ...string) repo.Query {
 	q.db = q.db.Select(fields)
 	return q
 }
 
-func (q *query) Include(ref string) data.Query {
+func (q *query) Include(ref string) repo.Query {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 		q.includeChain = ref
@@ -39,7 +39,7 @@ func (q *query) Include(ref string) data.Query {
 	return q
 }
 
-func (q *query) IncludeMany(ref string) data.Query {
+func (q *query) IncludeMany(ref string) repo.Query {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 		q.includeChain = ref
@@ -50,22 +50,22 @@ func (q *query) IncludeMany(ref string) data.Query {
 	return q
 }
 
-func (q *query) ThenInclude(relation string) data.Query {
+func (q *query) ThenInclude(relation string) repo.Query {
 	q.includeChain = fmt.Sprintf("%s.%s", q.includeChain, relation)
 	return q
 }
 
-func (q *query) Where(condition string, args ...interface{}) data.Query {
+func (q *query) Where(condition string, args ...interface{}) repo.Query {
 	q.db = q.db.Where(condition, args)
 	return q
 }
 
-func (q *query) OrderBy(field string) data.Query {
+func (q *query) OrderBy(field string) repo.Query {
 	q.db = q.db.Order(fmt.Sprintf("%s asc", field))
 	return q
 }
 
-func (q *query) OrderByDesc(field string) data.Query {
+func (q *query) OrderByDesc(field string) repo.Query {
 	q.db = q.db.Order(fmt.Sprintf("%s desc", field))
 	return q
 }

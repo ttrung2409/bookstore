@@ -1,4 +1,4 @@
-package data
+package repository
 
 type Transaction interface {
 	Commit() error

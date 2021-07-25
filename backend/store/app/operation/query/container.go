@@ -2,8 +2,8 @@ package query
 
 import (
 	module "store"
-	"store/app/data"
+	repo "store/app/repository"
 	"store/utils"
 )
 
-var OrderRepository = module.Container().Get(utils.Nameof((*data.OrderRepository)(nil))).(data.OrderRepository)
+var OrderRepository = module.Container().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)

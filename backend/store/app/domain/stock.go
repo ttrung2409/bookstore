@@ -1,6 +1,6 @@
 package domain
 
-import "store/app/data"
+import "store/app/domain/data"
 
 type Stock struct {
 	state data.Stock
