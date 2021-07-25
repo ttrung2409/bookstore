@@ -30,8 +30,8 @@ public class CreateOrderCommandImpl implements CreateOrderCommand {
     final var order = new com.bookstore.ecommerce.app.domain.Order(request.getCustomer().toDataObject(),
         books.toArray(new com.bookstore.ecommerce.app.domain.data.Book[books.size()]));
 
-    this.transactionFactory.runInTransaction(() -> {
-      return this.orderRepository.create(order.getState());
+    this.transactionFactory.runInTransaction(tx -> {
+      return this.orderRepository.create(order.getState(), tx);
     });
   }
 }

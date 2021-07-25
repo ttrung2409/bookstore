@@ -7,5 +7,5 @@ import com.bookstore.ecommerce.app.domain.data.Order;
 public interface OrderRepository {
   CompletableFuture<Order> get(String id);
 
-  CompletableFuture<Void> create(Order order) throws Exception;
+  CompletableFuture<Void> create(Order order, Transaction tx) throws Exception;
 }

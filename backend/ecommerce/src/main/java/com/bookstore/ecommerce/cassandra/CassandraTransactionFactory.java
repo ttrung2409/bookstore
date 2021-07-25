@@ -1,23 +1,24 @@
 package com.bookstore.ecommerce.cassandra;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
+import com.bookstore.ecommerce.app.repository.TransactionalFunc;
 import com.ea.async.Async;
 
 @Component
-public class TransactionFactoryImpl implements TransactionFactory {
+public class CassandraTransactionFactory implements TransactionFactory {
   @Override
-  public <T> T runInTransaction(Callable<CompletableFuture<T>> func) throws Exception {
+  public <R> R runInTransaction(TransactionalFunc<CompletableFuture<R>> func) throws Exception {
     try (var manager = new EntityManager()) {
-      var transaction = manager.getManager().getTransaction();
+      var transaction = new CassandraTransaction(manager);
 
       try {
         transaction.begin();
-        var result = Async.await(func.call());
+        var result = Async.await(func.apply(transaction));
         transaction.commit();
 
         return result;
