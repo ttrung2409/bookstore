@@ -28,7 +28,6 @@ func (*acceptOrderCommand) Execute(id string) error {
 
 			return nil, nil
 		},
-		nil,
 	)
 
 	return err

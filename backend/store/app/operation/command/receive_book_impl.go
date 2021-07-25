@@ -45,7 +45,7 @@ func (*receiveBookCommand) Execute(request ReceiveBooksRequest) error {
 			}
 
 			return receiptId, err
-		}, nil)
+		})
 
 	channel := make(chan error)
 

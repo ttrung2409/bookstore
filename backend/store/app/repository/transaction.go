@@ -9,5 +9,5 @@ type TransactionalFunc func(tx Transaction) (interface{}, error)
 
 type TransactionFactory interface {
 	New() Transaction
-	RunInTransaction(fn TransactionalFunc, ambientTx Transaction) (interface{}, error)
+	RunInTransaction(fn TransactionalFunc) (interface{}, error)
 }

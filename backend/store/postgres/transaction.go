@@ -23,27 +23,21 @@ func (f *transactionFactory) New() repo.Transaction {
 
 func (f *transactionFactory) RunInTransaction(
 	fn repo.TransactionalFunc,
-	ambientTx repo.Transaction,
 ) (interface{}, error) {
-	tx := ambientTx
-	if tx == nil {
-		tx = f.New()
-	}
+	tx := f.New()
 
 	var err error
 	defer func() {
-		if err != nil && ambientTx == nil {
+		if err != nil {
 			tx.Rollback()
 		}
 	}()
 
 	result, err := fn(tx)
 
-	if ambientTx == nil {
-		err = tx.Commit()
-		if err != nil {
-			return nil, err
-		}
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
 	}
 
 	return result, nil
