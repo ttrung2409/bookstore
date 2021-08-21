@@ -1,7 +1,11 @@
 package com.bookstore.ecommerce.app.operation.query;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
+@AllArgsConstructor
+@Builder
 @Data
 public class Book {
   private String id;

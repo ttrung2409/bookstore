@@ -1,7 +1,6 @@
 package com.bookstore.ecommerce.cassandra;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 

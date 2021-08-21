@@ -15,6 +15,4 @@ public class Book {
   private String subTitle;
   @Getter
   private String description;
-  @Getter
-  private int qty;
 }

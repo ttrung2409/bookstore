@@ -22,7 +22,7 @@ public class OrderItem {
   @Column(name = "book_title")
   private String bookTitle;
   @Getter
-  @Column(name = "bookSubTitle")
+  @Column(name = "book_sub_title")
   private String bookSubTitle;
   @Getter
   @Column(name = "book_description")
