@@ -24,13 +24,12 @@ func (order *Order) Accept() error {
 		return errors.New(fmt.Sprintf("Order status '%s' is invalid for accepting", order.state.Status))
 	}
 
-	order.state.Status = data.OrderStatusAccepted
-
 	stock := Stock{}.New(order.state.Stock)
 	if !stock.enoughForOrder(order) {
 		return errors.New("Not enough stock")
 	}
 
+	order.state.Status = data.OrderStatusAccepted
 	order.state.Stock = stock.decreaseByOrder(order).state
 
 	return nil
