@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.elastic;
+package com.bookstore.ecommerce.repository.elastic;
 
 import java.util.concurrent.CompletableFuture;
 

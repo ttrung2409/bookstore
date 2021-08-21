@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.cassandra;
+package com.bookstore.ecommerce.repository.cassandra;
 
 import java.util.concurrent.CompletableFuture;
 

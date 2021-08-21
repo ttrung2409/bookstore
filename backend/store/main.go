@@ -1,7 +1,7 @@
 package container
 
 import (
-	postgres "store/postgres"
+	postgres "store/repository/postgres"
 
 	"github.com/sarulabs/di"
 )
