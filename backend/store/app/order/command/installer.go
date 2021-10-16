@@ -9,19 +9,13 @@ import (
 func Install(builder *di.Builder) {
 	builder.Add([]di.Def{
 		{
-			Name: utils.Nameof((*ReceiveBookCommand)(nil)),
-			Build: func(ctn di.Container) (interface{}, error) {
-				return receiveBookCommand{}, nil
-			},
-		},
-		{
 			Name: utils.Nameof((*AcceptOrderCommand)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return acceptOrderCommand{}, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*placeAsBackOrderCommand)(nil)),
+			Name: utils.Nameof((*PlaceAsBackOrderCommand)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return placeAsBackOrderCommand{}, nil
 			},

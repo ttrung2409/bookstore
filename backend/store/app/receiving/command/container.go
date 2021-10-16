@@ -1,0 +1,13 @@
+package command
+
+import (
+	module "store"
+	repo "store/app/repository"
+	"store/utils"
+)
+
+var BookRepository = module.Container().Get(utils.Nameof((*repo.BookRepository)(nil))).(repo.BookRepository)
+
+var BookReceiptRepository = module.Container().Get(utils.Nameof((*repo.BookReceiptRepository)(nil))).(repo.BookReceiptRepository)
+
+var TransactionFactory = module.Container().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)

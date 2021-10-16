@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 	module "store"
-	command "store/app/operation/command"
+	command "store/app/receiving/command"
 	"store/utils"
 
 	"github.com/gin-gonic/gin"

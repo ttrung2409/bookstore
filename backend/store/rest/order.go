@@ -3,8 +3,8 @@ package rest
 import (
 	"net/http"
 	module "store"
-	command "store/app/operation/command"
-	query "store/app/operation/query"
+	command "store/app/order/command"
+	query "store/app/order/query"
 	"store/utils"
 
 	"github.com/gin-gonic/gin"
