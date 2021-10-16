@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.operation.command;
+package com.bookstore.ecommerce.app.order.command;
 
 public class CustomerMapper {
   public static com.bookstore.ecommerce.app.domain.data.Customer toDataObject(Customer customer) {

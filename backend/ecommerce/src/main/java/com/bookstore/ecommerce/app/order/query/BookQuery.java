@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.operation.query;
+package com.bookstore.ecommerce.app.order.query;
 
 import java.util.concurrent.CompletableFuture;
 

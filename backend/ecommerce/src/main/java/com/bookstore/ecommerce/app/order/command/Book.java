@@ -1,11 +1,7 @@
-package com.bookstore.ecommerce.app.operation.query;
+package com.bookstore.ecommerce.app.order.command;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
-@AllArgsConstructor
-@Builder
 @Data
 public class Book {
   private String id;
