@@ -7,9 +7,9 @@ import (
 	"net/url"
 )
 
-type googleBookQuery struct{}
+type bookQuery struct{}
 
-func (*googleBookQuery) Find(term string) ([]Book, error) {
+func (*bookQuery) SearchGoogleBooks(term string) ([]Book, error) {
 	url, err := url.Parse("https://www.googleapis.com/books/v1/volumes")
 	if err != nil {
 		return nil, err

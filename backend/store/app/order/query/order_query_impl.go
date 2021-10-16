@@ -20,16 +20,18 @@ func (*orderQuery) FindOrdersToDeliver() ([]*Order, error) {
 	var orders []*Order
 	for _, record := range records {
 		dataOrder := record.(*data.Order)
-		orders = append(orders, Order{}.fromDataObject(dataOrder))
+		viewOrder := Order{}.fromDataObject(dataOrder)
+		orders = append(orders, &viewOrder)
 	}
 
 	return orders, nil
 }
 
-func (*orderQuery) GetOrderToView(id string) (*Order, error) {
+func (*orderQuery) GetOrderDetails(id string) (*Order, error) {
 	orderId := data.FromStringToEntityId(id)
 	record, err := OrderRepository.
 		Query(&data.Order{}, nil).
+		Include("Customer").
 		IncludeMany("Items").
 		ThenInclude("Book").
 		Where("id = ?", orderId).

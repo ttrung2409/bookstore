@@ -11,6 +11,8 @@ func (b Book) toDataObject() data.Book {
 		Subtitle:      b.Subtitle,
 		Description:   b.Description,
 		Authors:       b.Authors,
+		Publisher:     b.Publisher,
+		PublishedDate: b.PublishedDate,
 		AverageRating: b.AverageRating,
 		RatingsCount:  b.RatingsCount,
 		ThumbnailUrl:  b.ThumbnailUrl,

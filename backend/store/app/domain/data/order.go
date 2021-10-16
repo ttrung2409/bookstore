@@ -21,6 +21,7 @@ type Order struct {
 	Status     OrderStatus
 	Items      []OrderItem `gorm:"foreignKey:OrderId"`
 	Stock      Stock       `gorm:"-"`
+	Customer   Customer    `gorm:"foreignKey:Id"`
 }
 
 func (o *Order) GetId() EntityId {

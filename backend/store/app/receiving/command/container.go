@@ -10,4 +10,6 @@ var BookRepository = module.Container().Get(utils.Nameof((*repo.BookRepository)(
 
 var BookReceiptRepository = module.Container().Get(utils.Nameof((*repo.BookReceiptRepository)(nil))).(repo.BookReceiptRepository)
 
+var OrderRepository = module.Container().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+
 var TransactionFactory = module.Container().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
