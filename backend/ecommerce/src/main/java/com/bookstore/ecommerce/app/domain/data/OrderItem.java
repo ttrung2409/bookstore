@@ -17,28 +17,26 @@ import lombok.Getter;
 public class OrderItem {
   @Getter
   @EmbeddedId
-  private PartitionKey key;
+  private Key key;
   @Getter
   @Column(name = "book_title")
   private String bookTitle;
   @Getter
-  @Column(name = "book_sub_title")
-  private String bookSubTitle;
+  @Column(name = "book_subtitle")
+  private String bookSubtitle;
   @Getter
   @Column(name = "book_description")
   private String bookDescription;
   @Getter
+  @Column(name = "book_thumbnail_url")
+  private String bookThumbnailUrl;
+  @Getter
   private int qty;
 
-  public OrderItem() {
-  }
-
-  public static PartitionKey newPartitionKey(String orderId, String bookId) {
-    return new PartitionKey(orderId, bookId);
-  }
+  public OrderItem() {}
 
   @Embeddable
-  private static class PartitionKey {
+  public static class Key {
     @Getter
     @Column(name = "order_id")
     private String orderId;
@@ -46,10 +44,7 @@ public class OrderItem {
     @Column(name = "book_id")
     private String bookId;
 
-    public PartitionKey() {
-    }
-
-    public PartitionKey(String orderId, String bookId) {
+    public Key(String orderId, String bookId) {
       this.orderId = orderId;
       this.bookId = bookId;
     }

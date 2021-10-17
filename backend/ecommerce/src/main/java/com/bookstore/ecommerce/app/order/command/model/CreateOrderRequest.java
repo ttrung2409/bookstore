@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.order.command;
+package com.bookstore.ecommerce.app.order.command.model;
 
 import lombok.Data;
 

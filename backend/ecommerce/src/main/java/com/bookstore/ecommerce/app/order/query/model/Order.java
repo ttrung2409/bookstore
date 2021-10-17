@@ -1,7 +1,6 @@
-package com.bookstore.ecommerce.app.order.query;
+package com.bookstore.ecommerce.app.order.query.model;
 
 import java.time.Instant;
-
 import lombok.Data;
 
 @Data

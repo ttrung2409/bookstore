@@ -19,14 +19,25 @@ public class Order {
     final var id = UUID.randomUUID().toString();
 
     final var items = new ArrayList<OrderItem>();
+
     for (final var book : books) {
-      items.add(OrderItem.builder().key(OrderItem.newPartitionKey(id, book.getId())).bookTitle(book.getTitle())
-          .bookSubTitle(book.getSubTitle()).bookDescription(book.getDescription()).build());
+      items.add(OrderItem.builder()
+        .key(new OrderItem.Key(id, book.getId()))
+        .bookTitle(book.getTitle())
+        .bookSubtitle(book.getSubtitle())
+        .bookDescription(book.getDescription())
+        .build());
     }
 
-    this.state = com.bookstore.ecommerce.app.domain.data.Order.builder().id(id).number(id).createdAt(Instant.now())
-        .status(OrderStatus.Queued.toString()).customerName(customer.getName()).customerPhone(customer.getPhone())
-        .customerDeliveryAddress(customer.getDeliveryAddress()).items(items.toArray(new OrderItem[items.size()]))
-        .build();
+    this.state = com.bookstore.ecommerce.app.domain.data.Order.builder()
+      .id(id)
+      .number(id)
+      .createdAt(Instant.now())
+      .status(OrderStatus.Queued.toString())
+      .customerName(customer.getName())
+      .customerPhone(customer.getPhone())
+      .customerDeliveryAddress(customer.getDeliveryAddress())
+      .items(items.toArray(OrderItem[]::new))
+      .build();
   }
 }
