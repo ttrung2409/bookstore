@@ -15,7 +15,7 @@ type bookController struct{}
 
 func (c *bookController) find() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		books, err := receivingQuery.SearchGoogleBooks(c.Query("term"))
+		books, err := receivingQuery.FindGoogleBooks(c.Query("term"))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
