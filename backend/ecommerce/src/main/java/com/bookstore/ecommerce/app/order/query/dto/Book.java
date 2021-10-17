@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.order.query.model;
+package com.bookstore.ecommerce.app.order.query.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +26,13 @@ public class Book {
       .title(book.getTitle())
       .subtitle(book.getSubtitle())
       .description(book.getDescription())
+      .authors(book.getAuthors())
+      .averageRating(book.getAverageRating())
+      .ratingsCount(book.getRatingsCount())
+      .thumbnailUrl(book.getThumbnailUrl())
+      .previewUrl(book.getPreviewUrl())
+      .onhandQty(book.getOnhandQty())
+      .reservedQty(book.getReservedQty())
       .build();
   }
 }

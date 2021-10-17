@@ -2,7 +2,7 @@ package com.bookstore.ecommerce.app.order.command;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import com.bookstore.ecommerce.app.order.command.model.CreateOrderRequest;
+import com.bookstore.ecommerce.app.order.command.dto.CreateOrderRequest;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
 import com.ea.async.Async;
