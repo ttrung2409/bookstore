@@ -1,6 +1,9 @@
 package command
 
-import "time"
+import (
+	"store/app/domain/data"
+	"time"
+)
 
 type Book struct {
 	GoogleBookId  string
@@ -14,4 +17,20 @@ type Book struct {
 	RatingsCount  int
 	ThumbnailUrl  string
 	PreviewUrl    string
+}
+
+func (b Book) toDataObject() data.Book {
+	return data.Book{
+		GoogleBookId:  b.GoogleBookId,
+		Title:         b.Title,
+		Subtitle:      b.Subtitle,
+		Description:   b.Description,
+		Authors:       b.Authors,
+		Publisher:     b.Publisher,
+		PublishedDate: b.PublishedDate,
+		AverageRating: b.AverageRating,
+		RatingsCount:  b.RatingsCount,
+		ThumbnailUrl:  b.ThumbnailUrl,
+		PreviewUrl:    b.PreviewUrl,
+	}
 }

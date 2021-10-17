@@ -1,19 +1,16 @@
-package container
+package main
 
 import (
+	order "store/app/order"
+	receiving "store/app/receiving"
+	"store/container"
 	postgres "store/repository/postgres"
-
-	"github.com/sarulabs/di"
 )
 
-var container di.Container
-
 func main() {
-	builder, _ := di.NewBuilder()
-	postgres.Install(builder)
-	container = builder.Build()
-}
+	builder := container.ContainerBuilder()
 
-func Container() di.Container {
-	return container
+	postgres.Install(builder)
+	receiving.Install(builder)
+	order.Install(builder)
 }

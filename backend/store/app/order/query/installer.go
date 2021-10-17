@@ -9,9 +9,9 @@ import (
 func Install(builder *di.Builder) {
 	builder.Add([]di.Def{
 		{
-			Name: utils.Nameof((*OrderQuery)(nil)),
+			Name: utils.Nameof((*Query)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return orderQuery{}, nil
+				return query{}, nil
 			},
 		},
 	}...)

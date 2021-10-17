@@ -1,9 +1,9 @@
 package query
 
 import (
-	module "store"
 	repo "store/app/repository"
+	"store/container"
 	"store/utils"
 )
 
-var OrderRepository = module.Container().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+var OrderRepository = container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)

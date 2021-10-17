@@ -9,9 +9,9 @@ import (
 func Install(builder *di.Builder) {
 	builder.Add([]di.Def{
 		{
-			Name: utils.Nameof((*ReceiveBookCommand)(nil)),
+			Name: utils.Nameof((*Command)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return receiveBookCommand{}, nil
+				return command{}, nil
 			},
 		},
 	}...)

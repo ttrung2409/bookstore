@@ -7,9 +7,16 @@ import (
 	funk "github.com/thoas/go-funk"
 )
 
-type receiveBookCommand struct{}
+type ReceivingBook struct {
+	Book
+	Qty int
+}
 
-func (*receiveBookCommand) Execute(request ReceiveBooksRequest) error {
+type ReceiveBooksRequest struct {
+	Items []ReceivingBook
+}
+
+func (*command) Receive(request ReceiveBooksRequest) error {
 	receivingBooks := map[string]*domain.ReceivingBook{}
 	for _, item := range request.Items {
 		receivingBooks[item.GoogleBookId] = &domain.ReceivingBook{
