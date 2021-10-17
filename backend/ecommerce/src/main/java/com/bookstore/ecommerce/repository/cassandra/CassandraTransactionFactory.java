@@ -1,9 +1,7 @@
 package com.bookstore.ecommerce.repository.cassandra;
 
 import java.util.concurrent.CompletableFuture;
-
 import org.springframework.stereotype.Component;
-
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
 import com.bookstore.ecommerce.app.repository.TransactionalFunc;
 import com.ea.async.Async;
