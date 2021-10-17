@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-func (*query) SearchGoogleBooks(term string) ([]Book, error) {
+func (*query) FindGoogleBooks(term string) ([]Book, error) {
 	url, err := url.Parse("https://www.googleapis.com/books/v1/volumes")
 	if err != nil {
 		return nil, err
