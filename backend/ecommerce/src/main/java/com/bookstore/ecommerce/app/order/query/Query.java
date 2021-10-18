@@ -1,11 +1,12 @@
 package com.bookstore.ecommerce.app.order.query;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import com.bookstore.ecommerce.app.order.query.dto.Book;
 import com.bookstore.ecommerce.app.order.query.dto.Order;
 
 public interface Query {
-  CompletableFuture<Book[]> findBooks(String term);
+  CompletableFuture<List<Book>> findBooks(String term) throws Exception;
 
-  Order getOrderDetails(String orderId);
+  CompletableFuture<Order> getOrderDetails(String orderId) throws Exception;
 }

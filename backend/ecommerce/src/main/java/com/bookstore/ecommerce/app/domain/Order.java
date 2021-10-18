@@ -37,7 +37,7 @@ public class Order {
       .customerName(customer.getName())
       .customerPhone(customer.getPhone())
       .customerDeliveryAddress(customer.getDeliveryAddress())
-      .items(items.toArray(OrderItem[]::new))
+      .items(items)
       .build();
   }
 }

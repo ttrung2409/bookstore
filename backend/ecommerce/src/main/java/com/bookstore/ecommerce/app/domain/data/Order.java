@@ -1,6 +1,7 @@
 package com.bookstore.ecommerce.app.domain.data;
 
 import java.time.Instant;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,6 +29,9 @@ public class Order {
   @Getter
   private String status;
   @Getter
+  @Column(name = "customer_id")
+  private String customerId;
+  @Getter
   @Column(name = "customer_name")
   private String customerName;
   @Getter
@@ -38,8 +42,7 @@ public class Order {
   private String customerDeliveryAddress;
   @Getter
   @Transient
-  private OrderItem[] items;
+  private List<OrderItem> items;
 
-  public Order() {
-  }
+  public Order() {}
 }

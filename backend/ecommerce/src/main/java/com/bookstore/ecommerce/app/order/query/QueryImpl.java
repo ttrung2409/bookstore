@@ -1,35 +1,41 @@
 package com.bookstore.ecommerce.app.order.query;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import com.bookstore.ecommerce.app.order.query.dto.Book;
 import com.bookstore.ecommerce.app.order.query.dto.Order;
 import com.bookstore.ecommerce.app.repository.BookRepository;
-import com.ea.async.Async;
+import com.bookstore.ecommerce.app.repository.OrderRepository;
 
 import org.springframework.stereotype.Component;
-
 
 @Component
 public class QueryImpl implements Query {
   private final BookRepository bookRepository;
+  private final OrderRepository orderRepository;
 
-  public QueryImpl(BookRepository bookRepository) {
+  public QueryImpl(BookRepository bookRepository, OrderRepository orderRepository) {
     this.bookRepository = bookRepository;
+    this.orderRepository = orderRepository;
   }
 
   @Override
-  public CompletableFuture<Book[]> findBooks(String term) {
-    var books = Async.await(this.bookRepository.find(term));
+  public CompletableFuture<List<Book>> findBooks(String term) throws Exception {
+    var books = this.bookRepository.find(term).join();
 
     return CompletableFuture.completedFuture(
-      Arrays.stream(books)
+      books
+        .stream()
         .map(book -> Book.fromDataObject(book))
-        .toArray(Book[]::new));
+        .collect(Collectors.toList()));
+
   }
 
   @Override
-  public Order getOrderDetails(String orderId) {
-    return null;
+  public CompletableFuture<Order> getOrderDetails(String orderId) throws Exception {
+    final var order = this.orderRepository.getDetails(orderId).join();
+
+    return CompletableFuture.completedFuture(Order.fromDataObject(order));
   }
 }

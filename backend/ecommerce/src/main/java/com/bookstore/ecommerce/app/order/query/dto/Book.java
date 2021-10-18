@@ -1,10 +1,8 @@
 package com.bookstore.ecommerce.app.order.query.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-@AllArgsConstructor
 @Builder
 @Data
 public class Book {

@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import com.bookstore.ecommerce.app.order.command.dto.CreateOrderRequest;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
-import com.ea.async.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +19,7 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public String createOrder(CreateOrderRequest request) throws Exception {
+  public CompletableFuture<String> createOrder(CreateOrderRequest request) throws Exception {
     final var books = new ArrayList<com.bookstore.ecommerce.app.domain.data.Book>();
     for (final var book : request.getBooks()) {
       books.add(book.toDataObject());
@@ -32,7 +31,7 @@ public class CommandImpl implements Command {
         books.toArray(com.bookstore.ecommerce.app.domain.data.Book[]::new));
 
     return this.transactionFactory.runInTransaction(tx -> {
-      Async.await(this.orderRepository.create(order.getState(), tx));
+      this.orderRepository.create(order.getState(), tx).join();
 
       return CompletableFuture.completedFuture(order.getState().getId());
     });
