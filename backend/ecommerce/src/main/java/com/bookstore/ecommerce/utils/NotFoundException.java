@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.utils;
+package com.bookstore.ecommerce.utils;
 
 public class NotFoundException extends RuntimeException {
 
