@@ -1,12 +1,9 @@
-package postgres
+package repository
 
 import (
 	"errors"
-	"fmt"
-	"reflect"
 	data "store/app/domain/data"
 	repo "store/app/repository"
-	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -18,25 +15,6 @@ type postgresRepository struct {
 
 func (r *postgresRepository) Query(model interface{}, tx repo.Transaction) repo.Query {
 	return newQuery(model, tx)
-}
-
-func (r *postgresRepository) get(id data.EntityId, tx repo.Transaction) (interface{}, error) {
-	db := Db()
-	if tx != nil {
-		db = tx.(*transaction).db
-	}
-
-	entity := r.newEntity()
-	key := getPrimaryKey(entity)
-	if key == "" {
-		return nil, errors.New("No primary key found")
-	}
-
-	if result := db.Where(fmt.Sprintf("%s = ?", key)).Find(entity); result.Error != nil {
-		return nil, toDataQueryError(result.Error)
-	}
-
-	return entity, nil
 }
 
 func (r *postgresRepository) create(
@@ -72,18 +50,6 @@ func (r *postgresRepository) update(
 	}
 
 	return nil
-}
-
-func getPrimaryKey(entity data.Entity) string {
-	entityType := reflect.TypeOf(entity).Elem()
-	for i := 0; i < entityType.NumField(); i++ {
-		field := entityType.Field(i)
-		if strings.Contains(field.Tag.Get("gorm"), "primaryKey") {
-			return field.Name
-		}
-	}
-
-	return ""
 }
 
 func toDataQueryError(err error) error {

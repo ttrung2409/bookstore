@@ -1,6 +1,7 @@
-package postgres
+package repository
 
 import (
+	"store/app/domain"
 	"store/app/domain/data"
 	repo "store/app/repository"
 )
@@ -24,7 +25,7 @@ var bookReceiptItemRepositoryInstance = bookReceiptItemRepository{postgresReposi
 func (r *bookReceiptRepository) Get(
 	id data.EntityId,
 	tx repo.Transaction,
-) (*data.BookReceipt, error) {
+) (*domain.BookReceipt, error) {
 	record, err := r.
 		Query(&data.BookReceipt{}, tx).
 		Include("Items").
@@ -36,25 +37,27 @@ func (r *bookReceiptRepository) Get(
 		return nil, err
 	}
 
-	return record.(*data.BookReceipt), nil
+	return domain.BookReceipt{}.New(record.(*data.BookReceipt)), nil
 }
 
 func (r *bookReceiptRepository) Create(
-	receipt *data.BookReceipt,
+	receipt *domain.BookReceipt,
 	tx repo.Transaction,
 ) (data.EntityId, error) {
-	receiptId, err := r.create(receipt, tx)
+	dataReceipt := receipt.State()
+
+	receiptId, err := r.create(dataReceipt, tx)
 	if err != nil {
 		return data.EmptyEntityId, nil
 	}
 
-	for _, item := range receipt.Items {
-		if _, err = bookReceiptItemRepositoryInstance.create(&item, tx); err != nil {
+	for _, item := range dataReceipt.Items {
+		if _, err = bookReceiptItemRepositoryInstance.create(item, tx); err != nil {
 			return data.EmptyEntityId, err
 		}
 	}
 
-	for _, item := range receipt.OnhandStockAdjustment {
+	for _, item := range dataReceipt.OnhandStockAdjustment {
 		bookRepositoryInstance.AdjustOnhandQty(item.BookId, item.Qty, tx)
 	}
 

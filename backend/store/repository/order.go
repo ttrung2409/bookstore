@@ -1,6 +1,7 @@
-package postgres
+package repository
 
 import (
+	"store/app/domain"
 	data "store/app/domain/data"
 	repo "store/app/repository"
 
@@ -11,7 +12,7 @@ type orderRepository struct {
 	postgresRepository
 }
 
-func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*data.Order, error) {
+func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*domain.Order, error) {
 	record, err := r.
 		Query(&data.Order{}, tx).
 		IncludeMany("Items").
@@ -32,10 +33,10 @@ func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*data.Orde
 		}
 	}).(data.Stock)
 
-	return order, nil
+	return domain.Order{}.New(order), nil
 }
 
-func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*data.Order, error) {
+func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*domain.Order, error) {
 	records, err := r.
 		Query(&data.Order{}, tx).
 		Where("status = ?", data.OrderStatusReceiving).
@@ -48,10 +49,10 @@ func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*data.Order
 		return nil, err
 	}
 
-	orders := []*data.Order{}
+	orders := []*domain.Order{}
 	for _, record := range records {
-		order := record.(*data.Order)
-		order.Stock = funk.Map(order.Items, func(item data.OrderItem) data.StockItem {
+		dataOrder := record.(*data.Order)
+		dataOrder.Stock = funk.Map(dataOrder.Items, func(item data.OrderItem) data.StockItem {
 			return data.StockItem{
 				BookId:      item.BookId,
 				OnhandQty:   item.Book.OnhandQty,
@@ -59,19 +60,21 @@ func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*data.Order
 			}
 		}).(data.Stock)
 
-		orders = append(orders, order)
+		orders = append(orders, domain.Order{}.New(dataOrder))
 	}
 
 	return orders, nil
 }
 
-func (r *orderRepository) Update(order *data.Order, tx repo.Transaction) error {
-	if err := r.update(order.Id, order, tx); err != nil {
+func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {
+	dataOrder := order.State()
+
+	if err := r.update(dataOrder.Id, dataOrder, tx); err != nil {
 		return err
 	}
 
-	for _, item := range order.Items {
-		if stock, ok := order.Stock[item.BookId]; ok {
+	for _, item := range dataOrder.Items {
+		if stock, ok := dataOrder.Stock[item.BookId]; ok {
 			if err := bookRepositoryInstance.update(
 				stock.BookId,
 				&data.Book{OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},

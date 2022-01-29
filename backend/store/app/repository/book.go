@@ -1,8 +1,11 @@
 package repository
 
-import "store/app/domain/data"
+import (
+	"store/app/domain"
+	"store/app/domain/data"
+)
 
 type BookRepository interface {
 	repositoryBase
-	CreateIfNotExists(book *data.Book, tx Transaction) (data.EntityId, error)
+	CreateIfNotExists(book *domain.Book, tx Transaction) (data.EntityId, error)
 }

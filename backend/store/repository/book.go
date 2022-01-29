@@ -1,6 +1,7 @@
-package postgres
+package repository
 
 import (
+	"store/app/domain"
 	data "store/app/domain/data"
 	repo "store/app/repository"
 
@@ -12,21 +13,23 @@ type bookRepository struct {
 }
 
 func (r *bookRepository) CreateIfNotExist(
-	book *data.Book,
+	book *domain.Book,
 	tx repo.Transaction,
 ) (data.EntityId, error) {
-	book.Id = data.NewEntityId()
+	dataBook := book.State()
+
+	dataBook.Id = data.NewEntityId()
 
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
 
-	if result := db.Where("google_book_id = ?", book.GoogleBookId).FirstOrCreate(book); result.Error != nil {
+	if result := db.Where("google_book_id = ?", dataBook.GoogleBookId).FirstOrCreate(dataBook); result.Error != nil {
 		return data.EmptyEntityId, result.Error
 	}
 
-	return book.Id, nil
+	return dataBook.Id, nil
 }
 
 func (r *bookRepository) AdjustOnhandQty(

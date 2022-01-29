@@ -1,6 +1,8 @@
 package repository
 
-import "store/app/domain/data"
+import (
+	"store/app/domain/data"
+)
 
 type repositoryBase interface {
 	Query(model interface{}, tx Transaction) Query

@@ -1,13 +1,12 @@
 package repository
 
-import "store/app/domain/data"
+import (
+	"store/app/domain"
+	"store/app/domain/data"
+)
 
 type BookReceiptRepository interface {
 	repositoryBase
-	Get(id data.EntityId, tx Transaction) (*data.BookReceipt, error)
-	Create(receipt *data.BookReceipt, tx Transaction) (data.EntityId, error)
-}
-
-type BookReceiptItemRepository interface {
-	repositoryBase
+	Get(id data.EntityId, tx Transaction) (*domain.BookReceipt, error)
+	Create(receipt *domain.BookReceipt, tx Transaction) (data.EntityId, error)
 }

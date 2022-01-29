@@ -1,10 +1,13 @@
 package repository
 
-import "store/app/domain/data"
+import (
+	"store/app/domain"
+	"store/app/domain/data"
+)
 
 type OrderRepository interface {
 	repositoryBase
-	Get(id data.EntityId, tx Transaction) (*data.Order, error)
-	GetReceivingOrders(tx Transaction) ([]*data.Order, error)
-	Update(order *data.Order, tx Transaction) error
+	Get(id data.EntityId, tx Transaction) (*domain.Order, error)
+	GetReceivingOrders(tx Transaction) ([]*domain.Order, error)
+	Update(order *domain.Order, tx Transaction) error
 }
