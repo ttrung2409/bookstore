@@ -27,7 +27,7 @@ func (stock Stock) enoughForOrder(order *Order) bool {
 func (stock Stock) decreaseByOrder(order *Order) Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
-		newStock.state[item.BookId] = data.StockItem{
+		newStock.state[item.BookId] = &data.StockItem{
 			BookId:      item.BookId,
 			OnhandQty:   newStock.state[item.BookId].OnhandQty - item.Qty,
 			ReservedQty: newStock.state[item.BookId].ReservedQty,
@@ -40,7 +40,7 @@ func (stock Stock) decreaseByOrder(order *Order) Stock {
 func (stock Stock) reserveForOrder(order *Order) Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
-		newStock.state[item.BookId] = data.StockItem{
+		newStock.state[item.BookId] = &data.StockItem{
 			BookId:      item.BookId,
 			OnhandQty:   newStock.state[item.BookId].OnhandQty,
 			ReservedQty: newStock.state[item.BookId].ReservedQty + item.Qty,
@@ -53,7 +53,7 @@ func (stock Stock) reserveForOrder(order *Order) Stock {
 func (stock Stock) releaseReservation(order *Order) Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
-		newStock.state[item.BookId] = data.StockItem{
+		newStock.state[item.BookId] = &data.StockItem{
 			BookId:      item.BookId,
 			OnhandQty:   newStock.state[item.BookId].OnhandQty,
 			ReservedQty: newStock.state[item.BookId].ReservedQty - item.Qty,

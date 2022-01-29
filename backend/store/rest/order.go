@@ -19,7 +19,7 @@ type orderController struct{}
 
 func (c *orderController) find() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		orders, err := orderQuery.FindOrdersToDeliver()
+		orders, err := orderQuery.FindDeliverableOrders()
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return

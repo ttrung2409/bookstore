@@ -11,7 +11,7 @@ type BookReceipt struct {
 }
 
 type ReceivingBook struct {
-	data.Book
+	*data.Book
 	ReceivingQty int
 }
 
@@ -25,17 +25,15 @@ func (BookReceipt) NewFromReceivingBooks(books []*ReceivingBook) *BookReceipt {
 		Id: data.NewEntityId(),
 	}
 
-	items := []data.BookReceiptItem{}
+	items := []*data.BookReceiptItem{}
 
 	for _, book := range books {
-		item := data.BookReceiptItem{
+		items = append(items, &data.BookReceiptItem{
 			Id:            data.NewEntityId(),
 			BookReceiptId: receipt.Id,
 			BookId:        book.Id,
 			Qty:           book.ReceivingQty,
-		}
-
-		items = append(items, item)
+		})
 	}
 
 	receipt.Items = items

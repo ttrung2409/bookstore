@@ -2,7 +2,7 @@ package data
 
 import "github.com/thoas/go-funk"
 
-type Stock map[EntityId]StockItem
+type Stock map[EntityId]*StockItem
 
 type StockItem struct {
 	BookId      EntityId
@@ -10,9 +10,9 @@ type StockItem struct {
 	ReservedQty int
 }
 
-func (stock Stock) Clone() Stock {
-	return funk.Map(stock, func(key EntityId, value StockItem) (EntityId, StockItem) {
-		return key, StockItem{
+func (stock *Stock) Clone() Stock {
+	return funk.Map(stock, func(key EntityId, value *StockItem) (EntityId, *StockItem) {
+		return key, &StockItem{
 			BookId:      value.BookId,
 			OnhandQty:   value.OnhandQty,
 			ReservedQty: value.ReservedQty,
@@ -20,11 +20,11 @@ func (stock Stock) Clone() Stock {
 	}).(Stock)
 }
 
-type StockAdjustment []StockAdjustmentItem
+type StockAdjustment []*StockAdjustmentItem
 
-func (adjustment StockAdjustment) Clone() StockAdjustment {
-	return funk.Map(adjustment, func(item StockAdjustmentItem) StockAdjustmentItem {
-		return StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty}
+func (adjustment *StockAdjustment) Clone() StockAdjustment {
+	return funk.Map(adjustment, func(item *StockAdjustmentItem) *StockAdjustmentItem {
+		return &StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty}
 	}).(StockAdjustment)
 }
 

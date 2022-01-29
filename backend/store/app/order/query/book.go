@@ -12,8 +12,8 @@ type Book struct {
 	ReservedQty  int
 }
 
-func (Book) fromDataObject(b data.Book) Book {
-	return Book{
+func (Book) fromDataObject(b *data.Book) *Book {
+	return &Book{
 		Id:           b.Id.ToString(),
 		Title:        b.Title,
 		Subtitle:     b.Subtitle,

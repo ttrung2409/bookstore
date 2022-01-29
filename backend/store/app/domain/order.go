@@ -21,7 +21,7 @@ func (order *Order) State() *data.Order {
 func (order *Order) Accept() error {
 	if order.state.Status != data.OrderStatusQueued &&
 		order.state.Status != data.OrderStatusStockFilled {
-		return errors.New(fmt.Sprintf("Order status '%s' is invalid for accepting", order.state.Status))
+		return fmt.Errorf("Order status '%s' is invalid for accepting", order.state.Status)
 	}
 
 	stock := Stock{}.New(order.state.Stock)
@@ -38,9 +38,7 @@ func (order *Order) Accept() error {
 func (order *Order) PlaceAsBackOrder() error {
 	if order.state.Status != data.OrderStatusQueued &&
 		order.state.Status != data.OrderStatusStockFilled {
-		return errors.New(
-			fmt.Sprintf("Order status '%s' is invalid to be placed as backorder", order.state.Status),
-		)
+		return fmt.Errorf("Order status '%s' is invalid to be placed as backorder", order.state.Status)
 	}
 
 	order.state.Status = data.OrderStatusReceiving
@@ -53,9 +51,7 @@ func (order *Order) PlaceAsBackOrder() error {
 
 func (order *Order) UpdateToStockFilled() (bool, error) {
 	if order.state.Status != data.OrderStatusReceiving {
-		return false, errors.New(
-			fmt.Sprintf("Order status '%s' is invalid for StockFilled", order.state.Status),
-		)
+		return false, fmt.Errorf("Order status '%s' is invalid for StockFilled", order.state.Status)
 	}
 
 	stock := Stock{}.New(order.state.Stock)
@@ -72,7 +68,7 @@ func (order *Order) UpdateToStockFilled() (bool, error) {
 func (order *Order) Reject() error {
 	if order.state.Status == data.OrderStatusAccepted ||
 		order.state.Status == data.OrderStatusRejected {
-		return errors.New(fmt.Sprintf("Order status '%s' is invalid for rejecting", order.state.Status))
+		return fmt.Errorf("Order status '%s' is invalid for rejecting", order.state.Status)
 	}
 
 	stock := Stock{}.New(order.state.Stock)

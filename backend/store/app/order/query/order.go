@@ -9,13 +9,13 @@ type Order struct {
 	Id        string
 	Number    string
 	CreatedAt time.Time
-	Customer  Customer
+	Customer  *Customer
 	Status    string
-	Items     []OrderItem
+	Items     []*OrderItem
 }
 
 type OrderItem struct {
-	Book Book
+	Book *Book
 	Qty  int
 }
 
@@ -26,7 +26,7 @@ type Customer struct {
 }
 
 func (Order) fromDataObject(order *data.Order) Order {
-	items := []OrderItem{}
+	items := []*OrderItem{}
 	for _, dataItem := range order.Items {
 		items = append(items, OrderItem{}.fromDataObject(dataItem))
 	}
@@ -41,15 +41,15 @@ func (Order) fromDataObject(order *data.Order) Order {
 	}
 }
 
-func (OrderItem) fromDataObject(item data.OrderItem) OrderItem {
-	return OrderItem{
+func (OrderItem) fromDataObject(item *data.OrderItem) *OrderItem {
+	return &OrderItem{
 		Book: Book{}.fromDataObject(item.Book),
 		Qty:  item.Qty,
 	}
 }
 
-func (Customer) fromDataObject(customer data.Customer) Customer {
-	return Customer{
+func (Customer) fromDataObject(customer *data.Customer) *Customer {
+	return &Customer{
 		Name:            customer.Name,
 		Phone:           customer.Phone,
 		DeliveryAddress: customer.DeliveryAddress,

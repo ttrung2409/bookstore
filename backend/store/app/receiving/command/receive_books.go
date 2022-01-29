@@ -20,7 +20,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 	receivingBooks := map[string]*domain.ReceivingBook{}
 	for _, item := range request.Items {
 		receivingBooks[item.GoogleBookId] = &domain.ReceivingBook{
-			Book:         item.toDataObject(),
+			Book:         item.Book.toDataObject(),
 			ReceivingQty: item.Qty,
 		}
 	}
@@ -29,8 +29,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 		func(tx repo.Transaction) (interface{}, error) {
 			// create books if not exists
 			for _, item := range request.Items {
-				dataBook := item.Book.toDataObject()
-				bookId, err := BookRepository.CreateIfNotExists(&dataBook, tx)
+				bookId, err := BookRepository.CreateIfNotExists(domain.Book{}.New(item.Book.toDataObject()), tx)
 				if err != nil {
 					return nil, err
 				}
@@ -46,7 +45,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 				},
 			).([]*domain.ReceivingBook))
 
-			receiptId, err := BookReceiptRepository.Create(newReceipt.State(), tx)
+			receiptId, err := BookReceiptRepository.Create(newReceipt, tx)
 			if err != nil {
 				return nil, err
 			}
@@ -68,16 +67,15 @@ func updateOrdersToStockFilled(channel chan error) {
 		close(channel)
 	}()
 
-	dataOrders, err := OrderRepository.GetReceivingOrders(nil)
+	orders, err := OrderRepository.GetReceivingOrders(nil)
 	if err != nil {
 		channel <- err
 		return
 	}
 
-	for _, dataOrder := range dataOrders {
-		order := domain.Order{}.New(dataOrder)
+	for _, order := range orders {
 		if ok, _ := order.UpdateToStockFilled(); ok {
-			OrderRepository.Update(order.State(), nil)
+			OrderRepository.Update(order, nil)
 		}
 	}
 }
