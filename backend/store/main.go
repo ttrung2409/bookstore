@@ -4,13 +4,13 @@ import (
 	order "store/app/order"
 	receiving "store/app/receiving"
 	"store/container"
-	postgres "store/repository/postgres"
+	repository "store/repository"
 )
 
 func main() {
 	builder := container.ContainerBuilder()
 
-	postgres.Install(builder)
+	repository.Install(builder)
 	receiving.Install(builder)
 	order.Install(builder)
 }
