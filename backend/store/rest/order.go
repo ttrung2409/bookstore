@@ -2,6 +2,10 @@ package rest
 
 import (
 	"net/http"
+	OrderCommand "store/app/order/command"
+	OrderQuery "store/app/order/query"
+	"store/container"
+	"store/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +23,8 @@ type orderController struct{}
 
 func (c *orderController) find() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		orderQuery := container.Instance().Get(utils.Nameof((*OrderQuery.Query)(nil))).(OrderQuery.Query)
+
 		orders, err := orderQuery.FindDeliverableOrders()
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
@@ -31,6 +37,8 @@ func (c *orderController) find() gin.HandlerFunc {
 
 func (c *orderController) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		orderQuery := container.Instance().Get(utils.Nameof((*OrderQuery.Query)(nil))).(OrderQuery.Query)
+
 		order, err := orderQuery.GetOrderDetails(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
@@ -43,6 +51,8 @@ func (c *orderController) get() gin.HandlerFunc {
 
 func (c *orderController) accept() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		orderCommand := container.Instance().Get(utils.Nameof((*OrderCommand.Command)(nil))).(OrderCommand.Command)
+
 		err := orderCommand.AcceptOrder(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
@@ -55,6 +65,8 @@ func (c *orderController) accept() gin.HandlerFunc {
 
 func (c *orderController) placeAsBackOrder() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		orderCommand := container.Instance().Get(utils.Nameof((*OrderCommand.Command)(nil))).(OrderCommand.Command)
+
 		err := orderCommand.PlaceAsBackOrder(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
@@ -67,6 +79,8 @@ func (c *orderController) placeAsBackOrder() gin.HandlerFunc {
 
 func (c *orderController) reject() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		orderCommand := container.Instance().Get(utils.Nameof((*OrderCommand.Command)(nil))).(OrderCommand.Command)
+
 		err := orderCommand.RejectOrder(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)

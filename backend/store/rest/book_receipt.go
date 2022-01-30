@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	ReceivingCommand "store/app/receiving/command"
+	"store/container"
+	"store/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,8 @@ func (c *bookReceiptController) create() gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
+
+		receivingCommand := container.Instance().Get(utils.Nameof((*ReceivingCommand.Command)(nil))).(ReceivingCommand.Command)
 
 		err = receivingCommand.Receive(request)
 		if err != nil {
