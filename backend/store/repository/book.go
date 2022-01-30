@@ -32,7 +32,7 @@ func (r *bookRepository) CreateIfNotExist(
 	return dataBook.Id, nil
 }
 
-func (r *bookRepository) AdjustOnhandQty(
+func (r *bookRepository) adjustOnhandQty(
 	id data.EntityId,
 	qty int,
 	tx repo.Transaction,
@@ -53,29 +53,3 @@ func (r *bookRepository) AdjustOnhandQty(
 
 	return nil
 }
-
-func (r *bookRepository) AdjustReservedQty(
-	id data.EntityId,
-	qty int,
-	tx repo.Transaction,
-) error {
-	db := Db()
-	if tx != nil {
-		db = tx.(*transaction).db
-	}
-
-	result := db.
-		Model(&data.Book{}).
-		Where("id = ?", id).
-		Update("reserved_qty", gorm.Expr("reservedQty + ?", qty))
-
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
-}
-
-var bookRepositoryInstance = bookRepository{postgresRepository{newEntity: func() data.Entity {
-	return &data.Book{}
-}}}

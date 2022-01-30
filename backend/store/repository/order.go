@@ -14,7 +14,7 @@ type orderRepository struct {
 
 func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*domain.Order, error) {
 	record, err := r.
-		Query(&data.Order{}, tx).
+		query(&data.Order{}, tx).
 		IncludeMany("Items").
 		ThenInclude("Book").
 		Where("id = ?", id).
@@ -38,7 +38,7 @@ func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*domain.Or
 
 func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*domain.Order, error) {
 	records, err := r.
-		Query(&data.Order{}, tx).
+		query(&data.Order{}, tx).
 		Where("status = ?", data.OrderStatusReceiving).
 		IncludeMany("Items").
 		ThenInclude("Book").
@@ -73,6 +73,8 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 		return err
 	}
 
+	bookRepositoryInstance := bookRepository{postgresRepository{}}
+
 	for _, item := range dataOrder.Items {
 		if stock, ok := dataOrder.Stock[item.BookId]; ok {
 			if err := bookRepositoryInstance.update(
@@ -87,7 +89,3 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 
 	return nil
 }
-
-var orderRepositoryInstance = orderRepository{postgresRepository{newEntity: func() data.Entity {
-	return &data.Order{}
-}}}

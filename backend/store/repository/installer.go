@@ -17,25 +17,31 @@ func Install(builder *di.Builder) {
 		{
 			Name: utils.Nameof((*repo.BookRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return bookRepositoryInstance, nil
+				return bookRepository{postgresRepository{}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.BookReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return bookReceiptRepositoryInstance, nil
+				return bookReceiptRepository{postgresRepository{}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.OrderRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return orderRepositoryInstance, nil
+				return orderRepository{postgresRepository{}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.TransactionFactory)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
 				return transactionFactory{}, nil
+			},
+		},
+		{
+			Name: utils.Nameof((*repo.QueryFactory)(nil)),
+			Build: func(ctn di.Container) (interface{}, error) {
+				return queryFactory{}, nil
 			},
 		},
 	}...)

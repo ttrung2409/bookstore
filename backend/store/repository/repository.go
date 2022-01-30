@@ -9,12 +9,15 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type postgresRepository struct {
-	newEntity func() data.Entity
-}
+type postgresRepository struct{}
 
-func (r *postgresRepository) Query(model interface{}, tx repo.Transaction) repo.Query {
-	return newQuery(model, tx)
+func (r *postgresRepository) query(model interface{}, tx repo.Transaction) repo.Query {
+	db := Db()
+	if tx != nil {
+		db = tx.(*transaction).db
+	}
+
+	return &query{db: db.Model(model), includeChain: ""}
 }
 
 func (r *postgresRepository) create(

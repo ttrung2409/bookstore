@@ -3,12 +3,17 @@ package command
 import (
 	"store/app/domain/data"
 	repo "store/app/repository"
+	"store/container"
+	"store/utils"
 )
 
 func (*command) RejectOrder(orderId string) error {
-	_, err := TransactionFactory.RunInTransaction(
+	var transactionFactory = container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
+	var orderRepository = container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+
+	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
-			order, err := OrderRepository.Get(data.FromStringToEntityId(orderId), tx)
+			order, err := orderRepository.Get(data.FromStringToEntityId(orderId), tx)
 			if err != nil {
 				return nil, err
 			}
@@ -17,7 +22,7 @@ func (*command) RejectOrder(orderId string) error {
 				return nil, err
 			}
 
-			if err = OrderRepository.Update(order, tx); err != nil {
+			if err = orderRepository.Update(order, tx); err != nil {
 				return nil, err
 			}
 

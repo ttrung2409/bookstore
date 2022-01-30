@@ -2,11 +2,16 @@ package query
 
 import (
 	"store/app/domain/data"
+	repo "store/app/repository"
+	"store/container"
+	"store/utils"
 )
 
 func (*query) FindDeliverableOrders() ([]*Order, error) {
-	records, err := OrderRepository.
-		Query(&data.Order{}, nil).
+	var queryFactory = container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
+
+	records, err := queryFactory.
+		New(&data.Order{}).
 		Where("status IN ?",
 			[]string{string(data.OrderStatusQueued), string(data.OrderStatusStockFilled)}).
 		Find()

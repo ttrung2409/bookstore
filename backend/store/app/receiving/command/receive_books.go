@@ -3,6 +3,8 @@ package command
 import (
 	"store/app/domain"
 	repo "store/app/repository"
+	"store/container"
+	"store/utils"
 
 	funk "github.com/thoas/go-funk"
 )
@@ -17,6 +19,10 @@ type ReceiveBooksRequest struct {
 }
 
 func (*command) Receive(request ReceiveBooksRequest) error {
+	var bookRepository = container.Instance().Get(utils.Nameof((*repo.BookRepository)(nil))).(repo.BookRepository)
+	var bookReceiptRepository = container.Instance().Get(utils.Nameof((*repo.BookReceiptRepository)(nil))).(repo.BookReceiptRepository)
+	var transactionFactory = container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
+
 	receivingBooks := map[string]*domain.ReceivingBook{}
 	for _, item := range request.Items {
 		receivingBooks[item.GoogleBookId] = &domain.ReceivingBook{
@@ -25,11 +31,11 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 		}
 	}
 
-	_, err := TransactionFactory.RunInTransaction(
+	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
 			// create books if not exists
 			for _, item := range request.Items {
-				bookId, err := BookRepository.CreateIfNotExists(domain.Book{}.New(item.Book.toDataObject()), tx)
+				bookId, err := bookRepository.CreateIfNotExists(domain.Book{}.New(item.Book.toDataObject()), tx)
 				if err != nil {
 					return nil, err
 				}
@@ -45,7 +51,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 				},
 			).([]*domain.ReceivingBook))
 
-			receiptId, err := BookReceiptRepository.Create(newReceipt, tx)
+			receiptId, err := bookReceiptRepository.Create(newReceipt, tx)
 			if err != nil {
 				return nil, err
 			}
@@ -67,7 +73,9 @@ func updateOrdersToStockFilled(channel chan error) {
 		close(channel)
 	}()
 
-	orders, err := OrderRepository.GetReceivingOrders(nil)
+	var orderRepository = container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+
+	orders, err := orderRepository.GetReceivingOrders(nil)
 	if err != nil {
 		channel <- err
 		return
@@ -75,7 +83,7 @@ func updateOrdersToStockFilled(channel chan error) {
 
 	for _, order := range orders {
 		if ok, _ := order.UpdateToStockFilled(); ok {
-			OrderRepository.Update(order, nil)
+			orderRepository.Update(order, nil)
 		}
 	}
 }

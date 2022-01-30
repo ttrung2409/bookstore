@@ -14,15 +14,6 @@ type query struct {
 	includeChain string
 }
 
-func newQuery(model interface{}, tx repo.Transaction) repo.Query {
-	db := Db()
-	if tx != nil {
-		db = tx.(*transaction).db
-	}
-
-	return &query{db: db.Model(model), includeChain: ""}
-}
-
 func (q *query) Select(fields ...string) repo.Query {
 	q.db = q.db.Select(fields)
 	return q
@@ -101,4 +92,10 @@ func (q *query) exec() ([]interface{}, error) {
 	return funk.Map(records, func(record interface{}) interface{} {
 		return &record
 	}).([]interface{}), nil
+}
+
+type queryFactory struct{}
+
+func (*queryFactory) New(model interface{}) repo.Query {
+	return &query{db: db.Model(model), includeChain: ""}
 }

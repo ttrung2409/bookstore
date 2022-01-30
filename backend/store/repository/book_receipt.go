@@ -14,20 +14,12 @@ type bookReceiptItemRepository struct {
 	postgresRepository
 }
 
-var bookReceiptRepositoryInstance = bookReceiptRepository{postgresRepository{newEntity: func() data.Entity {
-	return &data.BookReceipt{}
-}}}
-
-var bookReceiptItemRepositoryInstance = bookReceiptItemRepository{postgresRepository{newEntity: func() data.Entity {
-	return &data.BookReceiptItem{}
-}}}
-
 func (r *bookReceiptRepository) Get(
 	id data.EntityId,
 	tx repo.Transaction,
 ) (*domain.BookReceipt, error) {
 	record, err := r.
-		Query(&data.BookReceipt{}, tx).
+		query(&data.BookReceipt{}, tx).
 		Include("Items").
 		ThenInclude("Book").
 		Where("id == ?", id).
@@ -51,14 +43,18 @@ func (r *bookReceiptRepository) Create(
 		return data.EmptyEntityId, nil
 	}
 
+	bookReceiptItemRepositoryInstance := bookReceiptItemRepository{postgresRepository{}}
+
 	for _, item := range dataReceipt.Items {
 		if _, err = bookReceiptItemRepositoryInstance.create(item, tx); err != nil {
 			return data.EmptyEntityId, err
 		}
 	}
 
+	bookRepositoryInstance := bookRepository{postgresRepository{}}
+
 	for _, item := range dataReceipt.OnhandStockAdjustment {
-		bookRepositoryInstance.AdjustOnhandQty(item.BookId, item.Qty, tx)
+		bookRepositoryInstance.adjustOnhandQty(item.BookId, item.Qty, tx)
 	}
 
 	return receiptId, nil

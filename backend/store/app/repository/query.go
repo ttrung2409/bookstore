@@ -11,3 +11,7 @@ type Query interface {
 	Find() ([]interface{}, error)
 	First() (interface{}, error)
 }
+
+type QueryFactory interface {
+	New(model interface{}) Query
+}
