@@ -6,7 +6,8 @@ plugins {
 
 group = 'com.bookstore'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
@@ -19,7 +20,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'com.impetus.kundera.core:kundera-core:3.13'
-	// implementation 'com.impetus.kundera.client:kundera-cassandra:3.13'
+	implementation 'com.impetus.kundera.client:kundera-cassandra:3.13'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

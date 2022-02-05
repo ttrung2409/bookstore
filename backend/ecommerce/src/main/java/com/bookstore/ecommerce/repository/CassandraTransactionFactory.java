@@ -1,7 +1,8 @@
-package com.bookstore.ecommerce.repository.cassandra;
+package com.bookstore.ecommerce.repository;
 
 import java.util.concurrent.CompletableFuture;
 import org.springframework.stereotype.Component;
+import lombok.var;
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
 import com.bookstore.ecommerce.app.repository.TransactionalFunc;
 

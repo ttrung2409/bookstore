@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionException;
 import com.bookstore.ecommerce.utils.NotFoundException;
 import com.bookstore.ecommerce.utils.ThrowableSupplier;
 import org.springframework.http.ResponseEntity;
+import lombok.var;
 
 public abstract class ControllerBase {
   protected ResponseEntity<?> executeQuery(ThrowableSupplier<CompletableFuture<?>> query) {

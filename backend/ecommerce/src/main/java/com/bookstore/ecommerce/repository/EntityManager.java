@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.repository.cassandra;
+package com.bookstore.ecommerce.repository;
 
 import javax.persistence.Persistence;
 

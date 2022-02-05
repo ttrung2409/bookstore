@@ -6,6 +6,7 @@ import com.bookstore.ecommerce.app.order.command.dto.CreateOrderRequest;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
 import org.springframework.stereotype.Component;
+import lombok.var;
 
 @Component
 public class CommandImpl implements Command {
@@ -13,7 +14,7 @@ public class CommandImpl implements Command {
   private OrderRepository orderRepository;
 
   public CommandImpl(TransactionFactory transactionFactory,
-    OrderRepository orderRepository) {
+      OrderRepository orderRepository) {
     this.transactionFactory = transactionFactory;
     this.orderRepository = orderRepository;
   }
@@ -25,13 +26,12 @@ public class CommandImpl implements Command {
       books.add(book.toDataObject());
     }
 
-    var order =
-      new com.bookstore.ecommerce.app.domain.Order(
+    var order = new com.bookstore.ecommerce.app.domain.Order(
         request.getCustomer().toDataObject(),
-        books.toArray(com.bookstore.ecommerce.app.domain.data.Book[]::new));
+        books);
 
     return this.transactionFactory.runInTransaction(tx -> {
-      this.orderRepository.create(order.getState(), tx).join();
+      this.orderRepository.create(order, tx).join();
 
       return CompletableFuture.completedFuture(order.getState().getId());
     });

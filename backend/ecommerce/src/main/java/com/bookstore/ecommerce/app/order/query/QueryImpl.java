@@ -5,36 +5,41 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import com.bookstore.ecommerce.app.order.query.dto.Book;
 import com.bookstore.ecommerce.app.order.query.dto.Order;
-import com.bookstore.ecommerce.app.repository.BookRepository;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
-
+import com.bookstore.ecommerce.app.repository.query.BooksQuery;
+import com.bookstore.ecommerce.app.repository.query.OrderDetailsQuery;
 import org.springframework.stereotype.Component;
+import lombok.var;
 
 @Component
 public class QueryImpl implements Query {
-  private final BookRepository bookRepository;
-  private final OrderRepository orderRepository;
+  private final OrderDetailsQuery orderDetailsQuery;
+  private final BooksQuery booksQuery;
 
-  public QueryImpl(BookRepository bookRepository, OrderRepository orderRepository) {
-    this.bookRepository = bookRepository;
-    this.orderRepository = orderRepository;
+  public QueryImpl(OrderDetailsQuery orderDetailsQuery, BooksQuery booksQuery) {
+    this.orderDetailsQuery = orderRepository;
+    this.booksQuery = booksQuery;
   }
 
   @Override
   public CompletableFuture<List<Book>> findBooks(String term) throws Exception {
-    var books = this.bookRepository.find(term).join();
+    var books = this.booksQuery
+        .execute(BooksQuery.Params.builder().term(term))
+        .join();
 
     return CompletableFuture.completedFuture(
-      books
-        .stream()
-        .map(book -> Book.fromDataObject(book))
-        .collect(Collectors.toList()));
+        books
+            .stream()
+            .map(book -> Book.fromDataObject(book))
+            .collect(Collectors.toList()));
 
   }
 
   @Override
   public CompletableFuture<Order> getOrderDetails(String orderId) throws Exception {
-    final var order = this.orderRepository.getDetails(orderId).join();
+    final var order = this.orderDetailsQuery
+        .execute(OrderDetailsQuery.Params.builder().orderId(orderId).build())
+        .join();
 
     return CompletableFuture.completedFuture(Order.fromDataObject(order));
   }
