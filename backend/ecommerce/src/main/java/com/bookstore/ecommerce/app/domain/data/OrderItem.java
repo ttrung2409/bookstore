@@ -12,7 +12,6 @@ import lombok.Getter;
 
 @Entity
 @Table(name = "order_item")
-@AllArgsConstructor
 @Builder
 public class OrderItem {
   @Getter
@@ -33,9 +32,8 @@ public class OrderItem {
   @Getter
   private int qty;
 
-  public OrderItem() {}
-
   @Embeddable
+  @AllArgsConstructor
   public static class Key {
     @Getter
     @Column(name = "order_id")
@@ -43,10 +41,5 @@ public class OrderItem {
     @Getter
     @Column(name = "book_id")
     private String bookId;
-
-    public Key(String orderId, String bookId) {
-      this.orderId = orderId;
-      this.bookId = bookId;
-    }
   }
 }

@@ -24,22 +24,22 @@ public class Order {
 
     for (final var book : books) {
       items.add(OrderItem.builder()
-          .key(new OrderItem.Key(id, book.getId()))
-          .bookTitle(book.getTitle())
-          .bookSubtitle(book.getSubtitle())
-          .bookDescription(book.getDescription())
-          .build());
+        .key(new OrderItem.Key(id, book.getId()))
+        .bookTitle(book.getTitle())
+        .bookSubtitle(book.getSubtitle())
+        .bookDescription(book.getDescription())
+        .build());
     }
 
     this.state = com.bookstore.ecommerce.app.domain.data.Order.builder()
-        .id(id)
-        .number(id)
-        .createdAt(Instant.now())
-        .status(OrderStatus.Queued.toString())
-        .customerName(customer.getName())
-        .customerPhone(customer.getPhone())
-        .customerDeliveryAddress(customer.getDeliveryAddress())
-        .items(items)
-        .build();
+      .id(id)
+      .number(id)
+      .createdAt(Instant.now())
+      .status(OrderStatus.Queued.toString())
+      .customerName(customer.getName())
+      .customerPhone(customer.getPhone())
+      .customerDeliveryAddress(customer.getDeliveryAddress())
+      .items(items)
+      .build();
   }
 }

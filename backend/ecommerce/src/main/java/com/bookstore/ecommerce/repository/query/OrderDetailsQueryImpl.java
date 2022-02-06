@@ -2,6 +2,7 @@ package com.bookstore.ecommerce.repository.query;
 
 import java.util.concurrent.CompletableFuture;
 import com.bookstore.ecommerce.app.domain.data.Order;
+import com.bookstore.ecommerce.app.domain.data.OrderItem;
 import com.bookstore.ecommerce.app.repository.query.OrderDetailsQuery;
 import com.bookstore.ecommerce.repository.EntityManager;
 import com.bookstore.ecommerce.utils.NotFoundException;
@@ -20,14 +21,12 @@ public class OrderDetailsQueryImpl implements OrderDetailsQuery {
         }
 
         var items = manager.getManager()
-          .createQuery(
-            String.format("select * from order_item where order_id = \"%s\"", params.getOrderId()))
-          .getResultList();
+            .createQuery(
+                String.format("select * from order_item where order_id = \"%s\"", params.getOrderId()), OrderItem.class)
+            .getResultList();
 
-        return order;
+        return new Order(order, items);
       }
     });
   }
 }
-
-

@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import com.bookstore.ecommerce.app.order.query.dto.Book;
 import com.bookstore.ecommerce.app.order.query.dto.Order;
-import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.query.BooksQuery;
 import com.bookstore.ecommerce.app.repository.query.OrderDetailsQuery;
 import org.springframework.stereotype.Component;
@@ -17,14 +16,14 @@ public class QueryImpl implements Query {
   private final BooksQuery booksQuery;
 
   public QueryImpl(OrderDetailsQuery orderDetailsQuery, BooksQuery booksQuery) {
-    this.orderDetailsQuery = orderRepository;
+    this.orderDetailsQuery = orderDetailsQuery;
     this.booksQuery = booksQuery;
   }
 
   @Override
   public CompletableFuture<List<Book>> findBooks(String term) throws Exception {
     var books = this.booksQuery
-        .execute(BooksQuery.Params.builder().term(term))
+        .execute(BooksQuery.Params.builder().term(term).build())
         .join();
 
     return CompletableFuture.completedFuture(

@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
+import org.modelmapper.ModelMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,5 +44,9 @@ public class Order {
   @Transient
   private List<OrderItem> items;
 
-  public Order() {}
+  public Order(Order order, List<OrderItem> items) {
+    new ModelMapper().map(order, this);
+
+    this.items = items;
+  }
 }
