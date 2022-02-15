@@ -16,7 +16,7 @@ func (*query) GetOrderDetails(id string) (*Order, error) {
 		Include("Customer").
 		IncludeMany("Items").
 		ThenInclude("Book").
-		Where("id = ?", orderId).
+		Where("id").Eq(orderId).
 		First()
 
 	if err != nil {

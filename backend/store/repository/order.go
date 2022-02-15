@@ -17,7 +17,7 @@ func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*domain.Or
 		query(&data.Order{}, tx).
 		IncludeMany("Items").
 		ThenInclude("Book").
-		Where("id = ?", id).
+		Where("id").Eq(id).
 		First()
 
 	if err != nil {
@@ -39,7 +39,7 @@ func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*domain.Or
 func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*domain.Order, error) {
 	records, err := r.
 		query(&data.Order{}, tx).
-		Where("status = ?", data.OrderStatusReceiving).
+		Where("status").Eq(data.OrderStatusReceiving).
 		IncludeMany("Items").
 		ThenInclude("Book").
 		OrderBy("created_at").

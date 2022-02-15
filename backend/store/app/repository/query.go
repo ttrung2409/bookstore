@@ -5,11 +5,16 @@ type Query interface {
 	Include(ref string) Query
 	IncludeMany(ref string) Query
 	ThenInclude(ref string) Query
-	Where(condition string, args ...interface{}) Query
+	Where(field string) QueryCondition
 	OrderBy(field string) Query
 	OrderByDesc(field string) Query
 	Find() ([]interface{}, error)
 	First() (interface{}, error)
+}
+
+type QueryCondition interface {
+	In(values interface{}) Query
+	Eq(value interface{}) Query
 }
 
 type QueryFactory interface {

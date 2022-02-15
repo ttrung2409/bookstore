@@ -12,8 +12,7 @@ func (*query) FindDeliverableOrders() ([]*Order, error) {
 
 	records, err := queryFactory.
 		New(&data.Order{}).
-		Where("status IN ?",
-			[]string{string(data.OrderStatusQueued), string(data.OrderStatusStockFilled)}).
+		Where("status").In([]string{string(data.OrderStatusQueued), string(data.OrderStatusStockFilled)}).
 		Find()
 
 	if err != nil {

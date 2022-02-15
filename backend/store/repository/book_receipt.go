@@ -22,7 +22,7 @@ func (r *bookReceiptRepository) Get(
 		query(&data.BookReceipt{}, tx).
 		Include("Items").
 		ThenInclude("Book").
-		Where("id == ?", id).
+		Where("id").Eq(id).
 		First()
 
 	if err != nil {

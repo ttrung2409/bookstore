@@ -14,6 +14,11 @@ type query struct {
 	includeChain string
 }
 
+type queryCondition struct {
+	query *query
+	field string
+}
+
 func (q *query) Select(fields ...string) repo.Query {
 	q.db = q.db.Select(fields)
 	return q
@@ -46,9 +51,8 @@ func (q *query) ThenInclude(relation string) repo.Query {
 	return q
 }
 
-func (q *query) Where(condition string, args ...interface{}) repo.Query {
-	q.db = q.db.Where(condition, args)
-	return q
+func (q *query) Where(field string) repo.QueryCondition {
+	return &queryCondition{field: field, query: q}
 }
 
 func (q *query) OrderBy(field string) repo.Query {
@@ -92,6 +96,18 @@ func (q *query) exec() ([]interface{}, error) {
 	return funk.Map(records, func(record interface{}) interface{} {
 		return &record
 	}).([]interface{}), nil
+}
+
+func (c *queryCondition) In(values interface{}) repo.Query {
+	c.query.db = c.query.db.Where(fmt.Sprintf("%s IN ?", c.field), values)
+
+	return c.query
+}
+
+func (c *queryCondition) Eq(value interface{}) repo.Query {
+	c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
+
+	return c.query
 }
 
 type queryFactory struct{}
