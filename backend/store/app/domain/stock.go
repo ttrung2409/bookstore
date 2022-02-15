@@ -6,15 +6,15 @@ type Stock struct {
 	state data.Stock
 }
 
-func (Stock) New(stock data.Stock) Stock {
-	return Stock{state: stock}
+func (Stock) New(stock data.Stock) *Stock {
+	return &Stock{state: stock}
 }
 
-func (stock Stock) Clone() Stock {
-	return Stock{state: stock.state.Clone()}
+func (stock *Stock) Clone() *Stock {
+	return &Stock{state: stock.state.Clone()}
 }
 
-func (stock Stock) enoughForOrder(order *Order) bool {
+func (stock *Stock) enoughForOrder(order *Order) bool {
 	for _, item := range order.state.Items {
 		if item.Qty > stock.state[item.BookId].OnhandQty-stock.state[item.BookId].ReservedQty {
 			return false
@@ -24,7 +24,7 @@ func (stock Stock) enoughForOrder(order *Order) bool {
 	return true
 }
 
-func (stock Stock) decreaseByOrder(order *Order) Stock {
+func (stock *Stock) decreaseByOrder(order *Order) *Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
 		newStock.state[item.BookId] = &data.StockItem{
@@ -37,7 +37,7 @@ func (stock Stock) decreaseByOrder(order *Order) Stock {
 	return newStock
 }
 
-func (stock Stock) reserveForOrder(order *Order) Stock {
+func (stock *Stock) reserveForOrder(order *Order) *Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
 		newStock.state[item.BookId] = &data.StockItem{
@@ -50,7 +50,7 @@ func (stock Stock) reserveForOrder(order *Order) Stock {
 	return newStock
 }
 
-func (stock Stock) releaseReservation(order *Order) Stock {
+func (stock *Stock) releaseReservation(order *Order) *Stock {
 	newStock := stock.Clone()
 	for _, item := range order.state.Items {
 		newStock.state[item.BookId] = &data.StockItem{
