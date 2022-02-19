@@ -5,7 +5,7 @@ import (
 )
 
 type Book struct {
-	Id            EntityId `gorm:"primaryKey"`
+	Id            string `gorm:"primaryKey"`
 	GoogleBookId  string
 	Title         string
 	Subtitle      string
@@ -21,11 +21,11 @@ type Book struct {
 	ReservedQty   int
 }
 
-func (b *Book) GetId() EntityId {
+func (b *Book) GetId() string {
 	return b.Id
 }
 
-func (b *Book) SetId(id EntityId) {
+func (b *Book) SetId(id string) {
 	b.Id = id
 }
 

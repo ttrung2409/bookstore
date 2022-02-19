@@ -32,7 +32,7 @@ func (Order) fromDataObject(order *data.Order) Order {
 	}
 
 	return Order{
-		Id:        order.Id.ToString(),
+		Id:        order.Id,
 		Number:    order.Number,
 		CreatedAt: order.CreatedAt,
 		Customer:  Customer{}.fromDataObject(order.Customer),

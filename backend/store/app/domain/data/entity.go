@@ -5,22 +5,12 @@ import (
 )
 
 type Entity interface {
-	GetId() EntityId
-	SetId(id EntityId)
+	GetId() string
+	SetId(id string)
 }
 
-type EntityId string
+const EmptyEntityId = ""
 
-func (id EntityId) ToString() string {
-	return string(id)
-}
-
-const EmptyEntityId EntityId = ""
-
-func NewEntityId() EntityId {
-	return EntityId(uuid.NewString())
-}
-
-func FromStringToEntityId(id string) EntityId {
-	return EntityId(id)
+func NewEntityId() string {
+	return uuid.NewString()
 }

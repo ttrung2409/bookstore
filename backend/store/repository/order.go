@@ -12,7 +12,7 @@ type orderRepository struct {
 	postgresRepository
 }
 
-func (r *orderRepository) Get(id data.EntityId, tx repo.Transaction) (*domain.Order, error) {
+func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, error) {
 	record, err := r.
 		query(&data.Order{}, tx).
 		IncludeMany("Items").

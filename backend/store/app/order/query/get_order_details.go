@@ -10,13 +10,12 @@ import (
 func (*query) GetOrderDetails(id string) (*Order, error) {
 	var queryFactory = container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
 
-	orderId := data.FromStringToEntityId(id)
 	record, err := queryFactory.
 		New(&data.Order{}).
 		Include("Customer").
 		IncludeMany("Items").
 		ThenInclude("Book").
-		Where("id").Eq(orderId).
+		Where("id").Eq(id).
 		First()
 
 	if err != nil {

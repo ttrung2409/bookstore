@@ -13,22 +13,22 @@ const (
 )
 
 type Order struct {
-	Id         EntityId `gorm:"primaryKey"`
-	Number     string   `gorm:"autoIncrement"`
+	Id         string `gorm:"primaryKey"`
+	Number     string `gorm:"autoIncrement"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	CustomerId EntityId
+	CustomerId string
 	Status     OrderStatus
 	Items      []*OrderItem `gorm:"foreignKey:OrderId"`
 	Stock      Stock        `gorm:"-"`
 	Customer   *Customer    `gorm:"foreignKey:Id"`
 }
 
-func (o *Order) GetId() EntityId {
+func (o *Order) GetId() string {
 	return o.Id
 }
 
-func (o *Order) SetId(id EntityId) {
+func (o *Order) SetId(id string) {
 	o.Id = id
 }
 
@@ -49,9 +49,9 @@ func (o *Order) Clone() *Order {
 }
 
 type OrderItem struct {
-	Id      EntityId `gorm:"primaryKey"`
-	OrderId EntityId
-	BookId  EntityId
+	Id      string `gorm:"primaryKey"`
+	OrderId string
+	BookId  string
 	Book    *Book `gorm:"foreignKey:Id"`
 	Qty     int
 }

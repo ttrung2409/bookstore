@@ -15,7 +15,7 @@ type bookReceiptItemRepository struct {
 }
 
 func (r *bookReceiptRepository) Get(
-	id data.EntityId,
+	id string,
 	tx repo.Transaction,
 ) (*domain.BookReceipt, error) {
 	record, err := r.
@@ -35,7 +35,7 @@ func (r *bookReceiptRepository) Get(
 func (r *bookReceiptRepository) Create(
 	receipt *domain.BookReceipt,
 	tx repo.Transaction,
-) (data.EntityId, error) {
+) (string, error) {
 	dataReceipt := receipt.State()
 
 	receiptId, err := r.create(dataReceipt, tx)

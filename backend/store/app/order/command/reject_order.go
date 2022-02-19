@@ -1,7 +1,6 @@
 package command
 
 import (
-	"store/app/domain/data"
 	repo "store/app/repository"
 	"store/container"
 	"store/utils"
@@ -13,7 +12,7 @@ func (*command) RejectOrder(orderId string) error {
 
 	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
-			order, err := orderRepository.Get(data.FromStringToEntityId(orderId), tx)
+			order, err := orderRepository.Get(orderId, tx)
 			if err != nil {
 				return nil, err
 			}

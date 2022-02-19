@@ -1,16 +1,16 @@
 package data
 
 type Customer struct {
-	Id              EntityId `gorm:"primaryKey"`
+	Id              string `gorm:"primaryKey"`
 	Name            string
 	Phone           string
 	DeliveryAddress string
 }
 
-func (c *Customer) GetId() EntityId {
+func (c *Customer) GetId() string {
 	return c.Id
 }
 
-func (c *Customer) SetId(id EntityId) {
+func (c *Customer) SetId(id string) {
 	c.Id = id
 }

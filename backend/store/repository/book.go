@@ -15,7 +15,7 @@ type bookRepository struct {
 func (r *bookRepository) CreateIfNotExist(
 	book *domain.Book,
 	tx repo.Transaction,
-) (data.EntityId, error) {
+) (string, error) {
 	dataBook := book.State()
 
 	dataBook.Id = data.NewEntityId()
@@ -33,7 +33,7 @@ func (r *bookRepository) CreateIfNotExist(
 }
 
 func (r *bookRepository) adjustOnhandQty(
-	id data.EntityId,
+	id string,
 	qty int,
 	tx repo.Transaction,
 ) error {

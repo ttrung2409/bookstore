@@ -14,7 +14,7 @@ type Book struct {
 
 func (Book) fromDataObject(b *data.Book) *Book {
 	return &Book{
-		Id:           b.Id.ToString(),
+		Id:           b.Id,
 		Title:        b.Title,
 		Subtitle:     b.Subtitle,
 		Description:  b.Description,

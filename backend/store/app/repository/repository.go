@@ -5,6 +5,6 @@ import (
 )
 
 type repositoryBase interface {
-	create(entity data.Entity, tx Transaction) (data.EntityId, error)
-	update(id data.EntityId, entity data.Entity, tx Transaction) error
+	create(entity data.Entity, tx Transaction) (string, error)
+	update(id string, entity data.Entity, tx Transaction) error
 }

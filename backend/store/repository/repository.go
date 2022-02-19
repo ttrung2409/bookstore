@@ -23,7 +23,7 @@ func (r *postgresRepository) query(model interface{}, tx repo.Transaction) repo.
 func (r *postgresRepository) create(
 	entity data.Entity,
 	tx repo.Transaction,
-) (data.EntityId, error) {
+) (string, error) {
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
@@ -37,7 +37,7 @@ func (r *postgresRepository) create(
 }
 
 func (r *postgresRepository) update(
-	id data.EntityId,
+	id string,
 	entity data.Entity,
 	tx repo.Transaction,
 ) error {
