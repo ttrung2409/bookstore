@@ -8,7 +8,7 @@ import (
 )
 
 func (*query) GetOrderDetails(id string) (*Order, error) {
-	var queryFactory = container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
+	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
 
 	record, err := queryFactory.
 		New(&data.Order{}).

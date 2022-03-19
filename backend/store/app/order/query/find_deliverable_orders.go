@@ -8,7 +8,7 @@ import (
 )
 
 func (*query) FindDeliverableOrders() ([]*Order, error) {
-	var queryFactory = container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
+	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
 
 	records, err := queryFactory.
 		New(&data.Order{}).
