@@ -3,21 +3,11 @@ package rest
 import "github.com/gin-gonic/gin"
 
 func Start() {
-	r := gin.Default()
-	r.Group("/book")
-	{
-		BookRoutes(r)
-	}
+	router := gin.Default()
 
-	r.Group("/book-receipt")
-	{
-		BookReceiptRoutes(r)
-	}
+	addBookRoutes(router.Group("/book"))
+	addBookReceiptRoutes(router.Group("/book-receipt"))
+	addOrderRoutes(router.Group("/order"))
 
-	r.Group(("/order"))
-	{
-		OrderRoutes(r)
-	}
-
-	r.Run(":8080")
+	router.Run(":8080")
 }

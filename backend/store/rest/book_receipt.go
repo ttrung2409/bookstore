@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BookReceiptRoutes(r *gin.Engine) {
+func addBookReceiptRoutes(r *gin.RouterGroup) {
 	controller := bookReceiptController{}
 	r.POST("/", controller.create())
 }

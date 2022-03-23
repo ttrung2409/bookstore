@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BookRoutes(r *gin.Engine) {
+func addBookRoutes(r *gin.RouterGroup) {
 	controller := &bookController{}
 	r.GET("/", controller.find())
 }

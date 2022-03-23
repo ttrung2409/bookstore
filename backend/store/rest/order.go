@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func OrderRoutes(r *gin.Engine) {
+func addOrderRoutes(r *gin.RouterGroup) {
 	controller := &orderController{}
 	r.GET("/", controller.find())
 	r.GET("/:id", controller.get())

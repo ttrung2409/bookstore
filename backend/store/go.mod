@@ -14,7 +14,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/stretchr/testify v1.7.0 // indirect
-	github.com/thoas/go-funk v0.8.0 // indirect
+	github.com/thoas/go-funk v0.8.0
 	github.com/ugorji/go v1.2.5 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	golang.org/x/sys v0.0.0-20210507161434-a76c4d0a0096 // indirect

@@ -5,6 +5,7 @@ import (
 	receiving "store/app/receiving"
 	"store/container"
 	repository "store/repository"
+	server "store/rest"
 )
 
 func main() {
@@ -13,4 +14,6 @@ func main() {
 	repository.Install(builder)
 	receiving.Install(builder)
 	order.Install(builder)
+
+	server.Start()
 }
