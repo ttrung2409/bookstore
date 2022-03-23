@@ -6,5 +6,5 @@ import (
 
 type BookRepository interface {
 	repositoryBase
-	CreateIfNotExists(book *domain.Book, tx Transaction) (string, error)
+	CreateIfNotExists(book *domain.Book, tx Transaction) (string, bool, error)
 }

@@ -15,10 +15,11 @@ type bookRepository struct {
 func (r *bookRepository) CreateIfNotExist(
 	book *domain.Book,
 	tx repo.Transaction,
-) (string, error) {
+) (string, bool, error) {
 	dataBook := book.State()
 
-	dataBook.Id = data.NewEntityId()
+	newEntityId := data.NewEntityId()
+	dataBook.Id = newEntityId
 
 	db := Db()
 	if tx != nil {
@@ -26,10 +27,10 @@ func (r *bookRepository) CreateIfNotExist(
 	}
 
 	if result := db.Where("google_book_id = ?", dataBook.GoogleBookId).FirstOrCreate(dataBook); result.Error != nil {
-		return data.EmptyEntityId, result.Error
+		return data.EmptyEntityId, false, result.Error
 	}
 
-	return dataBook.Id, nil
+	return dataBook.Id, dataBook.Id == newEntityId, nil
 }
 
 func (r *bookRepository) adjustOnhandQty(
