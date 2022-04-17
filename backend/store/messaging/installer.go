@@ -12,7 +12,7 @@ func Install(builder *di.Builder) {
 		{
 			Name: utils.Nameof((*messaging.Producer)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return nil, nil
+				return producer{}, nil
 			},
 		},
 	}...)

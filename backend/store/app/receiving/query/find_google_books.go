@@ -22,7 +22,9 @@ func (*query) FindGoogleBooks(term string) ([]Book, error) {
 		return nil, err
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		res.Body.Close()
+	}()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

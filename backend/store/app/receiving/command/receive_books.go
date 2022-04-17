@@ -28,7 +28,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
 	producer := container.Instance().Get(utils.Nameof((*messaging.Producer)(nil))).(messaging.Producer)
 
-	events := make([]interface{}, 0)
+	events := make([]messaging.Message, 0)
 
 	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
