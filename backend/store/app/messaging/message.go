@@ -1,5 +1,6 @@
 package messaging
 
-type Message struct {
-	CorrelationId string
+type Message interface {
+	Key() string
+	Topic() string
 }

@@ -1,12 +1,10 @@
 package event
 
 import (
-	"store/app/messaging"
 	"time"
 )
 
 type BookCreated struct {
-	*messaging.Message
 	Id            string
 	Title         string
 	Subtitle      string
@@ -18,4 +16,12 @@ type BookCreated struct {
 	RatingsCount  int
 	ThumbnailUrl  string
 	PreviewUrl    string
+}
+
+func (event BookCreated) Key() string {
+	return event.Id
+}
+
+func (event BookCreated) Topic() string {
+	return "book"
 }
