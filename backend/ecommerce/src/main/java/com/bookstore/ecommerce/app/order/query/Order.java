@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.order.query.dto;
+package com.bookstore.ecommerce.app.order.query;
 
 import java.time.Instant;
 import java.util.List;

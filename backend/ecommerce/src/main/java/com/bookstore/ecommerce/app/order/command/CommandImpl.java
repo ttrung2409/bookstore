@@ -2,7 +2,6 @@ package com.bookstore.ecommerce.app.order.command;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import com.bookstore.ecommerce.app.order.command.dto.CreateOrderRequest;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,7 @@ public class CommandImpl implements Command {
   private OrderRepository orderRepository;
 
   public CommandImpl(TransactionFactory transactionFactory,
-      OrderRepository orderRepository) {
+    OrderRepository orderRepository) {
     this.transactionFactory = transactionFactory;
     this.orderRepository = orderRepository;
   }
@@ -27,8 +26,8 @@ public class CommandImpl implements Command {
     }
 
     var order = new com.bookstore.ecommerce.app.domain.Order(
-        request.getCustomer().toDataObject(),
-        books);
+      request.getCustomer().toDataObject(),
+      books);
 
     return this.transactionFactory.runInTransaction(tx -> {
       this.orderRepository.create(order, tx).join();

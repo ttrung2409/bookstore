@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.order.query.dto;
+package com.bookstore.ecommerce.app.order.query;
 
 import lombok.Builder;
 import lombok.Data;
