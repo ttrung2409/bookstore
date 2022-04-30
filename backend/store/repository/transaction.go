@@ -35,6 +35,10 @@ func (f *transactionFactory) RunInTransaction(
 
 	result, err := fn(tx)
 
+	if err != nil {
+		return nil, err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		return nil, err

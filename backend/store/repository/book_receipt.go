@@ -10,10 +10,6 @@ type bookReceiptRepository struct {
 	postgresRepository
 }
 
-type bookReceiptItemRepository struct {
-	postgresRepository
-}
-
 func (r *bookReceiptRepository) Get(
 	id string,
 	tx repo.Transaction,
@@ -43,10 +39,8 @@ func (r *bookReceiptRepository) Create(
 		return data.EmptyEntityId, nil
 	}
 
-	bookReceiptItemRepositoryInstance := bookReceiptItemRepository{postgresRepository{}}
-
 	for _, item := range dataReceipt.Items {
-		if _, err = bookReceiptItemRepositoryInstance.create(item, tx); err != nil {
+		if _, err = r.create(item, tx); err != nil {
 			return data.EmptyEntityId, err
 		}
 	}

@@ -55,7 +55,7 @@ func (r *postgresRepository) update(
 	return nil
 }
 
-func toDataQueryError(err error) error {
+func toQueryError(err error) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return repo.ErrNotFound
 	}

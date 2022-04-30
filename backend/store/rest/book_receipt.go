@@ -3,9 +3,7 @@ package rest
 import (
 	"net/http"
 
-	ReceivingCommand "store/app/receiving/command"
-	"store/container"
-	"store/utils"
+	"store/app/receiving/command"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,15 +17,14 @@ type bookReceiptController struct{}
 
 func (c *bookReceiptController) create() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var request ReceivingCommand.ReceiveBooksRequest
+		var request command.ReceiveBooksRequest
 		err := c.BindJSON(&request)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
 
-		receivingCommand := container.Instance().Get(utils.Nameof((*ReceivingCommand.Command)(nil))).(ReceivingCommand.Command)
-
-		err = receivingCommand.Receive(request)
+		command := command.New()
+		err = command.Receive(request)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}

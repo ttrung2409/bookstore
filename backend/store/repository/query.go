@@ -17,6 +17,7 @@ type query struct {
 type queryCondition struct {
 	query *query
 	field string
+	andOr string
 }
 
 func (q *query) Select(fields ...string) repo.Query {
@@ -52,7 +53,11 @@ func (q *query) ThenInclude(relation string) repo.Query {
 }
 
 func (q *query) Where(field string) repo.QueryCondition {
-	return &queryCondition{field: field, query: q}
+	return &queryCondition{field: field, query: q, andOr: "and"}
+}
+
+func (q *query) Or(field string) repo.QueryCondition {
+	return &queryCondition{field: field, query: q, andOr: "or"}
 }
 
 func (q *query) OrderBy(field string) repo.Query {
@@ -90,7 +95,7 @@ func (q *query) exec() ([]interface{}, error) {
 
 	var records []interface{}
 	if result := q.db.Find(records); result.Error != nil {
-		return nil, toDataQueryError(result.Error)
+		return nil, toQueryError(result.Error)
 	}
 
 	return funk.Map(records, func(record interface{}) interface{} {
@@ -99,13 +104,31 @@ func (q *query) exec() ([]interface{}, error) {
 }
 
 func (c *queryCondition) In(values interface{}) repo.Query {
-	c.query.db = c.query.db.Where(fmt.Sprintf("%s IN ?", c.field), values)
+	if c.andOr == "and" {
+		c.query.db = c.query.db.Where(fmt.Sprintf("%s IN ?", c.field), values)
+	} else if c.andOr == "or" {
+		c.query.db = c.query.db.Or(fmt.Sprintf("%s IN ?", c.field), values)
+	}
 
 	return c.query
 }
 
 func (c *queryCondition) Eq(value interface{}) repo.Query {
-	c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
+	if c.andOr == "and" {
+		c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
+	} else if c.andOr == "or" {
+		c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
+	}
+
+	return c.query
+}
+
+func (c *queryCondition) Contains(value string) repo.Query {
+	if c.andOr == "and" {
+		c.query.db = c.query.db.Where(fmt.Sprintf("%s LIKE %%?%%", c.field), value)
+	} else if c.andOr == "or" {
+		c.query.db = c.query.db.Or(fmt.Sprintf("%s LIKE %%?%%", c.field), value)
+	}
 
 	return c.query
 }

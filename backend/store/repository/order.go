@@ -36,36 +36,6 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 	return domain.Order{}.New(order), nil
 }
 
-func (r *orderRepository) GetReceivingOrders(tx repo.Transaction) ([]*domain.Order, error) {
-	records, err := r.
-		query(&data.Order{}, tx).
-		Where("status").Eq(data.OrderStatusReceiving).
-		IncludeMany("Items").
-		ThenInclude("Book").
-		OrderBy("created_at").
-		Find()
-
-	if err != nil {
-		return nil, err
-	}
-
-	orders := []*domain.Order{}
-	for _, record := range records {
-		dataOrder := record.(*data.Order)
-		dataOrder.Stock = funk.Map(dataOrder.Items, func(item data.OrderItem) data.StockItem {
-			return data.StockItem{
-				BookId:      item.BookId,
-				OnhandQty:   item.Book.OnhandQty,
-				ReservedQty: item.Book.ReservedQty,
-			}
-		}).(data.Stock)
-
-		orders = append(orders, domain.Order{}.New(dataOrder))
-	}
-
-	return orders, nil
-}
-
 func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {
 	dataOrder := order.State()
 

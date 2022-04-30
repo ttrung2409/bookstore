@@ -6,6 +6,7 @@ type Query interface {
 	IncludeMany(ref string) Query
 	ThenInclude(ref string) Query
 	Where(field string) QueryCondition
+	Or(field string) QueryCondition
 	OrderBy(field string) Query
 	OrderByDesc(field string) Query
 	Find() ([]interface{}, error)
@@ -15,6 +16,7 @@ type Query interface {
 type QueryCondition interface {
 	In(values interface{}) Query
 	Eq(value interface{}) Query
+	Contains(value string) Query
 }
 
 type QueryFactory interface {

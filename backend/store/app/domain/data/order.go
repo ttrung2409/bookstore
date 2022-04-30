@@ -5,11 +5,11 @@ import "time"
 type OrderStatus string
 
 const (
-	OrderStatusQueued      OrderStatus = "Queued"
-	OrderStatusAccepted    OrderStatus = "Accepted"
-	OrderStatusReceiving   OrderStatus = "Receiving"
-	OrderStatusStockFilled OrderStatus = "StockFilled"
-	OrderStatusRejected    OrderStatus = "Rejected"
+	OrderStatusPending   OrderStatus = "Pending"
+	OrderStatusAccepted  OrderStatus = "Accepted"
+	OrderStatusRejected  OrderStatus = "Rejected"
+	OrderStatusCancelled OrderStatus = "Cancelled"
+	OrderStatusDelivered OrderStatus = "Delivered"
 )
 
 type Order struct {

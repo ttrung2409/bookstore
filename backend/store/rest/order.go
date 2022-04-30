@@ -2,10 +2,8 @@ package rest
 
 import (
 	"net/http"
-	OrderCommand "store/app/order/command"
-	OrderQuery "store/app/order/query"
-	"store/container"
-	"store/utils"
+	"store/app/order/command"
+	"store/app/order/query"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,18 +12,15 @@ func addOrderRoutes(r *gin.RouterGroup) {
 	controller := &orderController{}
 	r.GET("/", controller.find())
 	r.GET("/:id", controller.get())
-	r.PUT("/:id/accept", controller.accept())
-	r.PUT("/:id/place-as-back-order", controller.placeAsBackOrder())
-	r.PUT("/:id/reject", controller.reject())
+	r.PUT("/:id/deliver", controller.deliver())
 }
 
 type orderController struct{}
 
 func (c *orderController) find() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		orderQuery := container.Instance().Get(utils.Nameof((*OrderQuery.Query)(nil))).(OrderQuery.Query)
-
-		orders, err := orderQuery.FindDeliverableOrders()
+		query := query.New()
+		orders, err := query.FindDeliverableOrders()
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
@@ -37,9 +32,8 @@ func (c *orderController) find() gin.HandlerFunc {
 
 func (c *orderController) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		orderQuery := container.Instance().Get(utils.Nameof((*OrderQuery.Query)(nil))).(OrderQuery.Query)
-
-		order, err := orderQuery.GetOrderDetails(c.Query("id"))
+		query := query.New()
+		order, err := query.GetOrderDetails(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
@@ -49,39 +43,10 @@ func (c *orderController) get() gin.HandlerFunc {
 	}
 }
 
-func (c *orderController) accept() gin.HandlerFunc {
+func (c *orderController) deliver() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		orderCommand := container.Instance().Get(utils.Nameof((*OrderCommand.Command)(nil))).(OrderCommand.Command)
-
-		err := orderCommand.AcceptOrder(c.Query("id"))
-		if err != nil {
-			c.JSON(getHttpStatusByError(err), err)
-			return
-		}
-
-		c.JSON(http.StatusNoContent, nil)
-	}
-}
-
-func (c *orderController) placeAsBackOrder() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		orderCommand := container.Instance().Get(utils.Nameof((*OrderCommand.Command)(nil))).(OrderCommand.Command)
-
-		err := orderCommand.PlaceAsBackOrder(c.Query("id"))
-		if err != nil {
-			c.JSON(getHttpStatusByError(err), err)
-			return
-		}
-
-		c.JSON(http.StatusNoContent, nil)
-	}
-}
-
-func (c *orderController) reject() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		orderCommand := container.Instance().Get(utils.Nameof((*OrderCommand.Command)(nil))).(OrderCommand.Command)
-
-		err := orderCommand.RejectOrder(c.Query("id"))
+		command := command.New()
+		err := command.DeliverOrder(c.Query("id"))
 		if err != nil {
 			c.JSON(getHttpStatusByError(err), err)
 			return
