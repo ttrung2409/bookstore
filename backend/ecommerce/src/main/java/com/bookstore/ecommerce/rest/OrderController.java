@@ -1,7 +1,7 @@
 package com.bookstore.ecommerce.rest;
 
 import com.bookstore.ecommerce.app.order.command.Command;
-import com.bookstore.ecommerce.app.order.command.dto.CreateOrderRequest;
+import com.bookstore.ecommerce.app.order.command.CreateOrderRequest;
 import com.bookstore.ecommerce.app.order.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
