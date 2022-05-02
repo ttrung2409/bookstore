@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.7.1
 	github.com/google/uuid v1.2.0
 	github.com/sarulabs/di v2.0.0+incompatible
+	github.com/segmentio/kafka-go v0.4.31
 	github.com/thoas/go-funk v0.8.0
 	gorm.io/driver/postgres v1.1.0
 	gorm.io/gorm v1.21.9
@@ -36,7 +37,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pierrec/lz4/v4 v4.1.14 // indirect
-	github.com/segmentio/kafka-go v0.4.31 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/ugorji/go/codec v1.2.5 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
