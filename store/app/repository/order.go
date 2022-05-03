@@ -5,7 +5,7 @@ import (
 )
 
 type OrderRepository interface {
-	repositoryBase
 	Get(id string, tx Transaction) (*domain.Order, error)
+	Create(order *domain.Order, tx Transaction) (string, error)
 	Update(order *domain.Order, tx Transaction) error
 }
