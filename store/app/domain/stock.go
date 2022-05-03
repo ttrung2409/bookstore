@@ -10,9 +10,17 @@ func (Stock) New(stock data.Stock) Stock {
 	return Stock{state: stock}
 }
 
+func (stock Stock) clone() Stock {
+	return Stock{state: stock.state.Clone()}
+}
+
 func (stock Stock) enoughForOrder(order Order) bool {
 	for _, item := range order.state.Items {
-		if item.Qty > stock.state[item.BookId].OnhandQty-stock.state[item.BookId].ReservedQty {
+		if stockItem, ok := stock.state[item.BookId]; ok {
+			if item.Qty > stockItem.OnhandQty-stock.state[item.BookId].ReservedQty {
+				return false
+			}
+		} else {
 			return false
 		}
 	}
@@ -21,37 +29,49 @@ func (stock Stock) enoughForOrder(order Order) bool {
 }
 
 func (stock Stock) decreaseByOrder(order Order) Stock {
+	newStock := stock.clone()
+
 	for _, item := range order.state.Items {
-		stock.state[item.BookId] = data.StockItem{
-			BookId:      item.BookId,
-			OnhandQty:   stock.state[item.BookId].OnhandQty - item.Qty,
-			ReservedQty: stock.state[item.BookId].ReservedQty,
+		if _, ok := newStock.state[item.BookId]; ok {
+			newStock.state[item.BookId] = data.StockItem{
+				BookId:      item.BookId,
+				OnhandQty:   newStock.state[item.BookId].OnhandQty - item.Qty,
+				ReservedQty: newStock.state[item.BookId].ReservedQty,
+			}
 		}
 	}
 
-	return stock
+	return newStock
 }
 
 func (stock Stock) reserveForOrder(order Order) Stock {
+	newStock := stock.clone()
+
 	for _, item := range order.state.Items {
-		stock.state[item.BookId] = data.StockItem{
-			BookId:      item.BookId,
-			OnhandQty:   stock.state[item.BookId].OnhandQty,
-			ReservedQty: stock.state[item.BookId].ReservedQty + item.Qty,
+		if _, ok := newStock.state[item.BookId]; ok {
+			newStock.state[item.BookId] = data.StockItem{
+				BookId:      item.BookId,
+				OnhandQty:   newStock.state[item.BookId].OnhandQty,
+				ReservedQty: newStock.state[item.BookId].ReservedQty + item.Qty,
+			}
 		}
 	}
 
-	return stock
+	return newStock
 }
 
 func (stock Stock) releaseReservation(order Order) Stock {
+	newStock := stock.clone()
+
 	for _, item := range order.state.Items {
-		stock.state[item.BookId] = data.StockItem{
-			BookId:      item.BookId,
-			OnhandQty:   stock.state[item.BookId].OnhandQty,
-			ReservedQty: stock.state[item.BookId].ReservedQty - item.Qty,
+		if _, ok := stock.state[item.BookId]; ok {
+			newStock.state[item.BookId] = data.StockItem{
+				BookId:      item.BookId,
+				OnhandQty:   newStock.state[item.BookId].OnhandQty,
+				ReservedQty: newStock.state[item.BookId].ReservedQty - item.Qty,
+			}
 		}
 	}
 
-	return stock
+	return newStock
 }
