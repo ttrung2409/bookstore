@@ -8,8 +8,8 @@ import (
 )
 
 type Query interface {
-	FindDeliverableOrders() ([]*Order, error)
-	GetOrderDetails(id string) (*Order, error)
+	FindDeliverableOrders() ([]Order, error)
+	GetOrderDetails(id string) (Order, error)
 }
 
 func New() Query {
@@ -18,7 +18,7 @@ func New() Query {
 
 type query struct{}
 
-func (*query) FindDeliverableOrders() ([]*Order, error) {
+func (*query) FindDeliverableOrders() ([]Order, error) {
 	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
 
 	records, err := queryFactory.
@@ -30,16 +30,16 @@ func (*query) FindDeliverableOrders() ([]*Order, error) {
 		return nil, err
 	}
 
-	var orders []*Order
+	var orders []Order
 	for _, record := range records {
-		order := Order{}.fromDataObject(record.(*data.Order))
+		order := Order{}.fromDataObject(record.(data.Order))
 		orders = append(orders, order)
 	}
 
 	return orders, nil
 }
 
-func (*query) GetOrderDetails(id string) (*Order, error) {
+func (*query) GetOrderDetails(id string) (Order, error) {
 	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
 
 	record, err := queryFactory.
@@ -51,10 +51,10 @@ func (*query) GetOrderDetails(id string) (*Order, error) {
 		First()
 
 	if err != nil {
-		return nil, err
+		return Order{}, err
 	}
 
-	order := Order{}.fromDataObject(record.(*data.Order))
+	order := Order{}.fromDataObject(record.(data.Order))
 
 	return order, nil
 }

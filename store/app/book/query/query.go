@@ -12,8 +12,8 @@ import (
 )
 
 type Query interface {
-	FindGoogleBooks(term string) ([]*Book, error)
-	FindBooks(term string) ([]*Book, error)
+	FindGoogleBooks(term string) ([]Book, error)
+	FindBooks(term string) ([]Book, error)
 }
 
 func New() Query {
@@ -22,7 +22,7 @@ func New() Query {
 
 type query struct{}
 
-func (*query) FindGoogleBooks(term string) ([]*Book, error) {
+func (*query) FindGoogleBooks(term string) ([]Book, error) {
 	url, err := url.Parse("https://www.googleapis.com/books/v1/volumes")
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (*query) FindGoogleBooks(term string) ([]*Book, error) {
 		return nil, err
 	}
 
-	var books []*Book
+	books := []Book{}
 	err = json.Unmarshal([]byte(body), &books)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (*query) FindGoogleBooks(term string) ([]*Book, error) {
 	return books, nil
 }
 
-func (*query) FindBooks(term string) ([]*Book, error) {
+func (*query) FindBooks(term string) ([]Book, error) {
 	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
 
 	records, err := queryFactory.New(&data.Book{}).
@@ -66,9 +66,9 @@ func (*query) FindBooks(term string) ([]*Book, error) {
 		return nil, err
 	}
 
-	var books []*Book
+	books := []Book{}
 	for _, record := range records {
-		book := Book{}.fromDataObject(record.(*data.Book))
+		book := Book{}.fromDataObject(record.(data.Book))
 		books = append(books, book)
 	}
 

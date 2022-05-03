@@ -19,8 +19,8 @@ type Book struct {
 	PreviewUrl    string
 }
 
-func (Book) fromDataObject(book *data.Book) *Book {
-	return &Book{
+func (Book) fromDataObject(book data.Book) Book {
+	return Book{
 		Id:            book.Id,
 		Title:         book.Title,
 		Subtitle:      book.Subtitle,
