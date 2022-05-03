@@ -7,7 +7,6 @@ import (
 
 type Order struct {
 	Id        string
-	Number    string
 	CreatedAt time.Time
 	Customer  Customer
 	Status    string
@@ -33,11 +32,14 @@ func (Order) fromDataObject(order data.Order) Order {
 
 	return Order{
 		Id:        order.Id,
-		Number:    order.Number,
 		CreatedAt: order.CreatedAt,
-		Customer:  Customer{}.fromDataObject(*order.Customer),
-		Status:    string(order.Status),
-		Items:     items,
+		Customer: Customer{
+			Name:            order.CustomerName,
+			Phone:           order.CustomerPhone,
+			DeliveryAddress: order.CustomerDeliveryAddress,
+		},
+		Status: string(order.Status),
+		Items:  items,
 	}
 }
 
@@ -45,13 +47,5 @@ func (OrderItem) fromDataObject(item data.OrderItem) OrderItem {
 	return OrderItem{
 		Book: Book{}.fromDataObject(*item.Book),
 		Qty:  item.Qty,
-	}
-}
-
-func (Customer) fromDataObject(customer data.Customer) Customer {
-	return Customer{
-		Name:            customer.Name,
-		Phone:           customer.Phone,
-		DeliveryAddress: customer.DeliveryAddress,
 	}
 }

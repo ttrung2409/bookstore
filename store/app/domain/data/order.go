@@ -1,11 +1,13 @@
 package data
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type OrderStatus string
 
 const (
-	OrderStatusPending   OrderStatus = "Pending"
 	OrderStatusAccepted  OrderStatus = "Accepted"
 	OrderStatusRejected  OrderStatus = "Rejected"
 	OrderStatusCancelled OrderStatus = "Cancelled"
@@ -13,15 +15,16 @@ const (
 )
 
 type Order struct {
-	Id         string `gorm:"primaryKey"`
-	Number     string `gorm:"autoIncrement"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	CustomerId string
-	Status     OrderStatus
-	Items      []OrderItem `gorm:"foreignKey:OrderId"`
-	Stock      Stock       `gorm:"-"`
-	Customer   *Customer   `gorm:"foreignKey:Id"`
+	Id                      string `gorm:"primaryKey"`
+	Status                  OrderStatus
+	Items                   []OrderItem `gorm:"foreignKey:OrderId"`
+	Stock                   Stock       `gorm:"-"`
+	CustomerId              string
+	CustomerName            string
+	CustomerPhone           string
+	CustomerDeliveryAddress string
+	CreatedAt               time.Time
+	UpdatedAt               time.Time
 }
 
 func (o *Order) GetId() string {
@@ -40,7 +43,6 @@ func (o *Order) Clone() Order {
 
 	return Order{
 		Id:         o.Id,
-		Number:     o.Number,
 		CustomerId: o.CustomerId,
 		Status:     o.Status,
 		Items:      items,
@@ -53,6 +55,13 @@ type OrderItem struct {
 	BookId  string
 	Book    *Book `gorm:"foreignKey:Id"`
 	Qty     int
+}
+
+func (item OrderItem) GetId() string {
+	return fmt.Sprintf("%s-%s", item.OrderId, item.BookId)
+}
+
+func (item OrderItem) SetId(id string) {
 }
 
 func (item OrderItem) Clone() OrderItem {
