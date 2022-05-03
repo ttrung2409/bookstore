@@ -5,7 +5,6 @@ import (
 	repo "store/app/repository"
 	"strings"
 
-	"github.com/thoas/go-funk"
 	"gorm.io/gorm"
 )
 
@@ -93,14 +92,12 @@ func (q *query) exec() ([]interface{}, error) {
 		q.db = q.db.Preload(q.includeChain)
 	}
 
-	var records []interface{}
+	var records = []interface{}{}
 	if result := q.db.Find(records); result.Error != nil {
 		return nil, toQueryError(result.Error)
 	}
 
-	return funk.Map(records, func(record interface{}) interface{} {
-		return &record
-	}).([]interface{}), nil
+	return records, nil
 }
 
 func (c *queryCondition) In(values interface{}) repo.Query {

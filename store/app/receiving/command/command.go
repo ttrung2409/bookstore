@@ -43,10 +43,10 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 			// create book receipt
 			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(funk.Map(
 				request.Items,
-				func(item *ReceivingBook) *domain.ReceivingBook {
-					return &domain.ReceivingBook{Book: item.toDataObject(), ReceivingQty: item.Qty}
+				func(item ReceivingBook) domain.ReceivingBook {
+					return domain.ReceivingBook{Book: item.toDataObject(), ReceivingQty: item.Qty}
 				},
-			).([]*domain.ReceivingBook))
+			).([]domain.ReceivingBook))
 
 			receiptId, err := bookReceiptRepository.Create(newReceipt, tx)
 			if err != nil {

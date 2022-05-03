@@ -7,29 +7,28 @@ import (
 )
 
 type BookReceipt struct {
-	state *data.BookReceipt
+	state data.BookReceipt
 }
 
 type ReceivingBook struct {
-	*data.Book
+	data.Book
 	ReceivingQty int
 }
 
-func (BookReceipt) New(state *data.BookReceipt) *BookReceipt {
+func (BookReceipt) New(state data.BookReceipt) *BookReceipt {
 	receipt := &BookReceipt{state: state}
 	return receipt
 }
 
-func (BookReceipt) NewFromReceivingBooks(books []*ReceivingBook) *BookReceipt {
-	receipt := &data.BookReceipt{
+func (BookReceipt) NewFromReceivingBooks(books []ReceivingBook) *BookReceipt {
+	receipt := data.BookReceipt{
 		Id: data.NewEntityId(),
 	}
 
-	items := []*data.BookReceiptItem{}
+	items := []data.BookReceiptItem{}
 
 	for _, book := range books {
-		items = append(items, &data.BookReceiptItem{
-			Id:            data.NewEntityId(),
+		items = append(items, data.BookReceiptItem{
 			BookReceiptId: receipt.Id,
 			BookId:        book.Id,
 			Qty:           book.ReceivingQty,
@@ -44,6 +43,6 @@ func (BookReceipt) NewFromReceivingBooks(books []*ReceivingBook) *BookReceipt {
 	return &BookReceipt{state: receipt}
 }
 
-func (receipt *BookReceipt) State() *data.BookReceipt {
+func (receipt *BookReceipt) State() data.BookReceipt {
 	return receipt.state.Clone()
 }

@@ -6,15 +6,11 @@ type Stock struct {
 	state data.Stock
 }
 
-func (Stock) New(stock data.Stock) *Stock {
-	return &Stock{state: stock}
+func (Stock) New(stock data.Stock) Stock {
+	return Stock{state: stock}
 }
 
-func (stock *Stock) Clone() *Stock {
-	return &Stock{state: stock.state.Clone()}
-}
-
-func (stock *Stock) enoughForOrder(order *Order) bool {
+func (stock Stock) enoughForOrder(order Order) bool {
 	for _, item := range order.state.Items {
 		if item.Qty > stock.state[item.BookId].OnhandQty-stock.state[item.BookId].ReservedQty {
 			return false
@@ -24,41 +20,38 @@ func (stock *Stock) enoughForOrder(order *Order) bool {
 	return true
 }
 
-func (stock *Stock) decreaseByOrder(order *Order) *Stock {
-	newStock := stock.Clone()
+func (stock Stock) decreaseByOrder(order Order) Stock {
 	for _, item := range order.state.Items {
-		newStock.state[item.BookId] = &data.StockItem{
+		stock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.state[item.BookId].OnhandQty - item.Qty,
-			ReservedQty: newStock.state[item.BookId].ReservedQty,
+			OnhandQty:   stock.state[item.BookId].OnhandQty - item.Qty,
+			ReservedQty: stock.state[item.BookId].ReservedQty,
 		}
 	}
 
-	return newStock
+	return stock
 }
 
-func (stock *Stock) reserveForOrder(order *Order) *Stock {
-	newStock := stock.Clone()
+func (stock Stock) reserveForOrder(order Order) Stock {
 	for _, item := range order.state.Items {
-		newStock.state[item.BookId] = &data.StockItem{
+		stock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.state[item.BookId].OnhandQty,
-			ReservedQty: newStock.state[item.BookId].ReservedQty + item.Qty,
+			OnhandQty:   stock.state[item.BookId].OnhandQty,
+			ReservedQty: stock.state[item.BookId].ReservedQty + item.Qty,
 		}
 	}
 
-	return newStock
+	return stock
 }
 
-func (stock *Stock) releaseReservation(order *Order) *Stock {
-	newStock := stock.Clone()
+func (stock Stock) releaseReservation(order Order) Stock {
 	for _, item := range order.state.Items {
-		newStock.state[item.BookId] = &data.StockItem{
+		stock.state[item.BookId] = data.StockItem{
 			BookId:      item.BookId,
-			OnhandQty:   newStock.state[item.BookId].OnhandQty,
-			ReservedQty: newStock.state[item.BookId].ReservedQty - item.Qty,
+			OnhandQty:   stock.state[item.BookId].OnhandQty,
+			ReservedQty: stock.state[item.BookId].ReservedQty - item.Qty,
 		}
 	}
 
-	return newStock
+	return stock
 }

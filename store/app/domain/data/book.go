@@ -29,8 +29,8 @@ func (b *Book) SetId(id string) {
 	b.Id = id
 }
 
-func (b *Book) Clone() *Book {
-	return &Book{
+func (b *Book) Clone() Book {
+	return Book{
 		Id:            b.Id,
 		GoogleBookId:  b.GoogleBookId,
 		Title:         b.Title,

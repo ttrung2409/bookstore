@@ -25,7 +25,7 @@ func (r *bookReceiptRepository) Get(
 		return nil, err
 	}
 
-	return domain.BookReceipt{}.New(record.(*data.BookReceipt)), nil
+	return domain.BookReceipt{}.New(record.(data.BookReceipt)), nil
 }
 
 func (r *bookReceiptRepository) Create(
@@ -34,7 +34,7 @@ func (r *bookReceiptRepository) Create(
 ) (string, error) {
 	dataReceipt := receipt.State()
 
-	receiptId, err := r.create(dataReceipt, tx)
+	receiptId, err := r.create(&dataReceipt, tx)
 	if err != nil {
 		return data.EmptyEntityId, nil
 	}

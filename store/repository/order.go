@@ -24,7 +24,7 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 		return nil, err
 	}
 
-	order := record.(*data.Order)
+	order := record.(data.Order)
 	order.Stock = funk.Map(order.Items, func(item data.OrderItem) data.StockItem {
 		return data.StockItem{
 			BookId:      item.BookId,
@@ -39,15 +39,13 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {
 	dataOrder := order.State()
 
-	if err := r.update(dataOrder.Id, dataOrder, tx); err != nil {
+	if err := r.update(dataOrder.Id, &dataOrder, tx); err != nil {
 		return err
 	}
 
-	bookRepositoryInstance := bookRepository{postgresRepository{}}
-
 	for _, item := range dataOrder.Items {
 		if stock, ok := dataOrder.Stock[item.BookId]; ok {
-			if err := bookRepositoryInstance.update(
+			if err := r.update(
 				stock.BookId,
 				&data.Book{OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
 				tx,

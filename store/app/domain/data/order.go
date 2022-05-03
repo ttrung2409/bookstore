@@ -19,9 +19,9 @@ type Order struct {
 	UpdatedAt  time.Time
 	CustomerId string
 	Status     OrderStatus
-	Items      []*OrderItem `gorm:"foreignKey:OrderId"`
-	Stock      Stock        `gorm:"-"`
-	Customer   *Customer    `gorm:"foreignKey:Id"`
+	Items      []OrderItem `gorm:"foreignKey:OrderId"`
+	Stock      Stock       `gorm:"-"`
+	Customer   *Customer   `gorm:"foreignKey:Id"`
 }
 
 func (o *Order) GetId() string {
@@ -32,13 +32,13 @@ func (o *Order) SetId(id string) {
 	o.Id = id
 }
 
-func (o *Order) Clone() *Order {
-	items := []*OrderItem{}
+func (o *Order) Clone() Order {
+	items := []OrderItem{}
 	for _, item := range o.Items {
 		items = append(items, item.Clone())
 	}
 
-	return &Order{
+	return Order{
 		Id:         o.Id,
 		Number:     o.Number,
 		CustomerId: o.CustomerId,
@@ -49,16 +49,14 @@ func (o *Order) Clone() *Order {
 }
 
 type OrderItem struct {
-	Id      string `gorm:"primaryKey"`
 	OrderId string
 	BookId  string
 	Book    *Book `gorm:"foreignKey:Id"`
 	Qty     int
 }
 
-func (item *OrderItem) Clone() *OrderItem {
-	return &OrderItem{
-		Id:      item.Id,
+func (item OrderItem) Clone() OrderItem {
+	return OrderItem{
 		OrderId: item.OrderId,
 		BookId:  item.BookId,
 		Book:    item.Book,

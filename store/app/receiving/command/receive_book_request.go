@@ -1,7 +1,7 @@
 package command
 
 type ReceiveBooksRequest struct {
-	Items []*ReceivingBook
+	Items []ReceivingBook
 }
 
 type ReceivingBook struct {
