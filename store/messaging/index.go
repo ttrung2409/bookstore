@@ -2,49 +2,59 @@ package messaging
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"store/app/kafka"
-	"store/app/order/command"
 	"store/container"
-	"store/messaging/messages"
 	"store/utils"
 )
 
-var consumer kafka.Consumer
+var consumers map[string]kafka.Consumer
 
 func Start(ctx context.Context) {
+	if consumers == nil {
+		consumers = map[string]kafka.Consumer{}
+	}
+
 	startConsumer(ctx, "order")
 }
 
 func Stop() {
-	if consumer == nil {
+	if consumers == nil {
 		return
 	}
 
-	consumer.Dispose()
-	consumer = nil
+	for _, consumer := range consumers {
+		consumer.Dispose()
+	}
+
+	consumers = nil
 }
 
 func startConsumer(ctx context.Context, topic string) error {
+	if _, ok := consumers[topic]; ok {
+		return fmt.Errorf("consumer of topic %s has already been started\n", topic)
+	}
+
 	factory := container.Instance().Get(utils.Nameof((*kafka.Factory)(nil))).(kafka.Factory)
-	consumer = factory.NewConsumer(topic)
+	consumers[topic] = factory.NewConsumer(topic)
 
 	for {
-		msg, err := consumer.FetchMessage(ctx)
+		msg, err := consumers[topic].FetchMessage(ctx)
 		if err != nil {
 			return err
 		}
 
-		switch msg.Type() {
-		case utils.Nameof(messages.OrderCancelled{}):
-			command := command.New()
+		handler, err := NewHandler(msg)
+		if err != nil {
+			return err
+		}
 
-			orderCancelled := &messages.OrderCancelled{}
-			json.Unmarshal(msg.Value(), orderCancelled)
+		if err := handler(msg); err != nil {
+			return err
+		}
 
-			if err := command.CancelOrder(orderCancelled.OrderId); err == nil {
-				consumer.CommitMessage(ctx, msg)
-			}
+		if err := consumers[topic].CommitMessage(ctx, msg); err != nil {
+			return err
 		}
 	}
 }
