@@ -7,5 +7,4 @@ type ReceiveBooksRequest struct {
 type ReceivingBook struct {
 	Book
 	Qty int
-	id  string
 }

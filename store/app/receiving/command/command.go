@@ -5,8 +5,6 @@ import (
 	repo "store/app/repository"
 	"store/container"
 	"store/utils"
-
-	funk "github.com/thoas/go-funk"
 )
 
 type Command interface {
@@ -26,9 +24,11 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 
 	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
+			bookIds := make([]string, len(request.Items))
+
 			// create books if not exists
-			for _, item := range request.Items {
-				bookId, _, err := bookRepository.CreateIfNotExists(
+			for index, item := range request.Items {
+				bookId, err := bookRepository.CreateIfNotExist(
 					domain.Book{}.New(item.Book.toDataObject()),
 					tx,
 				)
@@ -37,17 +37,22 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 					return nil, err
 				}
 
-				item.id = bookId
+				bookIds[index] = bookId
 			}
 
 			// create book receipt
-			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(funk.Map(
-				request.Items,
-				func(item ReceivingBook) domain.ReceivingBook {
-					return domain.ReceivingBook{Book: item.toDataObject(), ReceivingQty: item.Qty}
-				},
-			).([]domain.ReceivingBook))
+			receivingBooks := []domain.ReceivingBook{}
+			for index, item := range request.Items {
+				dataBook := item.toDataObject()
+				dataBook.Id = bookIds[index]
 
+				receivingBooks = append(
+					receivingBooks,
+					domain.ReceivingBook{Book: dataBook, ReceivingQty: item.Qty},
+				)
+			}
+
+			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(receivingBooks)
 			receiptId, err := bookReceiptRepository.Create(newReceipt, tx)
 			if err != nil {
 				return nil, err
