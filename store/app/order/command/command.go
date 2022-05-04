@@ -1,13 +1,16 @@
 package command
 
 import (
+	"store/app/domain"
 	repo "store/app/repository"
 	"store/container"
 	"store/utils"
+
+	"github.com/thoas/go-funk"
 )
 
 type Command interface {
-	AcceptOrder(orderId string) error
+	AcceptOrder(order Order) error
 	DeliverOrder(orderId string) error
 	CancelOrder(orderId string) error
 }
@@ -18,22 +21,25 @@ func New() Command {
 
 type command struct{}
 
-func (*command) AcceptOrder(orderId string) error {
+func (*command) AcceptOrder(order Order) error {
 	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
 	orderRepository := container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+	bookRepository := container.Instance().Get(utils.Nameof((*repo.BookRepository)(nil))).(repo.BookRepository)
 
 	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
-			order, err := orderRepository.Get(orderId, tx)
-			if err != nil {
+			dataOrder := order.toDataObject()
+			dataOrder.Stock = bookRepository.GetStock(funk.Map(order.Items, func(item OrderItem) string {
+				return item.BookId
+			}).([]string))
+
+			order := domain.Order{}.New(dataOrder)
+
+			if err := order.Accept(); err != nil {
 				return nil, err
 			}
 
-			if err = order.Accept(); err != nil {
-				return nil, err
-			}
-
-			if err = orderRepository.Update(order, tx); err != nil {
+			if _, err := orderRepository.Create(order, tx); err != nil {
 				return nil, err
 			}
 

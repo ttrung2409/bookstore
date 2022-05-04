@@ -15,8 +15,8 @@ type orderRepository struct {
 func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, error) {
 	record, err := r.
 		query(&data.Order{}, tx).
-		IncludeMany("Items").
-		ThenInclude("Book").
+		IncludeMany("Items").ThenInclude("Book").
+		Include("Customer").
 		Where("id").Eq(id).
 		First()
 
@@ -25,8 +25,8 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 	}
 
 	order := record.(data.Order)
-	order.Stock = funk.Map(order.Items, func(item data.OrderItem) data.StockItem {
-		return data.StockItem{
+	order.Stock = funk.Map(order.Items, func(item data.OrderItem) (string, data.StockItem) {
+		return item.BookId, data.StockItem{
 			BookId:      item.BookId,
 			OnhandQty:   item.Book.OnhandQty,
 			ReservedQty: item.Book.ReservedQty,
@@ -36,8 +36,48 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 	return domain.Order{}.New(order), nil
 }
 
+func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (string, error) {
+	dataOrder := order.State()
+
+	if dataOrder.Id == "" {
+		dataOrder.Id = data.NewEntityId()
+	}
+
+	if tx == nil {
+		tx = (&transactionFactory{}).New()
+	}
+
+	if err := r.create(&dataOrder, tx); err != nil {
+		return data.EmptyEntityId, err
+	}
+
+	for _, item := range dataOrder.Items {
+		if err := r.create(&item, tx); err != nil {
+			return data.EmptyEntityId, err
+		}
+	}
+
+	for _, item := range dataOrder.Items {
+		if stock, ok := dataOrder.Stock[item.BookId]; ok {
+			if err := r.update(
+				stock.BookId,
+				&data.Book{OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
+				tx,
+			); err != nil {
+				return data.EmptyEntityId, err
+			}
+		}
+	}
+
+	return dataOrder.Id, nil
+}
+
 func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {
 	dataOrder := order.State()
+
+	if tx == nil {
+		tx = (&transactionFactory{}).New()
+	}
 
 	if err := r.update(dataOrder.Id, &dataOrder, tx); err != nil {
 		return err

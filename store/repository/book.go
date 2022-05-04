@@ -5,6 +5,7 @@ import (
 	data "store/app/domain/data"
 	repo "store/app/repository"
 
+	"github.com/thoas/go-funk"
 	"gorm.io/gorm"
 )
 
@@ -15,22 +16,43 @@ type bookRepository struct {
 func (r *bookRepository) CreateIfNotExist(
 	book *domain.Book,
 	tx repo.Transaction,
-) (string, bool, error) {
+) (string, error) {
 	dataBook := book.State()
-
-	newEntityId := data.NewEntityId()
-	dataBook.Id = newEntityId
+	dataBook.Id = data.NewEntityId()
 
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
 
-	if result := db.Where("google_book_id = ?", dataBook.GoogleBookId).FirstOrCreate(dataBook); result.Error != nil {
-		return data.EmptyEntityId, false, result.Error
+	if result := db.Where("google_book_id = ?", dataBook.GoogleBookId).FirstOrCreate(&dataBook); result.Error != nil {
+		return data.EmptyEntityId, result.Error
 	}
 
-	return dataBook.Id, dataBook.Id == newEntityId, nil
+	return dataBook.Id, nil
+}
+
+func (r *bookRepository) GetStock(
+	ids string,
+	tx repo.Transaction,
+) (data.Stock, error) {
+
+	books, err := r.query(&data.Book{}, tx).
+		Select("id", "onhand_qty", "reserved_qty").
+		Where("id").In(ids).
+		Find()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return funk.Map(books, func(book data.Book) (string, data.StockItem) {
+		return book.Id, data.StockItem{
+			BookId:      book.Id,
+			OnhandQty:   book.OnhandQty,
+			ReservedQty: book.ReservedQty,
+		}
+	}).(data.Stock), nil
 }
 
 func (r *bookRepository) adjustOnhandQty(

@@ -18,13 +18,6 @@ func (order *Order) State() data.Order {
 }
 
 func (order *Order) Accept() error {
-	if order.state.Status != data.OrderStatusPending {
-		return fmt.Errorf(
-			"order status '%s' is invalid. Order status must be 'Pending' so as for it to be accepted",
-			order.state.Status,
-		)
-	}
-
 	stock := Stock{}.New(order.state.Stock)
 	if !stock.enoughForOrder(*order) {
 		return ErrNotEnoughStock
