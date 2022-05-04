@@ -14,7 +14,7 @@ func (e *kafkaEvent) Key() string {
 	return e.event.Key()
 }
 
-func (e *kafkaEvent) Topic() string {
+func (e *kafkaEvent) Type() string {
 	return e.event.Type()
 }
 

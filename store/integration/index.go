@@ -33,7 +33,7 @@ func startConsumer(ctx context.Context, topic string) error {
 		return fmt.Errorf("consumer of topic %s has already been started", topic)
 	}
 
-	consumers[topic] = NewConsumer(topic)
+	consumers[topic] = kafka.NewConsumer(topic)
 
 	for {
 		msg, err := consumers[topic].FetchMessage(ctx)

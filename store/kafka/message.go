@@ -7,8 +7,8 @@ import (
 
 type Message interface {
 	Key() string
+	Type() string
 	Value() []byte
-	Topic() string
 }
 
 type message struct {
@@ -19,9 +19,9 @@ func (m *message) Key() string {
 	return string(m.msg.Key)
 }
 
-func (m *message) Topic() string {
+func (m *message) Type() string {
 	header := funk.Find(m.msg.Headers, func(header kafkaGo.Header) bool {
-		return header.Key == "topic"
+		return header.Key == "type"
 	}).(kafkaGo.Header)
 
 	return string(header.Value)

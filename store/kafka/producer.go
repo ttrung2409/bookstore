@@ -35,7 +35,7 @@ func (p *producer) Send(ctx context.Context, messages ...Message) error {
 		return kafkaGo.Message{
 			Key:     []byte(msg.Key()),
 			Value:   msg.Value(),
-			Headers: []kafkaGo.Header{{Key: "topic", Value: []byte(msg.Topic())}},
+			Headers: []kafkaGo.Header{{Key: "type", Value: []byte(msg.Type())}},
 		}
 	}).([]kafkaGo.Message)
 
