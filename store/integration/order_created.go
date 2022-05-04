@@ -1,8 +1,8 @@
-package messaging
+package integration
 
 import (
-	"store/app/kafka"
 	"store/app/order/command"
+	"store/kafka"
 	"store/utils"
 )
 

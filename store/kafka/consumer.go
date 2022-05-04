@@ -3,16 +3,21 @@ package kafka
 import (
 	"context"
 	"log"
-	"store/app/kafka"
 
 	kafkaGo "github.com/segmentio/kafka-go"
 )
+
+type Consumer interface {
+	FetchMessage(ctx context.Context) (Message, error)
+	CommitMessage(ctx context.Context, msg Message) error
+	Dispose() error
+}
 
 type consumer struct {
 	reader *kafkaGo.Reader
 }
 
-func newConsumer(topic string) kafka.Consumer {
+func NewConsumer(topic string) Consumer {
 	return &consumer{reader: kafkaGo.NewReader(kafkaGo.ReaderConfig{
 		Brokers:  BrokerAddresses,
 		GroupID:  topic,
@@ -23,7 +28,7 @@ func newConsumer(topic string) kafka.Consumer {
 	})}
 }
 
-func (c *consumer) FetchMessage(ctx context.Context) (kafka.Message, error) {
+func (c *consumer) FetchMessage(ctx context.Context) (Message, error) {
 	msg, err := c.reader.FetchMessage(ctx)
 
 	if err != nil {
@@ -33,7 +38,7 @@ func (c *consumer) FetchMessage(ctx context.Context) (kafka.Message, error) {
 	return &message{msg: msg}, nil
 }
 
-func (c *consumer) CommitMessage(ctx context.Context, msg kafka.Message) error {
+func (c *consumer) CommitMessage(ctx context.Context, msg Message) error {
 	return c.reader.CommitMessages(ctx, msg.(*message).msg)
 }
 

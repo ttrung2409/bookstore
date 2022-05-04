@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"os/signal"
+	"store/app/messaging"
 	"store/container"
+	"store/integration"
 	"store/kafka"
-	"store/messaging"
 	repository "store/repository"
 	server "store/rest"
+	"store/utils"
 	"syscall"
 )
 
@@ -30,11 +32,14 @@ func main() {
 	}()
 
 	go func() {
-		messaging.Start(ctx)
+		integration.Start(ctx)
 	}()
 
 	<-ctx.Done()
 
 	server.Stop()
-	messaging.Stop()
+	integration.Stop()
+
+	eventDispatcher := container.Instance().Get(utils.Nameof((*messaging.EventDispatcher)(nil))).(messaging.EventDispatcher)
+	eventDispatcher.Dispose()
 }

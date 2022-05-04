@@ -5,6 +5,12 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+type Message interface {
+	Key() string
+	Value() []byte
+	Topic() string
+}
+
 type message struct {
 	msg kafkaGo.Message
 }
@@ -13,9 +19,9 @@ func (m *message) Key() string {
 	return string(m.msg.Key)
 }
 
-func (m *message) Type() string {
+func (m *message) Topic() string {
 	header := funk.Find(m.msg.Headers, func(header kafkaGo.Header) bool {
-		return header.Key == "type"
+		return header.Key == "topic"
 	}).(kafkaGo.Header)
 
 	return string(header.Value)

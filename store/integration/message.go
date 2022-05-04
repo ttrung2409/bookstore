@@ -1,8 +1,8 @@
-package messaging
+package integration
 
 import (
 	"encoding/json"
-	"store/app/kafka"
+	"store/kafka"
 )
 
 type message struct{}

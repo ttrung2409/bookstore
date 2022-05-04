@@ -1,8 +1,8 @@
-package messaging
+package integration
 
 import (
 	"fmt"
-	"store/app/kafka"
+	"store/kafka"
 	"store/utils"
 )
 

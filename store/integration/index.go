@@ -1,11 +1,9 @@
-package messaging
+package integration
 
 import (
 	"context"
 	"fmt"
-	"store/app/kafka"
-	"store/container"
-	"store/utils"
+	"store/kafka"
 )
 
 var consumers map[string]kafka.Consumer
@@ -32,11 +30,10 @@ func Stop() {
 
 func startConsumer(ctx context.Context, topic string) error {
 	if _, ok := consumers[topic]; ok {
-		return fmt.Errorf("consumer of topic %s has already been started\n", topic)
+		return fmt.Errorf("consumer of topic %s has already been started", topic)
 	}
 
-	factory := container.Instance().Get(utils.Nameof((*kafka.Factory)(nil))).(kafka.Factory)
-	consumers[topic] = factory.NewConsumer(topic)
+	consumers[topic] = NewConsumer(topic)
 
 	for {
 		msg, err := consumers[topic].FetchMessage(ctx)
