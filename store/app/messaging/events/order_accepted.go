@@ -1,11 +1,10 @@
-package messaging
+package events
 
 import (
 	"store/utils"
 )
 
 type OrderAccepted struct {
-	message
 	OrderId string
 }
 
