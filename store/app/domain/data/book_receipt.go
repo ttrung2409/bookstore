@@ -9,11 +9,10 @@ import (
 
 type BookReceipt struct {
 	Id                    string `gorm:"primaryKey"`
-	Number                uint   `gorm:"autoIncrement"`
 	CreatedAt             time.Time
 	UpdatedAt             time.Time
-	Items                 []BookReceiptItem
-	OnhandStockAdjustment StockAdjustment
+	Items                 []BookReceiptItem `gorm:"foreignKey:BookReceiptId"`
+	OnhandStockAdjustment StockAdjustment   `gorm:"-"`
 }
 
 func (r *BookReceipt) GetId() string {
@@ -26,8 +25,7 @@ func (r *BookReceipt) SetId(id string) {
 
 func (r *BookReceipt) Clone() BookReceipt {
 	return BookReceipt{
-		Id:     r.Id,
-		Number: r.Number,
+		Id: r.Id,
 		Items: funk.Map(r.Items, func(item BookReceiptItem) BookReceiptItem {
 			return item.Clone()
 		}).([]BookReceiptItem),
@@ -42,14 +40,14 @@ type BookReceiptItem struct {
 	Qty           int
 }
 
-func (item BookReceiptItem) GetId() string {
+func (item *BookReceiptItem) GetId() string {
 	return fmt.Sprintf("%s-%s", item.BookReceiptId, item.BookId)
 }
 
-func (item BookReceiptItem) SetId(id string) {
+func (item *BookReceiptItem) SetId(id string) {
 }
 
-func (item BookReceiptItem) Clone() BookReceiptItem {
+func (item *BookReceiptItem) Clone() BookReceiptItem {
 	return BookReceiptItem{
 		BookReceiptId: item.BookReceiptId,
 		BookId:        item.BookId,

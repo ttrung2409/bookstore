@@ -57,14 +57,14 @@ type OrderItem struct {
 	Qty     int
 }
 
-func (item OrderItem) GetId() string {
+func (item *OrderItem) GetId() string {
 	return fmt.Sprintf("%s-%s", item.OrderId, item.BookId)
 }
 
-func (item OrderItem) SetId(id string) {
+func (item *OrderItem) SetId(id string) {
 }
 
-func (item OrderItem) Clone() OrderItem {
+func (item *OrderItem) Clone() OrderItem {
 	return OrderItem{
 		OrderId: item.OrderId,
 		BookId:  item.BookId,
