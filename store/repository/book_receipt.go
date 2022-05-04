@@ -33,14 +33,18 @@ func (r *bookReceiptRepository) Create(
 	tx repo.Transaction,
 ) (string, error) {
 	dataReceipt := receipt.State()
+	dataReceipt.Id = data.NewEntityId()
 
-	receiptId, err := r.create(&dataReceipt, tx)
-	if err != nil {
-		return data.EmptyEntityId, nil
+	if tx == nil {
+		tx = (&transactionFactory{}).New()
+	}
+
+	if err := r.create(&dataReceipt, tx); err != nil {
+		return data.EmptyEntityId, err
 	}
 
 	for _, item := range dataReceipt.Items {
-		if _, err = r.create(item, tx); err != nil {
+		if err := r.create(&item, tx); err != nil {
 			return data.EmptyEntityId, err
 		}
 	}
@@ -48,8 +52,10 @@ func (r *bookReceiptRepository) Create(
 	bookRepositoryInstance := bookRepository{postgresRepository{}}
 
 	for _, item := range dataReceipt.OnhandStockAdjustment {
-		bookRepositoryInstance.adjustOnhandQty(item.BookId, item.Qty, tx)
+		if err := bookRepositoryInstance.adjustOnhandQty(item.BookId, item.Qty, tx); err != nil {
+			return data.EmptyEntityId, err
+		}
 	}
 
-	return receiptId, nil
+	return dataReceipt.Id, nil
 }
