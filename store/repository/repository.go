@@ -23,17 +23,17 @@ func (r *postgresRepository) query(model interface{}, tx repo.Transaction) repo.
 func (r *postgresRepository) create(
 	entity data.Entity,
 	tx repo.Transaction,
-) (string, error) {
+) error {
 	db := Db()
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
 
 	if result := db.Omit(clause.Associations).Create(entity); result.Error != nil {
-		return data.EmptyEntityId, result.Error
+		return result.Error
 	}
 
-	return entity.GetId(), nil
+	return nil
 }
 
 func (r *postgresRepository) update(
