@@ -1,24 +1,26 @@
 package repository
 
-type Query interface {
-	Select(fields ...string) Query
-	Include(ref string) Query
-	IncludeMany(ref string) Query
-	ThenInclude(ref string) Query
-	Where(field string) QueryCondition
-	Or(field string) QueryCondition
-	OrderBy(field string) Query
-	OrderByDesc(field string) Query
-	Find() ([]interface{}, error)
-	First() (interface{}, error)
+import "store/app/domain/data"
+
+type Query[M data.Model] interface {
+	Select(fields ...string) Query[M]
+	Include(ref string) Query[M]
+	IncludeMany(ref string) Query[M]
+	ThenInclude(ref string) Query[M]
+	Where(field string) Where[M]
+	Or(field string) Where[M]
+	OrderBy(field string) Query[M]
+	OrderByDesc(field string) Query[M]
+	Find() ([]M, error)
+	First() (M, error)
 }
 
-type QueryCondition interface {
-	In(values interface{}) Query
-	Eq(value interface{}) Query
-	Contains(value string) Query
+type Where[M data.Model] interface {
+	In(values any) Query[M]
+	Eq(value any) Query[M]
+	Contains(value string) Query[M]
 }
 
-type QueryFactory interface {
-	New(model interface{}) Query
+type QueryFactory[M data.Model] interface {
+	New() Query[M]
 }

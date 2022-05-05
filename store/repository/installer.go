@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"store/app/domain/data"
 	repo "store/app/repository"
 	"store/utils"
 
@@ -17,31 +18,37 @@ func Install(builder *di.Builder) {
 		{
 			Name: utils.Nameof((*repo.BookRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return bookRepository{postgresRepository{}}, nil
+				return &bookRepository{postgresRepository[data.Book]{}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.BookReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return bookReceiptRepository{postgresRepository{}}, nil
+				return &bookReceiptRepository{postgresRepository[data.BookReceipt]{}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.OrderRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return orderRepository{postgresRepository{}}, nil
+				return &orderRepository{postgresRepository[data.Order]{}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.TransactionFactory)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return transactionFactory{}, nil
+				return &transactionFactory{}, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*repo.QueryFactory)(nil)),
+			Name: utils.Nameof((*repo.QueryFactory[data.Book])(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return queryFactory{}, nil
+				return &queryFactory[data.Book]{}, nil
+			},
+		},
+		{
+			Name: utils.Nameof((*repo.QueryFactory[data.Order])(nil)),
+			Build: func(ctn di.Container) (interface{}, error) {
+				return &queryFactory[data.Order]{}, nil
 			},
 		},
 	}...)

@@ -7,15 +7,15 @@ import (
 )
 
 type bookReceiptRepository struct {
-	postgresRepository
+	postgresRepository[data.BookReceipt]
 }
 
 func (r *bookReceiptRepository) Get(
 	id string,
 	tx repo.Transaction,
 ) (*domain.BookReceipt, error) {
-	record, err := r.
-		query(&data.BookReceipt{}, tx).
+	bookReceipt, err := r.
+		query(tx).
 		Include("Items").
 		ThenInclude("Book").
 		Where("id").Eq(id).
@@ -25,7 +25,7 @@ func (r *bookReceiptRepository) Get(
 		return nil, err
 	}
 
-	return domain.BookReceipt{}.New(record.(data.BookReceipt)), nil
+	return domain.BookReceipt{}.New(bookReceipt), nil
 }
 
 func (r *bookReceiptRepository) Create(
@@ -33,27 +33,29 @@ func (r *bookReceiptRepository) Create(
 	tx repo.Transaction,
 ) (string, error) {
 	dataReceipt := receipt.State()
-	dataReceipt.Id = data.NewEntityId()
+	dataReceipt.Id = data.NewId()
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
-	if err := r.create(&dataReceipt, tx); err != nil {
-		return data.EmptyEntityId, err
+	if err := r.create(dataReceipt, tx); err != nil {
+		return data.EmptyId, err
 	}
 
+	bookReceiptItemRepository := postgresRepository[data.BookReceiptItem]{}
+
 	for _, item := range dataReceipt.Items {
-		if err := r.create(&item, tx); err != nil {
-			return data.EmptyEntityId, err
+		if err := bookReceiptItemRepository.create(item, tx); err != nil {
+			return data.EmptyId, err
 		}
 	}
 
-	bookRepositoryInstance := bookRepository{postgresRepository{}}
+	bookRepository := bookRepository{}
 
 	for _, item := range dataReceipt.OnhandStockAdjustment {
-		if err := bookRepositoryInstance.adjustOnhandQty(item.BookId, item.Qty, tx); err != nil {
-			return data.EmptyEntityId, err
+		if err := bookRepository.adjustOnhandQty(item.BookId, item.Qty, tx); err != nil {
+			return data.EmptyId, err
 		}
 	}
 

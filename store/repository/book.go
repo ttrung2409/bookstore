@@ -10,7 +10,7 @@ import (
 )
 
 type bookRepository struct {
-	postgresRepository
+	postgresRepository[data.Book]
 }
 
 func (r *bookRepository) CreateIfNotExist(
@@ -18,7 +18,7 @@ func (r *bookRepository) CreateIfNotExist(
 	tx repo.Transaction,
 ) (string, error) {
 	dataBook := book.State()
-	dataBook.Id = data.NewEntityId()
+	dataBook.Id = data.NewId()
 
 	db := Db()
 	if tx != nil {
@@ -26,7 +26,7 @@ func (r *bookRepository) CreateIfNotExist(
 	}
 
 	if result := db.Where("google_book_id = ?", dataBook.GoogleBookId).FirstOrCreate(&dataBook); result.Error != nil {
-		return data.EmptyEntityId, result.Error
+		return data.EmptyId, result.Error
 	}
 
 	return dataBook.Id, nil
@@ -37,7 +37,7 @@ func (r *bookRepository) GetStock(
 	tx repo.Transaction,
 ) (data.Stock, error) {
 
-	books, err := r.query(&data.Book{}, tx).
+	books, err := r.query(tx).
 		Select("id", "onhand_qty", "reserved_qty").
 		Where("id").In(ids).
 		Find()

@@ -9,12 +9,12 @@ import (
 )
 
 type orderRepository struct {
-	postgresRepository
+	postgresRepository[data.Order]
 }
 
 func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, error) {
-	record, err := r.
-		query(&data.Order{}, tx).
+	order, err := r.
+		query(tx).
 		IncludeMany("Items").ThenInclude("Book").
 		Include("Customer").
 		Where("id").Eq(id).
@@ -24,7 +24,6 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 		return nil, err
 	}
 
-	order := record.(data.Order)
 	order.Stock = funk.Map(order.Items, func(item data.OrderItem) (string, data.StockItem) {
 		return item.BookId, data.StockItem{
 			BookId:      item.BookId,
@@ -40,31 +39,34 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (stri
 	dataOrder := order.State()
 
 	if dataOrder.Id == "" {
-		dataOrder.Id = data.NewEntityId()
+		dataOrder.Id = data.NewId()
 	}
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
-	if err := r.create(&dataOrder, tx); err != nil {
-		return data.EmptyEntityId, err
+	if err := r.create(dataOrder, tx); err != nil {
+		return data.EmptyId, err
 	}
 
+	orderItemRepository := postgresRepository[data.OrderItem]{}
+
 	for _, item := range dataOrder.Items {
-		if err := r.create(&item, tx); err != nil {
-			return data.EmptyEntityId, err
+		if err := orderItemRepository.create(item, tx); err != nil {
+			return data.EmptyId, err
 		}
 	}
 
+	bookRepository := bookRepository{}
+
 	for _, item := range dataOrder.Items {
 		if stock, ok := dataOrder.Stock[item.BookId]; ok {
-			if err := r.update(
-				stock.BookId,
-				&data.Book{OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
+			if err := bookRepository.update(
+				data.Book{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
 				tx,
 			); err != nil {
-				return data.EmptyEntityId, err
+				return data.EmptyId, err
 			}
 		}
 	}
@@ -79,15 +81,16 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 		tx = (&transactionFactory{}).New()
 	}
 
-	if err := r.update(dataOrder.Id, &dataOrder, tx); err != nil {
+	if err := r.update(dataOrder, tx); err != nil {
 		return err
 	}
 
+	bookRepository := bookRepository{}
+
 	for _, item := range dataOrder.Items {
 		if stock, ok := dataOrder.Stock[item.BookId]; ok {
-			if err := r.update(
-				stock.BookId,
-				&data.Book{OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
+			if err := bookRepository.update(
+				data.Book{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
 				tx,
 			); err != nil {
 				return err

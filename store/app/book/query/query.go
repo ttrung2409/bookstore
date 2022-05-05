@@ -54,11 +54,11 @@ func (*query) FindGoogleBooks(term string) ([]Book, error) {
 }
 
 func (*query) FindBooks(term string) ([]Book, error) {
-	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory)(nil))).(repo.QueryFactory)
+	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[data.Book])(nil))).(repo.QueryFactory[data.Book])
 
-	records, err := queryFactory.New(&data.Book{}).
+	records, err := queryFactory.New().
 		Where("title").Contains(term).
-		Or("subtitle").Contains("term").
+		Or("subtitle").Contains(term).
 		Or("description").Contains(term).
 		Find()
 
@@ -68,7 +68,7 @@ func (*query) FindBooks(term string) ([]Book, error) {
 
 	books := []Book{}
 	for _, record := range records {
-		book := Book{}.fromDataObject(record.(data.Book))
+		book := Book{}.fromDataObject(record)
 		books = append(books, book)
 	}
 
