@@ -21,14 +21,6 @@ type Book struct {
 	ReservedQty   int
 }
 
-func (b *Book) GetId() string {
-	return b.Id
-}
-
-func (b *Book) SetId(id string) {
-	b.Id = id
-}
-
 func (b *Book) Clone() Book {
 	return Book{
 		Id:            b.Id,

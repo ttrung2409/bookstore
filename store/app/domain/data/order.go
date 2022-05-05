@@ -27,14 +27,6 @@ type Order struct {
 	UpdatedAt               time.Time
 }
 
-func (o *Order) GetId() string {
-	return o.Id
-}
-
-func (o *Order) SetId(id string) {
-	o.Id = id
-}
-
 func (o *Order) Clone() Order {
 	items := []OrderItem{}
 	for _, item := range o.Items {

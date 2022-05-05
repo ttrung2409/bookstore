@@ -15,14 +15,6 @@ type BookReceipt struct {
 	OnhandStockAdjustment StockAdjustment   `gorm:"-"`
 }
 
-func (r *BookReceipt) GetId() string {
-	return r.Id
-}
-
-func (r *BookReceipt) SetId(id string) {
-	r.Id = id
-}
-
 func (r *BookReceipt) Clone() BookReceipt {
 	return BookReceipt{
 		Id: r.Id,

@@ -22,7 +22,7 @@ func (BookReceipt) New(state data.BookReceipt) *BookReceipt {
 
 func (BookReceipt) NewFromReceivingBooks(books []ReceivingBook) *BookReceipt {
 	receipt := data.BookReceipt{
-		Id: data.NewEntityId(),
+		Id: data.NewId(),
 	}
 
 	items := []data.BookReceiptItem{}
