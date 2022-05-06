@@ -21,7 +21,7 @@ type Book struct {
 	ReservedQty   int
 }
 
-func (b *Book) Clone() Book {
+func (b Book) Clone() Book {
 	return Book{
 		Id:            b.Id,
 		GoogleBookId:  b.GoogleBookId,

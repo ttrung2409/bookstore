@@ -12,8 +12,8 @@ func (Stock) New(stock data.Stock) *Stock {
 	return &Stock{state: stock}
 }
 
-func (stock *Stock) clone() Stock {
-	return Stock{state: stock.state.Clone()}
+func (stock *Stock) clone() *Stock {
+	return &Stock{state: stock.state.Clone()}
 }
 
 func (stock *Stock) enoughForOrder(order Order) bool {
@@ -30,7 +30,7 @@ func (stock *Stock) enoughForOrder(order Order) bool {
 	return true
 }
 
-func (stock *Stock) decreaseByOrder(order Order) Stock {
+func (stock *Stock) decreaseByOrder(order Order) *Stock {
 	newStock := stock.clone()
 
 	for _, item := range order.state.Items {
@@ -46,7 +46,7 @@ func (stock *Stock) decreaseByOrder(order Order) Stock {
 	return newStock
 }
 
-func (stock *Stock) reserveForOrder(order Order) Stock {
+func (stock *Stock) reserveForOrder(order Order) *Stock {
 	newStock := stock.clone()
 
 	for _, item := range order.state.Items {
@@ -62,7 +62,7 @@ func (stock *Stock) reserveForOrder(order Order) Stock {
 	return newStock
 }
 
-func (stock *Stock) releaseReservation(order Order) Stock {
+func (stock *Stock) releaseReservation(order Order) *Stock {
 	newStock := stock.clone()
 
 	for _, item := range order.state.Items {

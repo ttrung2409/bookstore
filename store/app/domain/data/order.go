@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -27,7 +26,7 @@ type Order struct {
 	UpdatedAt               time.Time
 }
 
-func (o *Order) Clone() Order {
+func (o Order) Clone() Order {
 	items := []OrderItem{}
 	for _, item := range o.Items {
 		items = append(items, item.Clone())
@@ -45,18 +44,11 @@ func (o *Order) Clone() Order {
 type OrderItem struct {
 	OrderId string
 	BookId  string
-	Book    *Book `gorm:"foreignKey:Id"`
+	Book    Book `gorm:"foreignKey:Id"`
 	Qty     int
 }
 
-func (item *OrderItem) GetId() string {
-	return fmt.Sprintf("%s-%s", item.OrderId, item.BookId)
-}
-
-func (item *OrderItem) SetId(id string) {
-}
-
-func (item *OrderItem) Clone() OrderItem {
+func (item OrderItem) Clone() OrderItem {
 	return OrderItem{
 		OrderId: item.OrderId,
 		BookId:  item.BookId,

@@ -45,7 +45,7 @@ func (Order) fromDataObject(order data.Order) Order {
 
 func (OrderItem) fromDataObject(item data.OrderItem) OrderItem {
 	return OrderItem{
-		Book: Book{}.fromDataObject(*item.Book),
+		Book: Book{}.fromDataObject(item.Book),
 		Qty:  item.Qty,
 	}
 }
