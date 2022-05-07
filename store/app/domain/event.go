@@ -1,6 +1,5 @@
-package messaging
+package domain
 
 type Event interface {
-	Key() string
 	Type() string
 }
