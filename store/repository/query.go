@@ -133,6 +133,6 @@ func (c *where[M]) Contains(value string) repo.Query[M] {
 
 type queryFactory[M data.Model] struct{}
 
-func (*queryFactory[M]) New() repo.Query[M] {
-	return &query[M]{db: db.Model(new(M)), includeChain: ""}
+func (queryFactory[M]) New() repo.Query[M] {
+	return &query[M]{db: Db().Model(new(M)), includeChain: ""}
 }

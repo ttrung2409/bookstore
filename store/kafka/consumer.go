@@ -35,7 +35,7 @@ func (c *consumer) FetchMessage(ctx context.Context) (Message, error) {
 		return nil, err
 	}
 
-	return &message{msg: msg}, nil
+	return message{msg: msg}, nil
 }
 
 func (c *consumer) CommitMessage(ctx context.Context, msg Message) error {

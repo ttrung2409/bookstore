@@ -50,7 +50,7 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (stri
 		return data.EmptyId, err
 	}
 
-	orderItemRepository := postgresRepository[data.OrderItem]{}
+	orderItemRepository := &postgresRepository[data.OrderItem]{}
 
 	for _, item := range dataOrder.Items {
 		if err := orderItemRepository.create(item, tx); err != nil {
@@ -58,7 +58,7 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (stri
 		}
 	}
 
-	bookRepository := bookRepository{}
+	bookRepository := &bookRepository{}
 
 	for _, item := range dataOrder.Items {
 		if stock, ok := dataOrder.Stock[item.BookId]; ok {
@@ -70,6 +70,9 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (stri
 			}
 		}
 	}
+
+	// TODO make sure events are delivered at least once
+	go r.eventDispatcher.Dispatch("order", dataOrder.Id, order.PendingEvents...)
 
 	return dataOrder.Id, nil
 }
@@ -85,7 +88,19 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 		return err
 	}
 
-	bookRepository := bookRepository{}
+	orderItemRepository := &postgresRepository[data.OrderItem]{}
+
+	if err := orderItemRepository.batchDelete(tx, "order_id = ?", dataOrder.Id); err != nil {
+		return err
+	}
+
+	for _, item := range dataOrder.Items {
+		if err := orderItemRepository.create(item, tx); err != nil {
+			return err
+		}
+	}
+
+	bookRepository := &bookRepository{}
 
 	for _, item := range dataOrder.Items {
 		if stock, ok := dataOrder.Stock[item.BookId]; ok {
@@ -97,6 +112,9 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 			}
 		}
 	}
+
+	// TODO make sure events are delivered at least once
+	go r.eventDispatcher.Dispatch("order", dataOrder.Id, order.PendingEvents...)
 
 	return nil
 }

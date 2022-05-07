@@ -11,11 +11,11 @@ type OrderCreated struct {
 	Order command.Order
 }
 
-func (e *OrderCreated) Key() string {
+func (e OrderCreated) Key() string {
 	return e.Order.Id
 }
 
-func (e *OrderCreated) Type() string {
+func (e OrderCreated) Type() string {
 	return utils.Nameof(OrderCreated{})
 }
 

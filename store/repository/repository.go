@@ -9,10 +9,13 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type postgresRepository[M data.Model] struct{}
+type postgresRepository[M data.Model] struct {
+	eventDispatcher EventDispatcher
+	db              *gorm.DB
+}
 
 func (r *postgresRepository[M]) query(tx repo.Transaction) repo.Query[M] {
-	db := Db()
+	db := r.db
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
@@ -24,7 +27,7 @@ func (r *postgresRepository[M]) create(
 	entity M,
 	tx repo.Transaction,
 ) error {
-	db := Db()
+	db := r.db
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
@@ -40,13 +43,25 @@ func (r *postgresRepository[M]) update(
 	entity M,
 	tx repo.Transaction,
 ) error {
-	db := Db()
+	db := r.db
 	if tx != nil {
 		db = tx.(*transaction).db
 	}
 
-	result := db.Model(new(M)).Omit(clause.Associations).Updates(entity)
-	if result.Error != nil {
+	if result := db.Model(new(M)).Omit(clause.Associations).Updates(entity); result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (r *postgresRepository[M]) batchDelete(tx repo.Transaction, where string, args ...any) error {
+	db := r.db
+	if tx != nil {
+		db = tx.(*transaction).db
+	}
+
+	if result := db.Where(where, args...).Delete(new(M)); result.Error != nil {
 		return result.Error
 	}
 

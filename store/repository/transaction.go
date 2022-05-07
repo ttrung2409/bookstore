@@ -12,7 +12,7 @@ type transaction struct {
 
 type transactionFactory struct{}
 
-func (f *transactionFactory) New() repo.Transaction {
+func (f transactionFactory) New() repo.Transaction {
 	var tx *gorm.DB
 	if tx := Db().Begin(); tx.Error != nil {
 		return nil
@@ -21,7 +21,7 @@ func (f *transactionFactory) New() repo.Transaction {
 	return &transaction{tx}
 }
 
-func (f *transactionFactory) RunInTransaction(
+func (f transactionFactory) RunInTransaction(
 	fn repo.TransactionalFunc,
 ) (interface{}, error) {
 	tx := f.New()

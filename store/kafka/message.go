@@ -15,11 +15,11 @@ type message struct {
 	msg kafkaGo.Message
 }
 
-func (m *message) Key() string {
+func (m message) Key() string {
 	return string(m.msg.Key)
 }
 
-func (m *message) Type() string {
+func (m message) Type() string {
 	header := funk.Find(m.msg.Headers, func(header kafkaGo.Header) bool {
 		return header.Key == "type"
 	}).(kafkaGo.Header)
@@ -27,6 +27,6 @@ func (m *message) Type() string {
 	return string(header.Value)
 }
 
-func (m *message) Value() []byte {
+func (m message) Value() []byte {
 	return m.msg.Value
 }

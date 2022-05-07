@@ -11,11 +11,11 @@ type OrderCancelled struct {
 	OrderId string
 }
 
-func (e *OrderCancelled) Key() string {
+func (e OrderCancelled) Key() string {
 	return e.OrderId
 }
 
-func (e *OrderCancelled) Type() string {
+func (e OrderCancelled) Type() string {
 	return utils.Nameof(OrderCancelled{})
 }
 

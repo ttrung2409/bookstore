@@ -2,8 +2,6 @@ package command
 
 import (
 	"store/app/domain"
-	"store/app/messaging"
-	"store/app/messaging/events"
 	repo "store/app/repository"
 	"store/container"
 	"store/utils"
@@ -49,16 +47,7 @@ func (*command) AcceptOrder(order Order) error {
 		},
 	)
 
-	if err != nil {
-		return err
-	}
-
-	eventDispatcher := container.Instance().Get(utils.Nameof((*messaging.EventDispatcher)(nil))).(messaging.EventDispatcher)
-	if err := eventDispatcher.Dispatch(&events.OrderAccepted{OrderId: order.Id}); err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (*command) CancelOrder(orderId string) error {

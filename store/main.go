@@ -3,21 +3,17 @@ package main
 import (
 	"context"
 	"os/signal"
-	"store/app/messaging"
 	"store/container"
 	"store/integration"
-	"store/kafka"
 	repository "store/repository"
 	server "store/rest"
-	"store/utils"
 	"syscall"
 )
 
 func main() {
 	builder := container.ContainerBuilder()
 
-	repository.Install(builder)
-	kafka.Install(builder)
+	repository.RegisterDependencies(builder)
 
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
@@ -40,6 +36,5 @@ func main() {
 	server.Stop()
 	integration.Stop()
 
-	eventDispatcher := container.Instance().Get(utils.Nameof((*messaging.EventDispatcher)(nil))).(messaging.EventDispatcher)
-	eventDispatcher.Dispose()
+	repository.GetEventDispatcher().Dispose()
 }
