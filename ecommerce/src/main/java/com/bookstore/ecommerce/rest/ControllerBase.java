@@ -3,14 +3,14 @@ package com.bookstore.ecommerce.rest;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import com.bookstore.ecommerce.utils.NotFoundException;
-import com.bookstore.ecommerce.utils.ThrowableSupplier;
+import com.bookstore.ecommerce.utils.ThrowableFunc;
 import org.springframework.http.ResponseEntity;
 import lombok.var;
 
 public abstract class ControllerBase {
-  protected ResponseEntity<?> executeQuery(ThrowableSupplier<CompletableFuture<?>> query) {
+  protected <T> ResponseEntity<?> executeQuery(ThrowableFunc<CompletableFuture<?>> query) {
     try {
-      final var result = query.get().join();
+      final var result = query.apply().join();
 
       return ResponseEntity.ok(result);
     } catch (CompletionException e) {
@@ -26,9 +26,9 @@ public abstract class ControllerBase {
     }
   }
 
-  protected ResponseEntity<?> executeCommand(ThrowableSupplier<CompletableFuture<?>> command) {
+  protected <T> ResponseEntity<?> executeCommand(ThrowableFunc<CompletableFuture<?>> command) {
     try {
-      final var result = command.get().join();
+      final var result = command.apply().join();
 
       return ResponseEntity.ok(result);
     } catch (CompletionException e) {
