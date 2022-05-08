@@ -2,6 +2,7 @@ package com.bookstore.ecommerce.app.order.command;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import com.bookstore.ecommerce.app.repository.CustomerRepository;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.TransactionFactory;
 import org.springframework.stereotype.Component;
@@ -9,13 +10,17 @@ import lombok.var;
 
 @Component
 public class CommandImpl implements Command {
-  private TransactionFactory transactionFactory;
-  private OrderRepository orderRepository;
+  private final TransactionFactory transactionFactory;
+  private final OrderRepository orderRepository;
+  private final CustomerRepository customerRepository;
 
-  public CommandImpl(TransactionFactory transactionFactory,
-    OrderRepository orderRepository) {
+  public CommandImpl(
+    TransactionFactory transactionFactory,
+    OrderRepository orderRepository,
+    CustomerRepository customerRepository) {
     this.transactionFactory = transactionFactory;
     this.orderRepository = orderRepository;
+    this.customerRepository = customerRepository;
   }
 
   @Override
@@ -25,11 +30,14 @@ public class CommandImpl implements Command {
       books.add(book.toDataObject());
     }
 
-    var order = new com.bookstore.ecommerce.app.domain.Order(
-      request.getCustomer().toDataObject(),
-      books);
+    var customer =
+      new com.bookstore.ecommerce.app.domain.Customer(request.getCustomer().toDataObject());
+
+    var order = new com.bookstore.ecommerce.app.domain.Order(customer.getState(), books);
 
     return this.transactionFactory.runInTransaction(tx -> {
+      this.customerRepository.createIfNotExist(customer, tx);
+
       this.orderRepository.create(order, tx).join();
 
       return CompletableFuture.completedFuture(order.getState().getId());
