@@ -12,12 +12,10 @@ import lombok.var;
 public class CassandraOrderRepository implements OrderRepository {
   @Override
   public CompletableFuture<Void> create(Order order, Transaction tx) throws Exception {
-    var dataOrder = order.getState();
-
     return CompletableFuture.runAsync(() -> {
       try (var manager = tx != null ? ((CassandraTransaction) tx).getManager()
         : EntityManagerFactory.getInstance().create()) {
-        manager.getManager().persist(dataOrder);
+        manager.getManager().persist(order.getState());
       }
     });
   }
@@ -41,12 +39,10 @@ public class CassandraOrderRepository implements OrderRepository {
 
   @Override
   public CompletableFuture<Void> update(Order order, Transaction tx) throws Exception {
-    var dataOrder = order.getState();
-
     return CompletableFuture.runAsync(() -> {
       try (var manager = tx != null ? ((CassandraTransaction) tx).getManager()
         : EntityManagerFactory.getInstance().create()) {
-        manager.getManager().persist(dataOrder);
+        manager.getManager().persist(order.getState());
       }
     });
   }

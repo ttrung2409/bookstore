@@ -11,19 +11,20 @@ import com.bookstore.ecommerce.app.domain.data.OrderItem;
 import com.bookstore.ecommerce.app.domain.data.OrderStatus;
 import com.bookstore.ecommerce.app.domain.events.OrderCancelled;
 import com.bookstore.ecommerce.app.domain.events.OrderCreated;
+import com.google.common.base.Strings;
 import lombok.var;
 
 public class Order extends EventSource {
   private final com.bookstore.ecommerce.app.domain.data.Order state;
 
   public Order(Customer customer, List<Book> books) {
-    final var id = UUID.randomUUID().toString();
+    final var orderId = UUID.randomUUID().toString();
 
     final var items = new ArrayList<OrderItem>();
 
     for (final var book : books) {
       items.add(OrderItem.builder()
-        .key(new OrderItem.Key(id, book.getId()))
+        .key(new OrderItem.Key(orderId, book.getId()))
         .bookTitle(book.getTitle())
         .bookSubtitle(book.getSubtitle())
         .bookDescription(book.getDescription())
@@ -31,9 +32,10 @@ public class Order extends EventSource {
     }
 
     this.state = com.bookstore.ecommerce.app.domain.data.Order.builder()
-      .id(id)
+      .id(orderId)
       .createdAt(Instant.now())
       .status(OrderStatus.Pending.toString())
+      .customerId(customer.getId())
       .customerName(customer.getName())
       .customerPhone(customer.getPhone())
       .customerDeliveryAddress(customer.getDeliveryAddress())
@@ -45,13 +47,17 @@ public class Order extends EventSource {
 
 
   public Order(com.bookstore.ecommerce.app.domain.data.Order order) {
-    this.state = order.clone();
+    var cloned = order.clone();
+    if (Strings.isNullOrEmpty(cloned.getId())) {
+      cloned.setId(UUID.randomUUID().toString());
+    }
+
+    this.state = cloned;
   }
 
   public com.bookstore.ecommerce.app.domain.data.Order getState() {
     return this.state.clone();
   }
-
 
   public void cancel() throws Exception {
     if (this.state.getStatus() != OrderStatus.Pending.toString()
