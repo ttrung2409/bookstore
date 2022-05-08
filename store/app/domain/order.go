@@ -15,7 +15,7 @@ type Order struct {
 func (Order) New(state data.Order) *Order {
 	return &Order{
 		EventSource: EventSource{PendingEvents: []Event{}},
-		state:       state,
+		state:       state.Clone(),
 		stock:       Stock{}.New(state.Stock),
 	}
 }
@@ -48,7 +48,7 @@ func (order *Order) Accept() error {
 func (order *Order) Deliver() error {
 	if order.state.Status != data.OrderStatusAccepted {
 		return fmt.Errorf(
-			"order status '%s' is invalid. Order status must be 'Accepted' so as for it to be delivered",
+			"order status is '%s', no delivery allowed",
 			order.state.Status,
 		)
 	}
@@ -61,7 +61,7 @@ func (order *Order) Deliver() error {
 func (order *Order) Cancel() error {
 	if order.state.Status != data.OrderStatusAccepted {
 		return fmt.Errorf(
-			"order status '%s' is invalid. Order status must be 'Accepted' so as for it to be cancelled",
+			"order status is '%s', no cancellation allowed",
 			order.state.Status,
 		)
 	}

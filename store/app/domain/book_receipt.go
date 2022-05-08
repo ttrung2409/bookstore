@@ -16,7 +16,7 @@ type ReceivingBook struct {
 }
 
 func (BookReceipt) New(state data.BookReceipt) *BookReceipt {
-	receipt := &BookReceipt{state: state}
+	receipt := &BookReceipt{state: state.Clone()}
 	return receipt
 }
 
