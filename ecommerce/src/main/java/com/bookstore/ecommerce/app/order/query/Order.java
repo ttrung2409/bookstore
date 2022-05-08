@@ -19,7 +19,6 @@ public class Order {
   public static Order fromDataObject(com.bookstore.ecommerce.app.domain.data.Order order) {
     return Order.builder()
       .id(order.getId())
-      .number(order.getNumber())
       .status(order.getStatus())
       .createdAt(order.getCreatedAt())
       .customer(Customer.builder()
