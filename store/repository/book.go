@@ -16,9 +16,8 @@ type bookRepository struct {
 func (r *bookRepository) CreateIfNotExist(
 	book *domain.Book,
 	tx repo.Transaction,
-) (string, error) {
+) error {
 	dataBook := book.State()
-	dataBook.Id = data.NewId()
 
 	db := Db()
 	if tx != nil {
@@ -26,10 +25,10 @@ func (r *bookRepository) CreateIfNotExist(
 	}
 
 	if result := db.Where("google_book_id = ?", dataBook.GoogleBookId).FirstOrCreate(&dataBook); result.Error != nil {
-		return data.EmptyId, result.Error
+		return result.Error
 	}
 
-	return dataBook.Id, nil
+	return nil
 }
 
 func (r *bookRepository) GetStock(

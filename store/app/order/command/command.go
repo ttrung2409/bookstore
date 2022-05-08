@@ -39,7 +39,7 @@ func (*command) AcceptOrder(order Order) error {
 				return nil, err
 			}
 
-			if _, err := orderRepository.Create(order, tx); err != nil {
+			if err := orderRepository.Create(order, tx); err != nil {
 				return nil, err
 			}
 

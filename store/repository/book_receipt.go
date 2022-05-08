@@ -31,23 +31,22 @@ func (r *bookReceiptRepository) Get(
 func (r *bookReceiptRepository) Create(
 	receipt *domain.BookReceipt,
 	tx repo.Transaction,
-) (string, error) {
+) error {
 	dataReceipt := receipt.State()
-	dataReceipt.Id = data.NewId()
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
 	if err := r.create(dataReceipt, tx); err != nil {
-		return data.EmptyId, err
+		return err
 	}
 
 	bookReceiptItemRepository := postgresRepository[data.BookReceiptItem]{}
 
 	for _, item := range dataReceipt.Items {
 		if err := bookReceiptItemRepository.create(item, tx); err != nil {
-			return data.EmptyId, err
+			return err
 		}
 	}
 
@@ -55,9 +54,9 @@ func (r *bookReceiptRepository) Create(
 
 	for _, item := range dataReceipt.OnhandStockAdjustment {
 		if err := bookRepository.adjustOnhandQty(item.BookId, item.Qty, tx); err != nil {
-			return data.EmptyId, err
+			return err
 		}
 	}
 
-	return dataReceipt.Id, nil
+	return nil
 }

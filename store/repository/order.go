@@ -35,26 +35,22 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 	return domain.Order{}.New(order), nil
 }
 
-func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (string, error) {
+func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error {
 	dataOrder := order.State()
-
-	if dataOrder.Id == "" {
-		dataOrder.Id = data.NewId()
-	}
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
 	if err := r.create(dataOrder, tx); err != nil {
-		return data.EmptyId, err
+		return err
 	}
 
 	orderItemRepository := &postgresRepository[data.OrderItem]{}
 
 	for _, item := range dataOrder.Items {
 		if err := orderItemRepository.create(item, tx); err != nil {
-			return data.EmptyId, err
+			return err
 		}
 	}
 
@@ -66,7 +62,7 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (stri
 				data.Book{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
 				tx,
 			); err != nil {
-				return data.EmptyId, err
+				return err
 			}
 		}
 	}
@@ -74,7 +70,7 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) (stri
 	// TODO make sure events are delivered at least once
 	go r.eventDispatcher.Dispatch("order", dataOrder.Id, order.PendingEvents...)
 
-	return dataOrder.Id, nil
+	return nil
 }
 
 func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {

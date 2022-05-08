@@ -6,6 +6,6 @@ import (
 
 type OrderRepository interface {
 	Get(id string, tx Transaction) (*domain.Order, error)
-	Create(order *domain.Order, tx Transaction) (string, error)
+	Create(order *domain.Order, tx Transaction) error
 	Update(order *domain.Order, tx Transaction) error
 }

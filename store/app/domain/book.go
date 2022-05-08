@@ -7,7 +7,12 @@ type Book struct {
 }
 
 func (Book) New(state data.Book) *Book {
-	return &Book{state: state}
+	cloned := state.Clone()
+	if cloned.Id == "" {
+		cloned.Id = data.NewId()
+	}
+
+	return &Book{state: state.Clone()}
 }
 
 func (b *Book) State() data.Book {

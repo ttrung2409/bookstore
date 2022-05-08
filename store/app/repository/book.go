@@ -6,6 +6,6 @@ import (
 )
 
 type BookRepository interface {
-	CreateIfNotExist(book *domain.Book, tx Transaction) (string, error)
+	CreateIfNotExist(book *domain.Book, tx Transaction) error
 	GetStock(ids []string) data.Stock
 }

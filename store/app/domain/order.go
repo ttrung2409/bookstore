@@ -13,6 +13,11 @@ type Order struct {
 }
 
 func (Order) New(state data.Order) *Order {
+	cloned := state.Clone()
+	if cloned.Id == "" {
+		cloned.Id = data.NewId()
+	}
+
 	return &Order{
 		EventSource: EventSource{PendingEvents: []Event{}},
 		state:       state.Clone(),

@@ -9,7 +9,7 @@ type Stock struct {
 }
 
 func (Stock) New(stock data.Stock) *Stock {
-	return &Stock{state: stock}
+	return &Stock{state: stock.Clone()}
 }
 
 func (stock *Stock) clone() *Stock {

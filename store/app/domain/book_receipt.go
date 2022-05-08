@@ -16,7 +16,12 @@ type ReceivingBook struct {
 }
 
 func (BookReceipt) New(state data.BookReceipt) *BookReceipt {
-	receipt := &BookReceipt{state: state.Clone()}
+	cloned := state.Clone()
+	if cloned.Id == "" {
+		cloned.Id = data.NewId()
+	}
+
+	receipt := &BookReceipt{state: cloned}
 	return receipt
 }
 
