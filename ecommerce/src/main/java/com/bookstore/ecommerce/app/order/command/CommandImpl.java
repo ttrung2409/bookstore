@@ -38,7 +38,7 @@ public class CommandImpl implements Command {
     return this.transactionFactory.runInTransaction(tx -> {
       this.customerRepository.createIfNotExist(customer, tx);
 
-      this.orderRepository.create(order, tx).join();
+      this.orderRepository.create(order, tx).get();
 
       return CompletableFuture.completedFuture(order.getState().getId());
     });
@@ -47,9 +47,9 @@ public class CommandImpl implements Command {
   @Override
   public CompletableFuture<Void> cancelOrder(String orderId) throws Exception {
     return this.transactionFactory.runInTransaction(tx -> {
-      var order = this.orderRepository.get(orderId, tx).join();
+      var order = this.orderRepository.get(orderId, tx).get();
       order.cancel();
-      this.orderRepository.update(order, tx).join();
+      this.orderRepository.update(order, tx).get();
 
       return CompletableFuture.completedFuture(null);
     });

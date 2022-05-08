@@ -16,7 +16,7 @@ public class CassandraTransactionFactory implements TransactionFactory {
 
     try {
       transaction.begin();
-      var result = func.apply(transaction).join();
+      var result = func.apply(transaction).get();
       transaction.commit();
 
       return CompletableFuture.completedFuture(result);

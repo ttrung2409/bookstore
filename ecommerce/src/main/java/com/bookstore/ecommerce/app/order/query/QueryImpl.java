@@ -17,7 +17,7 @@ public class QueryImpl implements Query {
   public CompletableFuture<Order> getOrderDetails(String orderId) throws Exception {
     final var order = this.orderDetailsQuery
       .execute(OrderDetailsQuery.Params.builder().orderId(orderId).build())
-      .join();
+      .get();
 
     return CompletableFuture.completedFuture(Order.fromDataObject(order));
   }
