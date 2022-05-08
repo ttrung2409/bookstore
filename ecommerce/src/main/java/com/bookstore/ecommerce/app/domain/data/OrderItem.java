@@ -5,41 +5,39 @@ import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
+import org.modelmapper.ModelMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 @Entity
 @Table(name = "order_item")
 @Builder
-public class OrderItem {
-  @Getter
+@Data
+public class OrderItem implements Cloneable {
   @EmbeddedId
   private Key key;
-  @Getter
   @Column(name = "book_title")
   private String bookTitle;
-  @Getter
   @Column(name = "book_subtitle")
   private String bookSubtitle;
-  @Getter
   @Column(name = "book_description")
   private String bookDescription;
-  @Getter
   @Column(name = "book_thumbnail_url")
   private String bookThumbnailUrl;
-  @Getter
   private int qty;
 
   @Embeddable
   @AllArgsConstructor
+  @Data
   public static class Key {
-    @Getter
     @Column(name = "order_id")
     private String orderId;
-    @Getter
     @Column(name = "book_id")
     private String bookId;
+  }
+
+  public OrderItem clone() {
+    return new ModelMapper().map(this, OrderItem.class);
   }
 }

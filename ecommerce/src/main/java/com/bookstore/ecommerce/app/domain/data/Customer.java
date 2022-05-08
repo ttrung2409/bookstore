@@ -1,16 +1,13 @@
 package com.bookstore.ecommerce.app.domain.data;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 @Builder
+@Data
 public class Customer {
-  @Getter
   private String id;
-  @Getter
   private String name;
-  @Getter
   private String phone;
-  @Getter
   private String deliveryAddress;
 }

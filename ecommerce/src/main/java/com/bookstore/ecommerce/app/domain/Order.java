@@ -10,11 +10,9 @@ import com.bookstore.ecommerce.app.domain.data.Customer;
 import com.bookstore.ecommerce.app.domain.data.OrderItem;
 import com.bookstore.ecommerce.app.domain.data.OrderStatus;
 
-import lombok.Getter;
 import lombok.var;
 
 public class Order {
-  @Getter
   private final com.bookstore.ecommerce.app.domain.data.Order state;
 
   public Order(Customer customer, List<Book> books) {
@@ -33,13 +31,21 @@ public class Order {
 
     this.state = com.bookstore.ecommerce.app.domain.data.Order.builder()
       .id(id)
-      .number(id)
       .createdAt(Instant.now())
-      .status(OrderStatus.Queued.toString())
+      .status(OrderStatus.Pending.toString())
       .customerName(customer.getName())
       .customerPhone(customer.getPhone())
       .customerDeliveryAddress(customer.getDeliveryAddress())
       .items(items)
       .build();
+  }
+
+
+  public Order(com.bookstore.ecommerce.app.domain.data.Order order) {
+    this.state = order.clone();
+  }
+
+  public com.bookstore.ecommerce.app.domain.data.Order getState() {
+    return this.state.clone();
   }
 }
