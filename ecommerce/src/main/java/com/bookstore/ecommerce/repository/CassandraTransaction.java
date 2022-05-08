@@ -4,7 +4,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 
 import com.bookstore.ecommerce.app.repository.Transaction;
-
+import com.bookstore.ecommerce.repository.EntityManagerFactory.EntityManager;
 import lombok.Getter;
 
 public class CassandraTransaction implements Transaction {

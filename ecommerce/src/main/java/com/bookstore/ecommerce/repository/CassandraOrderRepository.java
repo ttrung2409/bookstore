@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import com.bookstore.ecommerce.app.domain.Order;
 import com.bookstore.ecommerce.app.repository.OrderRepository;
 import com.bookstore.ecommerce.app.repository.Transaction;
+import com.bookstore.ecommerce.utils.NotFoundException;
 import org.springframework.stereotype.Component;
 import lombok.var;
 
@@ -14,16 +15,38 @@ public class CassandraOrderRepository implements OrderRepository {
     var dataOrder = order.getState();
 
     return CompletableFuture.runAsync(() -> {
-      var manager = tx != null ? ((CassandraTransaction) tx).getManager() : new EntityManager();
-
-      try {
+      try (var manager = tx != null ? ((CassandraTransaction) tx).getManager()
+        : EntityManagerFactory.getInstance().create()) {
         manager.getManager().persist(dataOrder);
+      }
+    });
+  }
 
-        for (var item : dataOrder.getItems()) {
-          manager.getManager().persist(item);
+  @Override
+  public CompletableFuture<Order> get(String id, Transaction tx) throws Exception {
+    return CompletableFuture.supplyAsync(() -> {
+      try (var manager = tx != null ? ((CassandraTransaction) tx).getManager()
+        : EntityManagerFactory.getInstance().create()) {
+        var order =
+          manager.getManager().find(com.bookstore.ecommerce.app.domain.data.Order.class, id);
+
+        if (order == null) {
+          throw new NotFoundException();
         }
-      } finally {
-        manager.close();
+
+        return new Order(order);
+      }
+    });
+  }
+
+  @Override
+  public CompletableFuture<Void> update(Order order, Transaction tx) throws Exception {
+    var dataOrder = order.getState();
+
+    return CompletableFuture.runAsync(() -> {
+      try (var manager = tx != null ? ((CassandraTransaction) tx).getManager()
+        : EntityManagerFactory.getInstance().create()) {
+        manager.getManager().persist(dataOrder);
       }
     });
   }

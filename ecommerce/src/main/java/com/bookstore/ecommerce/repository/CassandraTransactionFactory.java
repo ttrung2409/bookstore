@@ -11,19 +11,18 @@ public class CassandraTransactionFactory implements TransactionFactory {
   @Override
   public <R> CompletableFuture<R> runInTransaction(TransactionalFunc<CompletableFuture<R>> func)
     throws Exception {
-    try (var manager = new EntityManager()) {
-      var transaction = new CassandraTransaction(manager);
+    var transaction =
+      new CassandraTransaction(EntityManagerFactory.getInstance().create());
 
-      try {
-        transaction.begin();
-        var result = func.apply(transaction).join();
-        transaction.commit();
+    try {
+      transaction.begin();
+      var result = func.apply(transaction).join();
+      transaction.commit();
 
-        return CompletableFuture.completedFuture(result);
-      } catch (Exception e) {
-        transaction.rollback();
-        throw e;
-      }
+      return CompletableFuture.completedFuture(result);
+    } catch (Exception e) {
+      transaction.rollback();
+      throw e;
     }
   }
 }
