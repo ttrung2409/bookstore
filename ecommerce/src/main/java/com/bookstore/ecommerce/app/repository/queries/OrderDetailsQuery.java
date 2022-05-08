@@ -1,4 +1,4 @@
-package com.bookstore.ecommerce.app.repository.query;
+package com.bookstore.ecommerce.app.repository.queries;
 
 import com.bookstore.ecommerce.app.domain.data.Order;
 import com.bookstore.ecommerce.app.repository.Query;

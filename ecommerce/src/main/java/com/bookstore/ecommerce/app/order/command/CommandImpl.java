@@ -35,4 +35,15 @@ public class CommandImpl implements Command {
       return CompletableFuture.completedFuture(order.getState().getId());
     });
   }
+
+  @Override
+  public CompletableFuture<Void> cancelOrder(String orderId) throws Exception {
+    return this.transactionFactory.runInTransaction(tx -> {
+      var order = this.orderRepository.get(orderId, tx).join();
+      order.cancel();
+      this.orderRepository.update(order, tx).join();
+
+      return CompletableFuture.completedFuture(null);
+    });
+  }
 }
