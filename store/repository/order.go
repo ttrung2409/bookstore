@@ -67,7 +67,7 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error
 	}
 
 	// TODO make sure events are delivered at least once
-	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents...)
+	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents()...)
 
 	return nil
 }
@@ -109,7 +109,7 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 	}
 
 	// TODO make sure events are delivered at least once
-	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents...)
+	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents()...)
 
 	return nil
 }

@@ -58,7 +58,7 @@ func (item OrderItemData) Clone() OrderItemData {
 }
 
 type Order struct {
-	EventSource
+	eventSource
 	state OrderData
 	stock *Stock
 }
@@ -70,7 +70,7 @@ func (Order) New(order OrderData, stock StockData) *Order {
 	}
 
 	return &Order{
-		EventSource: EventSource{PendingEvents: []Event{}},
+		eventSource: eventSource{pendingEvents: []Event{}},
 		state:       order.Clone(),
 		stock:       Stock{}.New(stock),
 	}
@@ -91,8 +91,8 @@ func (order *Order) State() struct {
 
 func (order *Order) Accept() error {
 	if !order.stock.enoughForOrder(*order) {
-		order.PendingEvents = append(
-			order.PendingEvents,
+		order.pendingEvents = append(
+			order.pendingEvents,
 			&events.OrderRejected{OrderId: order.state.Id},
 		)
 
@@ -102,8 +102,8 @@ func (order *Order) Accept() error {
 	order.state.Status = OrderStatusAccepted
 	order.stock = order.stock.reserveForOrder(*order)
 
-	order.PendingEvents = append(
-		order.PendingEvents,
+	order.pendingEvents = append(
+		order.pendingEvents,
 		&events.OrderAccepted{OrderId: order.state.Id},
 	)
 
