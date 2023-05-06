@@ -39,7 +39,7 @@ func (c *consumer) FetchMessage(ctx context.Context) (Message, error) {
 }
 
 func (c *consumer) CommitMessage(ctx context.Context, msg Message) error {
-	return c.reader.CommitMessages(ctx, msg.(*message).msg)
+	return c.reader.CommitMessages(ctx, msg.(message).msg)
 }
 
 func (c *consumer) Dispose() error {

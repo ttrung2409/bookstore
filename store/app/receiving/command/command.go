@@ -19,7 +19,7 @@ type command struct{}
 
 func (*command) Receive(request ReceiveBooksRequest) error {
 	bookRepository := container.Instance().Get(utils.Nameof((*repo.BookRepository)(nil))).(repo.BookRepository)
-	bookReceiptRepository := container.Instance().Get(utils.Nameof((*repo.BookReceiptRepository)(nil))).(repo.BookReceiptRepository)
+	receiptRepository := container.Instance().Get(utils.Nameof((*repo.ReceiptRepository)(nil))).(repo.ReceiptRepository)
 	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
 
 	_, err := transactionFactory.RunInTransaction(
@@ -45,8 +45,8 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 				)
 			}
 
-			newReceipt := domain.BookReceipt{}.NewFromReceivingBooks(receivingBooks)
-			if err := bookReceiptRepository.Create(newReceipt, tx); err != nil {
+			newReceipt := domain.Receipt{}.NewFromReceivingBooks(receivingBooks)
+			if err := receiptRepository.Create(newReceipt, tx); err != nil {
 				return nil, err
 			}
 

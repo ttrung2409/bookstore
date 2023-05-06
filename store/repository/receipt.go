@@ -6,15 +6,15 @@ import (
 	repo "store/app/repository"
 )
 
-type bookReceiptRepository struct {
-	postgresRepository[data.BookReceipt]
+type receiptRepository struct {
+	postgresRepository[data.Receipt]
 }
 
-func (r *bookReceiptRepository) Get(
+func (r *receiptRepository) Get(
 	id string,
 	tx repo.Transaction,
-) (*domain.BookReceipt, error) {
-	bookReceipt, err := r.
+) (*domain.Receipt, error) {
+	receipt, err := r.
 		query(tx).
 		Include("Items").
 		ThenInclude("Book").
@@ -25,11 +25,11 @@ func (r *bookReceiptRepository) Get(
 		return nil, err
 	}
 
-	return domain.BookReceipt{}.New(bookReceipt), nil
+	return domain.Receipt{}.New(receipt), nil
 }
 
-func (r *bookReceiptRepository) Create(
-	receipt *domain.BookReceipt,
+func (r *receiptRepository) Create(
+	receipt *domain.Receipt,
 	tx repo.Transaction,
 ) error {
 	dataReceipt := receipt.State()
@@ -42,10 +42,10 @@ func (r *bookReceiptRepository) Create(
 		return err
 	}
 
-	bookReceiptItemRepository := postgresRepository[data.BookReceiptItem]{}
+	receiptItemRepository := postgresRepository[data.ReceiptItem]{}
 
 	for _, item := range dataReceipt.Items {
-		if err := bookReceiptItemRepository.create(item, tx); err != nil {
+		if err := receiptItemRepository.create(item, tx); err != nil {
 			return err
 		}
 	}

@@ -8,14 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func addBookReceiptRoutes(r *gin.RouterGroup) {
-	controller := bookReceiptController{}
+func addReceiptRoutes(r *gin.RouterGroup) {
+	controller := receiptController{}
 	r.POST("/", controller.create())
 }
 
-type bookReceiptController struct{}
+type receiptController struct{}
 
-func (c *bookReceiptController) create() gin.HandlerFunc {
+func (c *receiptController) create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request command.ReceiveBooksRequest
 		err := c.BindJSON(&request)

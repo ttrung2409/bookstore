@@ -17,9 +17,9 @@ func RegisterDependencies(builder *di.Builder) {
 			},
 		},
 		{
-			Name: utils.Nameof((*repo.BookReceiptRepository)(nil)),
+			Name: utils.Nameof((*repo.ReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return &bookReceiptRepository{postgresRepository[data.BookReceipt]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
+				return &receiptRepository{postgresRepository[data.Receipt]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
 			},
 		},
 		{

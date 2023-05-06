@@ -16,7 +16,7 @@ func Start() {
 	router := gin.Default()
 
 	addBookRoutes(router.Group("/book"))
-	addBookReceiptRoutes(router.Group("/book-receipt"))
+	addReceiptRoutes(router.Group("/book-receipt"))
 	addOrderRoutes(router.Group("/order"))
 
 	server = &http.Server{Addr: ":8080", Handler: router}

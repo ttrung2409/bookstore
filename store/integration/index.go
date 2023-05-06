@@ -30,7 +30,7 @@ func Stop() {
 
 func startConsumer(ctx context.Context, topic string) error {
 	if _, ok := consumers[topic]; ok {
-		return fmt.Errorf("consumer of topic %s has already been started", topic)
+		return fmt.Errorf("consumer of topic %s has already started", topic)
 	}
 
 	consumers[topic] = kafka.NewConsumer(topic)
