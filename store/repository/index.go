@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"store/app/domain/data"
+	"store/app/domain"
 	repo "store/app/repository"
 	"store/utils"
 
@@ -13,19 +13,19 @@ func RegisterDependencies(builder *di.Builder) {
 		{
 			Name: utils.Nameof((*repo.BookRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return &bookRepository{postgresRepository[data.Book]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
+				return &bookRepository{postgresRepository[domain.BookData]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.ReceiptRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return &receiptRepository{postgresRepository[data.Receipt]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
+				return &receiptRepository{postgresRepository[domain.ReceiptData]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
 			},
 		},
 		{
 			Name: utils.Nameof((*repo.OrderRepository)(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return &orderRepository{postgresRepository[data.Order]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
+				return &orderRepository{postgresRepository[domain.OrderData]{eventDispatcher: GetEventDispatcher(), db: Db()}}, nil
 			},
 		},
 		{
@@ -35,15 +35,15 @@ func RegisterDependencies(builder *di.Builder) {
 			},
 		},
 		{
-			Name: utils.Nameof((*repo.QueryFactory[data.Book])(nil)),
+			Name: utils.Nameof((*repo.QueryFactory[domain.BookData])(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return queryFactory[data.Book]{}, nil
+				return queryFactory[domain.BookData]{}, nil
 			},
 		},
 		{
-			Name: utils.Nameof((*repo.QueryFactory[data.Order])(nil)),
+			Name: utils.Nameof((*repo.QueryFactory[domain.OrderData])(nil)),
 			Build: func(ctn di.Container) (interface{}, error) {
-				return queryFactory[data.Order]{}, nil
+				return queryFactory[domain.OrderData]{}, nil
 			},
 		},
 	}...)

@@ -1,6 +1,6 @@
 package query
 
-import "store/app/domain/data"
+import "store/app/domain"
 
 type Book struct {
 	Id           string
@@ -12,7 +12,7 @@ type Book struct {
 	ReservedQty  int
 }
 
-func (Book) fromDataObject(b data.Book) Book {
+func (Book) fromDataObject(b domain.BookData) Book {
 	return Book{
 		Id:           b.Id,
 		Title:        b.Title,

@@ -1,7 +1,7 @@
 package query
 
 import (
-	"store/app/domain/data"
+	"store/app/domain"
 	"time"
 )
 
@@ -24,7 +24,7 @@ type Customer struct {
 	DeliveryAddress string
 }
 
-func (Order) fromDataObject(order data.Order) Order {
+func (Order) fromDataObject(order domain.OrderData) Order {
 	items := []OrderItem{}
 	for _, dataItem := range order.Items {
 		items = append(items, OrderItem{}.fromDataObject(dataItem))
@@ -43,7 +43,7 @@ func (Order) fromDataObject(order data.Order) Order {
 	}
 }
 
-func (OrderItem) fromDataObject(item data.OrderItem) OrderItem {
+func (OrderItem) fromDataObject(item domain.OrderItemData) OrderItem {
 	return OrderItem{
 		Book: Book{}.fromDataObject(item.Book),
 		Qty:  item.Qty,

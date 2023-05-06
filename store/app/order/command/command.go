@@ -28,12 +28,11 @@ func (*command) AcceptOrder(order Order) error {
 
 	_, err := transactionFactory.RunInTransaction(
 		func(tx repo.Transaction) (interface{}, error) {
-			dataOrder := order.toDataObject()
-			dataOrder.Stock = bookRepository.GetStock(funk.Map(order.Items, func(item OrderItem) string {
+			stock := bookRepository.GetStock(funk.Map(order.Items, func(item OrderItem) string {
 				return item.BookId
 			}).([]string))
 
-			order := domain.Order{}.New(dataOrder)
+			order := domain.Order{}.New(order.toDataObject(), stock.State())
 
 			if err := order.Accept(); err != nil {
 				return nil, err

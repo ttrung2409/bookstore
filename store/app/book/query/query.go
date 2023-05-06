@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"store/app/domain/data"
+	"store/app/domain"
 	repo "store/app/repository"
 	"store/container"
 	"store/utils"
@@ -54,7 +54,7 @@ func (*query) FindGoogleBooks(term string) ([]Book, error) {
 }
 
 func (*query) FindBooks(term string) ([]Book, error) {
-	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[data.Book])(nil))).(repo.QueryFactory[data.Book])
+	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[domain.BookData])(nil))).(repo.QueryFactory[domain.BookData])
 
 	records, err := queryFactory.New().
 		Where("title").Contains(term).

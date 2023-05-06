@@ -2,19 +2,19 @@ package repository
 
 import (
 	"fmt"
-	"store/app/domain/data"
+	"store/app/domain"
 	repo "store/app/repository"
 	"strings"
 
 	"gorm.io/gorm"
 )
 
-type query[M data.Model] struct {
+type query[M domain.DataObject] struct {
 	db           *gorm.DB
 	includeChain string
 }
 
-type where[M data.Model] struct {
+type where[M domain.DataObject] struct {
 	query *query[M]
 	field string
 	andOr string
@@ -131,7 +131,7 @@ func (c *where[M]) Contains(value string) repo.Query[M] {
 	return c.query
 }
 
-type queryFactory[M data.Model] struct{}
+type queryFactory[M domain.DataObject] struct{}
 
 func (queryFactory[M]) New() repo.Query[M] {
 	return &query[M]{db: Db().Model(new(M)), includeChain: ""}

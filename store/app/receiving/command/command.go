@@ -41,7 +41,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 			for index, item := range request.Items {
 				receivingBooks = append(
 					receivingBooks,
-					domain.ReceivingBook{Book: books[index].State(), ReceivingQty: item.Qty},
+					domain.ReceivingBook{BookData: books[index].State(), ReceivingQty: item.Qty},
 				)
 			}
 

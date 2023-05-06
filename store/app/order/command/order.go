@@ -1,7 +1,7 @@
 package command
 
 import (
-	"store/app/domain/data"
+	"store/app/domain"
 	"time"
 
 	"github.com/thoas/go-funk"
@@ -15,17 +15,17 @@ type Order struct {
 	Items     []OrderItem
 }
 
-func (o *Order) toDataObject() data.Order {
-	return data.Order{
+func (o *Order) toDataObject() domain.OrderData {
+	return domain.OrderData{
 		Id:                      o.Id,
-		Status:                  data.OrderStatus(o.Status),
+		Status:                  domain.OrderStatus(o.Status),
 		CustomerId:              o.Customer.Id,
 		CustomerName:            o.Customer.Name,
 		CustomerPhone:           o.Customer.Phone,
 		CustomerDeliveryAddress: o.Customer.DeliveryAddress,
-		Items: funk.Map(o.Items, func(item OrderItem) data.OrderItem {
-			return data.OrderItem{OrderId: o.Id, BookId: item.BookId, Qty: item.Qty}
-		}).([]data.OrderItem),
+		Items: funk.Map(o.Items, func(item OrderItem) domain.OrderItemData {
+			return domain.OrderItemData{OrderId: o.Id, BookId: item.BookId, Qty: item.Qty}
+		}).([]domain.OrderItemData),
 	}
 }
 

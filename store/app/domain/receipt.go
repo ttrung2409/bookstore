@@ -1,39 +1,76 @@
 package domain
 
 import (
-	data "store/app/domain/data"
+	"time"
 
 	"github.com/thoas/go-funk"
 )
 
-type Receipt struct {
-	state data.Receipt
-}
-
 type ReceivingBook struct {
-	data.Book
+	BookData
 	ReceivingQty int
 }
 
-func (Receipt) New(state data.Receipt) *Receipt {
-	cloned := state.Clone()
+type ReceiptData struct {
+	Id        string `gorm:"primaryKey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Items     []ReceiptItemData `gorm:"foreignKey:ReceiptId"`
+}
+
+func (r ReceiptData) Clone() ReceiptData {
+	return ReceiptData{
+		Id: r.Id,
+		Items: funk.Map(r.Items, func(item ReceiptItemData) ReceiptItemData {
+			return item.Clone()
+		}).([]ReceiptItemData),
+	}
+}
+
+type ReceiptItemData struct {
+	ReceiptId string
+	BookId    string
+	Book      Book `gorm:"foreignKey:Id"`
+	Qty       int
+}
+
+func (item ReceiptItemData) Clone() ReceiptItemData {
+	return ReceiptItemData{
+		ReceiptId: item.ReceiptId,
+		BookId:    item.BookId,
+		Book:      item.Book,
+		Qty:       item.Qty,
+	}
+}
+
+type Receipt struct {
+	state                 ReceiptData
+	onhandStockAdjustment StockAdjustmentData
+}
+
+func (Receipt) New(receipt ReceiptData) *Receipt {
+	cloned := receipt.Clone()
 	if cloned.Id == "" {
-		cloned.Id = data.NewId()
+		cloned.Id = NewId()
 	}
 
-	receipt := &Receipt{state: cloned}
-	return receipt
+	return &Receipt{
+		state: cloned,
+		onhandStockAdjustment: funk.Map(receipt.Items, func(item ReceiptItemData) StockAdjustmentItemData {
+			return StockAdjustmentItemData{BookId: item.BookId, Qty: item.Qty}
+		}).(StockAdjustmentData),
+	}
 }
 
 func (Receipt) NewFromReceivingBooks(books []ReceivingBook) *Receipt {
-	receipt := data.Receipt{
-		Id: data.NewId(),
+	receipt := ReceiptData{
+		Id: NewId(),
 	}
 
-	items := []data.ReceiptItem{}
+	items := []ReceiptItemData{}
 
 	for _, book := range books {
-		items = append(items, data.ReceiptItem{
+		items = append(items, ReceiptItemData{
 			ReceiptId: receipt.Id,
 			BookId:    book.Id,
 			Qty:       book.ReceivingQty,
@@ -41,13 +78,24 @@ func (Receipt) NewFromReceivingBooks(books []ReceivingBook) *Receipt {
 	}
 
 	receipt.Items = items
-	receipt.OnhandStockAdjustment = funk.Map(receipt.Items, func(item data.ReceiptItem) data.StockAdjustmentItem {
-		return data.StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty}
-	}).(data.StockAdjustment)
 
-	return &Receipt{state: receipt}
+	return &Receipt{
+		state: receipt,
+		onhandStockAdjustment: funk.Map(receipt.Items, func(item ReceiptItemData) StockAdjustmentItemData {
+			return StockAdjustmentItemData{BookId: item.BookId, Qty: item.Qty}
+		}).(StockAdjustmentData),
+	}
 }
 
-func (receipt *Receipt) State() data.Receipt {
-	return receipt.state.Clone()
+func (receipt *Receipt) State() struct {
+	ReceiptData
+	OnhandStockAdjustment StockAdjustmentData
+} {
+	return struct {
+		ReceiptData
+		OnhandStockAdjustment StockAdjustmentData
+	}{
+		ReceiptData:           receipt.state.Clone(),
+		OnhandStockAdjustment: receipt.onhandStockAdjustment.Clone(),
+	}
 }

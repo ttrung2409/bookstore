@@ -1,7 +1,7 @@
 package query
 
 import (
-	"store/app/domain/data"
+	"store/app/domain"
 	"time"
 )
 
@@ -19,7 +19,7 @@ type Book struct {
 	PreviewUrl    string
 }
 
-func (Book) fromDataObject(book data.Book) Book {
+func (Book) fromDataObject(book domain.BookData) Book {
 	return Book{
 		Id:            book.Id,
 		Title:         book.Title,

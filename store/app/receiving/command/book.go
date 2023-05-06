@@ -1,7 +1,7 @@
 package command
 
 import (
-	"store/app/domain/data"
+	"store/app/domain"
 	"time"
 )
 
@@ -19,8 +19,8 @@ type Book struct {
 	PreviewUrl    string
 }
 
-func (b *Book) toDataObject() data.Book {
-	return data.Book{
+func (b *Book) toDataObject() domain.BookData {
+	return domain.BookData{
 		GoogleBookId:  b.GoogleBookId,
 		Title:         b.Title,
 		Subtitle:      b.Subtitle,

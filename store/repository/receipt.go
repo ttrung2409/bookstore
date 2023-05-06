@@ -2,12 +2,11 @@ package repository
 
 import (
 	"store/app/domain"
-	"store/app/domain/data"
 	repo "store/app/repository"
 )
 
 type receiptRepository struct {
-	postgresRepository[data.Receipt]
+	postgresRepository[domain.ReceiptData]
 }
 
 func (r *receiptRepository) Get(
@@ -32,19 +31,19 @@ func (r *receiptRepository) Create(
 	receipt *domain.Receipt,
 	tx repo.Transaction,
 ) error {
-	dataReceipt := receipt.State()
+	receiptData := receipt.State()
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
-	if err := r.create(dataReceipt, tx); err != nil {
+	if err := r.create(receiptData.ReceiptData, tx); err != nil {
 		return err
 	}
 
-	receiptItemRepository := postgresRepository[data.ReceiptItem]{}
+	receiptItemRepository := postgresRepository[domain.ReceiptItemData]{}
 
-	for _, item := range dataReceipt.Items {
+	for _, item := range receiptData.Items {
 		if err := receiptItemRepository.create(item, tx); err != nil {
 			return err
 		}
@@ -52,7 +51,7 @@ func (r *receiptRepository) Create(
 
 	bookRepository := bookRepository{}
 
-	for _, item := range dataReceipt.OnhandStockAdjustment {
+	for _, item := range receiptData.OnhandStockAdjustment {
 		if err := bookRepository.adjustOnhandQty(item.BookId, item.Qty, tx); err != nil {
 			return err
 		}

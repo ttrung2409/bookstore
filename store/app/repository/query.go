@@ -1,8 +1,8 @@
 package repository
 
-import "store/app/domain/data"
+import "store/app/domain"
 
-type Query[M data.Model] interface {
+type Query[M domain.DataObject] interface {
 	Select(fields ...string) Query[M]
 	Include(ref string) Query[M]
 	IncludeMany(ref string) Query[M]
@@ -15,12 +15,12 @@ type Query[M data.Model] interface {
 	First() (M, error)
 }
 
-type Where[M data.Model] interface {
+type Where[M domain.DataObject] interface {
 	In(values any) Query[M]
 	Eq(value any) Query[M]
 	Contains(value string) Query[M]
 }
 
-type QueryFactory[M data.Model] interface {
+type QueryFactory[M domain.DataObject] interface {
 	New() Query[M]
 }

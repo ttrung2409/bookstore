@@ -2,14 +2,13 @@ package repository
 
 import (
 	"store/app/domain"
-	data "store/app/domain/data"
 	repo "store/app/repository"
 
 	"github.com/thoas/go-funk"
 )
 
 type orderRepository struct {
-	postgresRepository[data.Order]
+	postgresRepository[domain.OrderData]
 }
 
 func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, error) {
@@ -24,31 +23,31 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 		return nil, err
 	}
 
-	order.Stock = funk.Map(order.Items, func(item data.OrderItem) (string, data.StockItem) {
-		return item.BookId, data.StockItem{
+	stock := funk.Map(order.Items, func(item domain.OrderItemData) (string, domain.StockItemData) {
+		return item.BookId, domain.StockItemData{
 			BookId:      item.BookId,
 			OnhandQty:   item.Book.OnhandQty,
 			ReservedQty: item.Book.ReservedQty,
 		}
-	}).(data.Stock)
+	}).(domain.StockData)
 
-	return domain.Order{}.New(order), nil
+	return domain.Order{}.New(order, stock), nil
 }
 
 func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error {
-	dataOrder := order.State()
+	orderData := order.State()
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
-	if err := r.create(dataOrder, tx); err != nil {
+	if err := r.create(orderData.OrderData, tx); err != nil {
 		return err
 	}
 
-	orderItemRepository := &postgresRepository[data.OrderItem]{}
+	orderItemRepository := &postgresRepository[domain.OrderItemData]{}
 
-	for _, item := range dataOrder.Items {
+	for _, item := range orderData.Items {
 		if err := orderItemRepository.create(item, tx); err != nil {
 			return err
 		}
@@ -56,10 +55,10 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error
 
 	bookRepository := &bookRepository{}
 
-	for _, item := range dataOrder.Items {
-		if stock, ok := dataOrder.Stock[item.BookId]; ok {
+	for _, item := range orderData.Items {
+		if stock, ok := orderData.Stock[item.BookId]; ok {
 			if err := bookRepository.update(
-				data.Book{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
+				domain.BookData{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
 				tx,
 			); err != nil {
 				return err
@@ -68,29 +67,29 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error
 	}
 
 	// TODO make sure events are delivered at least once
-	go r.eventDispatcher.Dispatch("order", dataOrder.Id, order.PendingEvents...)
+	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents...)
 
 	return nil
 }
 
 func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {
-	dataOrder := order.State()
+	orderData := order.State()
 
 	if tx == nil {
 		tx = (&transactionFactory{}).New()
 	}
 
-	if err := r.update(dataOrder, tx); err != nil {
+	if err := r.update(orderData.OrderData, tx); err != nil {
 		return err
 	}
 
-	orderItemRepository := &postgresRepository[data.OrderItem]{}
+	orderItemRepository := &postgresRepository[domain.OrderItemData]{}
 
-	if err := orderItemRepository.batchDelete(tx, "order_id = ?", dataOrder.Id); err != nil {
+	if err := orderItemRepository.batchDelete(tx, "order_id = ?", orderData.Id); err != nil {
 		return err
 	}
 
-	for _, item := range dataOrder.Items {
+	for _, item := range orderData.Items {
 		if err := orderItemRepository.create(item, tx); err != nil {
 			return err
 		}
@@ -98,10 +97,10 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 
 	bookRepository := &bookRepository{}
 
-	for _, item := range dataOrder.Items {
-		if stock, ok := dataOrder.Stock[item.BookId]; ok {
+	for _, item := range orderData.Items {
+		if stock, ok := orderData.Stock[item.BookId]; ok {
 			if err := bookRepository.update(
-				data.Book{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
+				domain.BookData{Id: stock.BookId, OnhandQty: stock.OnhandQty, ReservedQty: stock.ReservedQty},
 				tx,
 			); err != nil {
 				return err
@@ -110,7 +109,7 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 	}
 
 	// TODO make sure events are delivered at least once
-	go r.eventDispatcher.Dispatch("order", dataOrder.Id, order.PendingEvents...)
+	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents...)
 
 	return nil
 }

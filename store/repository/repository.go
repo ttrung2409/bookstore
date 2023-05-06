@@ -2,14 +2,14 @@ package repository
 
 import (
 	"errors"
-	"store/app/domain/data"
+	"store/app/domain"
 	repo "store/app/repository"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-type postgresRepository[M data.Model] struct {
+type postgresRepository[M domain.DataObject] struct {
 	eventDispatcher EventDispatcher
 	db              *gorm.DB
 }

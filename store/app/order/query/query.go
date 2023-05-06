@@ -1,7 +1,7 @@
 package query
 
 import (
-	"store/app/domain/data"
+	"store/app/domain"
 	repo "store/app/repository"
 	"store/container"
 	"store/utils"
@@ -19,11 +19,11 @@ func New() Query {
 type query struct{}
 
 func (*query) FindDeliverableOrders() ([]Order, error) {
-	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[data.Order])(nil))).(repo.QueryFactory[data.Order])
+	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[domain.OrderData])(nil))).(repo.QueryFactory[domain.OrderData])
 
 	records, err := queryFactory.
 		New().
-		Where("status").Eq(data.OrderStatusAccepted).
+		Where("status").Eq(domain.OrderStatusAccepted).
 		Find()
 
 	if err != nil {
@@ -40,7 +40,7 @@ func (*query) FindDeliverableOrders() ([]Order, error) {
 }
 
 func (*query) GetOrderDetails(id string) (Order, error) {
-	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[data.Order])(nil))).(repo.QueryFactory[data.Order])
+	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[domain.OrderData])(nil))).(repo.QueryFactory[domain.OrderData])
 
 	record, err := queryFactory.
 		New().
