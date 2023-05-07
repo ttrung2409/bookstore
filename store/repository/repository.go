@@ -18,7 +18,7 @@ func (r *postgresRepository[M]) query(tx *Transaction) *Query[M] {
 		db = tx.db
 	}
 
-	return &Query[M]{db: db.Model(new(M)), includeChain: ""}
+	return &Query[M]{db.Model(new(M))}
 }
 
 func (r *postgresRepository[M]) create(

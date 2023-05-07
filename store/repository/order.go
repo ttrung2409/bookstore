@@ -17,10 +17,10 @@ func (OrderRepository) New() *OrderRepository {
 func (r *OrderRepository) Get(id string, tx *Transaction) (*domain.Order, error) {
 	order, err := r.
 		query(tx).
-		IncludeMany("Items").ThenInclude("Book").
-		Include("Customer").
-		Where("id").Eq(id).
-		First()
+		Preload("Items").Join("Items.Book").
+		Join("Customer").
+		Where("id = ?", id).
+		FindOne()
 
 	if err != nil {
 		return nil, err

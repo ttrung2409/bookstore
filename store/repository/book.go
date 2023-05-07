@@ -37,10 +37,9 @@ func (r *BookRepository) GetStock(
 	bookIds []string,
 	tx *Transaction,
 ) (domain.Stock, error) {
-
 	books, err := r.query(tx).
 		Select("id", "onhand_qty", "reserved_qty").
-		Where("id").In(bookIds).
+		Where("id IN ?", bookIds).
 		Find()
 
 	if err != nil {

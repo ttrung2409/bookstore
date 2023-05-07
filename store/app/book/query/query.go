@@ -53,9 +53,9 @@ func (*query) FindGoogleBooks(term string) ([]Book, error) {
 
 func (*query) FindBooks(term string) ([]Book, error) {
 	records, err := repo.Query[domain.BookData]{}.New().
-		Where("title").Contains(term).
-		Or("subtitle").Contains(term).
-		Or("description").Contains(term).
+		Where("title LIKE ?", "%"+term+"%").
+		Where("subtitle LIKE ?", "%"+term+"%").
+		Where("description LIKE ?", "%"+term+"%").
 		Find()
 
 	if err != nil {

@@ -18,7 +18,7 @@ type query struct{}
 
 func (*query) FindDeliverableOrders() ([]Order, error) {
 	records, err := repo.Query[domain.OrderData]{}.New().
-		Where("status").Eq(domain.OrderStatusAccepted).
+		Where("status = ?", domain.OrderStatusAccepted).
 		Find()
 
 	if err != nil {
@@ -36,11 +36,11 @@ func (*query) FindDeliverableOrders() ([]Order, error) {
 
 func (*query) GetOrderDetails(id string) (Order, error) {
 	record, err := repo.Query[domain.OrderData]{}.New().
-		Include("Customer").
-		IncludeMany("Items").
-		ThenInclude("Book").
-		Where("id").Eq(id).
-		First()
+		Join("Customer").
+		Preload("Items").
+		Join("Items.Book").
+		Where("id = ?", id).
+		FindOne()
 
 	if err != nil {
 		return Order{}, err
