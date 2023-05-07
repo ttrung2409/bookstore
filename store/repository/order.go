@@ -2,16 +2,19 @@ package repository
 
 import (
 	"store/app/domain"
-	repo "store/app/repository"
 
 	"github.com/thoas/go-funk"
 )
 
-type orderRepository struct {
+type OrderRepository struct {
 	postgresRepository[domain.OrderData]
 }
 
-func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, error) {
+func (OrderRepository) New() *OrderRepository {
+	return &OrderRepository{postgresRepository: postgresRepository[domain.OrderData]{eventDispatcher: GetEventDispatcher(), db: GetDb()}}
+}
+
+func (r *OrderRepository) Get(id string, tx *Transaction) (*domain.Order, error) {
 	order, err := r.
 		query(tx).
 		IncludeMany("Items").ThenInclude("Book").
@@ -34,11 +37,11 @@ func (r *orderRepository) Get(id string, tx repo.Transaction) (*domain.Order, er
 	return domain.Order{}.New(order, stock), nil
 }
 
-func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error {
+func (r *OrderRepository) Create(order *domain.Order, tx *Transaction) error {
 	orderData := order.State()
 
 	if tx == nil {
-		tx = (&transactionFactory{}).New()
+		tx = Transaction{}.New()
 	}
 
 	if err := r.create(orderData.OrderData, tx); err != nil {
@@ -54,7 +57,7 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error
 	}
 
 	if orderData.StockAdjustment != nil {
-		bookRepository := &bookRepository{}
+		bookRepository := &BookRepository{}
 
 		for _, item := range orderData.StockAdjustment {
 			if err := bookRepository.adjustStock(item, tx); err != nil {
@@ -69,11 +72,11 @@ func (r *orderRepository) Create(order *domain.Order, tx repo.Transaction) error
 	return nil
 }
 
-func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error {
+func (r *OrderRepository) Update(order *domain.Order, tx *Transaction) error {
 	orderData := order.State()
 
 	if tx == nil {
-		tx = (&transactionFactory{}).New()
+		tx = Transaction{}.New()
 	}
 
 	if err := r.update(orderData.OrderData, tx); err != nil {
@@ -93,7 +96,7 @@ func (r *orderRepository) Update(order *domain.Order, tx repo.Transaction) error
 	}
 
 	if orderData.StockAdjustment != nil {
-		bookRepository := &bookRepository{}
+		bookRepository := &BookRepository{}
 
 		for _, item := range orderData.StockAdjustment {
 			if err := bookRepository.adjustStock(item, tx); err != nil {

@@ -3,29 +3,32 @@ package repository
 import (
 	"fmt"
 	"store/app/domain"
-	repo "store/app/repository"
 	"strings"
 
 	"gorm.io/gorm"
 )
 
-type query[M domain.DataObject] struct {
+type Query[M domain.DataObject] struct {
 	db           *gorm.DB
 	includeChain string
 }
 
-type where[M domain.DataObject] struct {
-	query *query[M]
+type Where[M domain.DataObject] struct {
+	query *Query[M]
 	field string
 	andOr string
 }
 
-func (q *query[M]) Select(fields ...string) repo.Query[M] {
+func (Query[M]) New() *Query[M] {
+	return &Query[M]{db: GetDb().Model(new(M)), includeChain: ""}
+}
+
+func (q *Query[M]) Select(fields ...string) *Query[M] {
 	q.db = q.db.Select(fields)
 	return q
 }
 
-func (q *query[M]) Include(ref string) repo.Query[M] {
+func (q *Query[M]) Include(ref string) *Query[M] {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 		q.includeChain = ref
@@ -36,7 +39,7 @@ func (q *query[M]) Include(ref string) repo.Query[M] {
 	return q
 }
 
-func (q *query[M]) IncludeMany(ref string) repo.Query[M] {
+func (q *Query[M]) IncludeMany(ref string) *Query[M] {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 		q.includeChain = ref
@@ -47,30 +50,30 @@ func (q *query[M]) IncludeMany(ref string) repo.Query[M] {
 	return q
 }
 
-func (q *query[M]) ThenInclude(relation string) repo.Query[M] {
+func (q *Query[M]) ThenInclude(relation string) *Query[M] {
 	q.includeChain = fmt.Sprintf("%s.%s", q.includeChain, relation)
 	return q
 }
 
-func (q *query[M]) Where(field string) repo.Where[M] {
-	return &where[M]{field: field, query: q, andOr: "and"}
+func (q *Query[M]) Where(field string) *Where[M] {
+	return &Where[M]{field: field, query: q, andOr: "and"}
 }
 
-func (q *query[M]) Or(field string) repo.Where[M] {
-	return &where[M]{field: field, query: q, andOr: "or"}
+func (q *Query[M]) Or(field string) *Where[M] {
+	return &Where[M]{field: field, query: q, andOr: "or"}
 }
 
-func (q *query[M]) OrderBy(field string) repo.Query[M] {
+func (q *Query[M]) OrderBy(field string) *Query[M] {
 	q.db = q.db.Order(fmt.Sprintf("%s asc", field))
 	return q
 }
 
-func (q *query[M]) OrderByDesc(field string) repo.Query[M] {
+func (q *Query[M]) OrderByDesc(field string) *Query[M] {
 	q.db = q.db.Order(fmt.Sprintf("%s desc", field))
 	return q
 }
 
-func (q *query[M]) Find() ([]M, error) {
+func (q *Query[M]) Find() ([]M, error) {
 	records, err := q.exec()
 	if err != nil {
 		return nil, err
@@ -79,7 +82,7 @@ func (q *query[M]) Find() ([]M, error) {
 	return records, nil
 }
 
-func (q *query[M]) First() (M, error) {
+func (q *Query[M]) First() (M, error) {
 	records, err := q.exec()
 	if err != nil {
 		return *new(M), err
@@ -88,20 +91,20 @@ func (q *query[M]) First() (M, error) {
 	return records[0], nil
 }
 
-func (q *query[M]) exec() ([]M, error) {
+func (q *Query[M]) exec() ([]M, error) {
 	if q.includeChain != "" && strings.Contains(q.includeChain, ".") {
 		q.db = q.db.Preload(q.includeChain)
 	}
 
 	var records = []M{}
 	if result := q.db.Find(records); result.Error != nil {
-		return nil, toQueryError(result.Error)
+		return nil, result.Error
 	}
 
 	return records, nil
 }
 
-func (c *where[M]) In(values interface{}) repo.Query[M] {
+func (c *Where[M]) In(values interface{}) *Query[M] {
 	if c.andOr == "and" {
 		c.query.db = c.query.db.Where(fmt.Sprintf("%s IN ?", c.field), values)
 	} else if c.andOr == "or" {
@@ -111,7 +114,7 @@ func (c *where[M]) In(values interface{}) repo.Query[M] {
 	return c.query
 }
 
-func (c *where[M]) Eq(value interface{}) repo.Query[M] {
+func (c *Where[M]) Eq(value interface{}) *Query[M] {
 	if c.andOr == "and" {
 		c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
 	} else if c.andOr == "or" {
@@ -121,7 +124,7 @@ func (c *where[M]) Eq(value interface{}) repo.Query[M] {
 	return c.query
 }
 
-func (c *where[M]) Contains(value string) repo.Query[M] {
+func (c *Where[M]) Contains(value string) *Query[M] {
 	if c.andOr == "and" {
 		c.query.db = c.query.db.Where(fmt.Sprintf("%s LIKE %%?%%", c.field), value)
 	} else if c.andOr == "or" {
@@ -129,10 +132,4 @@ func (c *where[M]) Contains(value string) repo.Query[M] {
 	}
 
 	return c.query
-}
-
-type queryFactory[M domain.DataObject] struct{}
-
-func (queryFactory[M]) New() repo.Query[M] {
-	return &query[M]{db: Db().Model(new(M)), includeChain: ""}
 }

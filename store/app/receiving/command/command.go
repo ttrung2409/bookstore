@@ -2,9 +2,7 @@ package command
 
 import (
 	"store/app/domain"
-	repo "store/app/repository"
-	"store/container"
-	"store/utils"
+	repo "store/repository"
 )
 
 type Command interface {
@@ -18,12 +16,11 @@ func New() Command {
 type command struct{}
 
 func (*command) Receive(request ReceiveBooksRequest) error {
-	bookRepository := container.Instance().Get(utils.Nameof((*repo.BookRepository)(nil))).(repo.BookRepository)
-	receiptRepository := container.Instance().Get(utils.Nameof((*repo.ReceiptRepository)(nil))).(repo.ReceiptRepository)
-	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
+	bookRepository := repo.BookRepository{}.New()
+	receiptRepository := repo.ReceiptRepository{}.New()
 
-	_, err := transactionFactory.RunInTransaction(
-		func(tx repo.Transaction) (interface{}, error) {
+	_, err := repo.Transaction{}.RunInTransaction(
+		func(tx *repo.Transaction) (interface{}, error) {
 			books := []*domain.Book{}
 
 			// create books if not exists

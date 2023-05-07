@@ -2,9 +2,7 @@ package command
 
 import (
 	"store/app/domain"
-	repo "store/app/repository"
-	"store/container"
-	"store/utils"
+	repo "store/repository"
 
 	"github.com/thoas/go-funk"
 )
@@ -22,15 +20,18 @@ func New() Command {
 type command struct{}
 
 func (*command) AcceptOrder(order Order) error {
-	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
-	orderRepository := container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
-	bookRepository := container.Instance().Get(utils.Nameof((*repo.BookRepository)(nil))).(repo.BookRepository)
+	bookRepository := repo.BookRepository{}.New()
+	orderRepository := repo.OrderRepository{}.New()
 
-	_, err := transactionFactory.RunInTransaction(
-		func(tx repo.Transaction) (interface{}, error) {
-			stock := bookRepository.GetStock(funk.Map(order.Items, func(item OrderItem) string {
+	_, err := repo.Transaction{}.RunInTransaction(
+		func(tx *repo.Transaction) (interface{}, error) {
+			stock, err := bookRepository.GetStock(funk.Map(order.Items, func(item OrderItem) string {
 				return item.BookId
-			}).([]string))
+			}).([]string), tx)
+
+			if err != nil {
+				return nil, err
+			}
 
 			order := domain.Order{}.New(order.toDataObject(), stock)
 
@@ -50,11 +51,10 @@ func (*command) AcceptOrder(order Order) error {
 }
 
 func (*command) CancelOrder(orderId string) error {
-	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
-	orderRepository := container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+	orderRepository := repo.OrderRepository{}.New()
 
-	_, err := transactionFactory.RunInTransaction(
-		func(tx repo.Transaction) (interface{}, error) {
+	_, err := repo.Transaction{}.RunInTransaction(
+		func(tx *repo.Transaction) (interface{}, error) {
 			order, err := orderRepository.Get(orderId, tx)
 			if err != nil {
 				return nil, err
@@ -76,11 +76,10 @@ func (*command) CancelOrder(orderId string) error {
 }
 
 func (*command) DeliverOrder(orderId string) error {
-	transactionFactory := container.Instance().Get(utils.Nameof((*repo.TransactionFactory)(nil))).(repo.TransactionFactory)
-	orderRepository := container.Instance().Get(utils.Nameof((*repo.OrderRepository)(nil))).(repo.OrderRepository)
+	orderRepository := repo.OrderRepository{}.New()
 
-	_, err := transactionFactory.RunInTransaction(
-		func(tx repo.Transaction) (interface{}, error) {
+	_, err := repo.Transaction{}.RunInTransaction(
+		func(tx *repo.Transaction) (interface{}, error) {
 			order, err := orderRepository.Get(orderId, tx)
 			if err != nil {
 				return nil, err

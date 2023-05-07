@@ -1,9 +1,7 @@
 package repository
 
 import (
-	"errors"
 	"store/app/domain"
-	repo "store/app/repository"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,22 +12,22 @@ type postgresRepository[M domain.DataObject] struct {
 	db              *gorm.DB
 }
 
-func (r *postgresRepository[M]) query(tx repo.Transaction) repo.Query[M] {
+func (r *postgresRepository[M]) query(tx *Transaction) *Query[M] {
 	db := r.db
 	if tx != nil {
-		db = tx.(*transaction).db
+		db = tx.db
 	}
 
-	return &query[M]{db: db.Model(new(M)), includeChain: ""}
+	return &Query[M]{db: db.Model(new(M)), includeChain: ""}
 }
 
 func (r *postgresRepository[M]) create(
 	entity M,
-	tx repo.Transaction,
+	tx *Transaction,
 ) error {
 	db := r.db
 	if tx != nil {
-		db = tx.(*transaction).db
+		db = tx.db
 	}
 
 	if result := db.Omit(clause.Associations).Create(&entity); result.Error != nil {
@@ -41,11 +39,11 @@ func (r *postgresRepository[M]) create(
 
 func (r *postgresRepository[M]) update(
 	entity M,
-	tx repo.Transaction,
+	tx *Transaction,
 ) error {
 	db := r.db
 	if tx != nil {
-		db = tx.(*transaction).db
+		db = tx.db
 	}
 
 	if result := db.Model(new(M)).Omit(clause.Associations).Updates(entity); result.Error != nil {
@@ -55,10 +53,10 @@ func (r *postgresRepository[M]) update(
 	return nil
 }
 
-func (r *postgresRepository[M]) batchDelete(tx repo.Transaction, where string, args ...any) error {
+func (r *postgresRepository[M]) batchDelete(tx *Transaction, where string, args ...any) error {
 	db := r.db
 	if tx != nil {
-		db = tx.(*transaction).db
+		db = tx.db
 	}
 
 	if result := db.Where(where, args...).Delete(new(M)); result.Error != nil {
@@ -66,12 +64,4 @@ func (r *postgresRepository[M]) batchDelete(tx repo.Transaction, where string, a
 	}
 
 	return nil
-}
-
-func toQueryError(err error) error {
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return repo.ErrNotFound
-	}
-
-	return err
 }

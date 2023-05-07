@@ -2,25 +2,28 @@ package repository
 
 import (
 	"store/app/domain"
-	repo "store/app/repository"
 
 	"github.com/thoas/go-funk"
 	"gorm.io/gorm"
 )
 
-type bookRepository struct {
+type BookRepository struct {
 	postgresRepository[domain.BookData]
 }
 
-func (r *bookRepository) CreateIfNotExist(
+func (BookRepository) New() *BookRepository {
+	return &BookRepository{postgresRepository: postgresRepository[domain.BookData]{eventDispatcher: GetEventDispatcher(), db: GetDb()}}
+}
+
+func (r *BookRepository) CreateIfNotExist(
 	book *domain.Book,
-	tx repo.Transaction,
+	tx *Transaction,
 ) error {
 	bookData := book.State()
 
-	db := Db()
+	db := r.db
 	if tx != nil {
-		db = tx.(*transaction).db
+		db = tx.db
 	}
 
 	if result := db.Where("google_book_id = ?", bookData.GoogleBookId).FirstOrCreate(&bookData); result.Error != nil {
@@ -30,9 +33,9 @@ func (r *bookRepository) CreateIfNotExist(
 	return nil
 }
 
-func (r *bookRepository) GetStock(
-	bookIds string,
-	tx repo.Transaction,
+func (r *BookRepository) GetStock(
+	bookIds []string,
+	tx *Transaction,
 ) (domain.Stock, error) {
 
 	books, err := r.query(tx).
@@ -55,13 +58,13 @@ func (r *bookRepository) GetStock(
 	return stock, nil
 }
 
-func (r *bookRepository) adjustStock(
+func (r *BookRepository) adjustStock(
 	adjustment domain.StockAdjustmentItem,
-	tx repo.Transaction,
+	tx *Transaction,
 ) error {
-	db := Db()
+	db := GetDb()
 	if tx != nil {
-		db = tx.(*transaction).db
+		db = tx.db
 	}
 
 	var result *gorm.DB

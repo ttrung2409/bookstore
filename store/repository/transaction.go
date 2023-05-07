@@ -1,30 +1,28 @@
 package repository
 
 import (
-	repo "store/app/repository"
-
 	"gorm.io/gorm"
 )
 
-type transaction struct {
+type Transaction struct {
 	db *gorm.DB
 }
 
-type transactionFactory struct{}
+type TransactionalFunc func(tx *Transaction) (interface{}, error)
 
-func (f transactionFactory) New() repo.Transaction {
+func (Transaction) New() *Transaction {
 	var tx *gorm.DB
-	if tx := Db().Begin(); tx.Error != nil {
+	if tx := GetDb().Begin(); tx.Error != nil {
 		return nil
 	}
 
-	return &transaction{tx}
+	return &Transaction{tx}
 }
 
-func (f transactionFactory) RunInTransaction(
-	fn repo.TransactionalFunc,
+func (Transaction) RunInTransaction(
+	fn TransactionalFunc,
 ) (interface{}, error) {
-	tx := f.New()
+	tx := Transaction{}.New()
 
 	var err error
 	defer func() {
@@ -47,7 +45,7 @@ func (f transactionFactory) RunInTransaction(
 	return result, nil
 }
 
-func (tx *transaction) Commit() error {
+func (tx *Transaction) Commit() error {
 	if result := tx.db.Commit(); result.Error != nil {
 		return result.Error
 	}
@@ -55,7 +53,7 @@ func (tx *transaction) Commit() error {
 	return nil
 }
 
-func (tx *transaction) Rollback() error {
+func (tx *Transaction) Rollback() error {
 	if result := tx.db.Rollback(); result.Error != nil {
 		return result.Error
 	}

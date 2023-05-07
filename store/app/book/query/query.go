@@ -6,9 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"store/app/domain"
-	repo "store/app/repository"
-	"store/container"
-	"store/utils"
+	repo "store/repository"
 )
 
 type Query interface {
@@ -54,9 +52,7 @@ func (*query) FindGoogleBooks(term string) ([]Book, error) {
 }
 
 func (*query) FindBooks(term string) ([]Book, error) {
-	queryFactory := container.Instance().Get(utils.Nameof((*repo.QueryFactory[domain.BookData])(nil))).(repo.QueryFactory[domain.BookData])
-
-	records, err := queryFactory.New().
+	records, err := repo.Query[domain.BookData]{}.New().
 		Where("title").Contains(term).
 		Or("subtitle").Contains(term).
 		Or("description").Contains(term).

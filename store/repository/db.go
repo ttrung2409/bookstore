@@ -8,7 +8,7 @@ import (
 
 var db *gorm.DB
 
-func Db() *gorm.DB {
+func GetDb() *gorm.DB {
 	if db == nil {
 		db = connect()
 	}

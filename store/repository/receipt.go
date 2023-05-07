@@ -2,21 +2,24 @@ package repository
 
 import (
 	"store/app/domain"
-	repo "store/app/repository"
 )
 
-type receiptRepository struct {
+type ReceiptRepository struct {
 	postgresRepository[domain.ReceiptData]
 }
 
-func (r *receiptRepository) Create(
+func (ReceiptRepository) New() *ReceiptRepository {
+	return &ReceiptRepository{postgresRepository: postgresRepository[domain.ReceiptData]{eventDispatcher: GetEventDispatcher(), db: GetDb()}}
+}
+
+func (r *ReceiptRepository) Create(
 	receipt *domain.Receipt,
-	tx repo.Transaction,
+	tx *Transaction,
 ) error {
 	receiptData := receipt.State()
 
 	if tx == nil {
-		tx = (&transactionFactory{}).New()
+		tx = Transaction{}.New()
 	}
 
 	if err := r.create(receiptData.ReceiptData, tx); err != nil {
@@ -31,7 +34,7 @@ func (r *receiptRepository) Create(
 		}
 	}
 
-	bookRepository := bookRepository{}
+	bookRepository := BookRepository{}
 
 	if receiptData.StockAdjustment != nil {
 		for _, item := range receiptData.StockAdjustment {
