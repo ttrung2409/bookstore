@@ -104,7 +104,7 @@ func (q *Query[M]) exec() ([]M, error) {
 	return records, nil
 }
 
-func (c *Where[M]) In(values interface{}) *Query[M] {
+func (c *Where[M]) In(values any) *Query[M] {
 	if c.andOr == "and" {
 		c.query.db = c.query.db.Where(fmt.Sprintf("%s IN ?", c.field), values)
 	} else if c.andOr == "or" {
@@ -114,7 +114,7 @@ func (c *Where[M]) In(values interface{}) *Query[M] {
 	return c.query
 }
 
-func (c *Where[M]) Eq(value interface{}) *Query[M] {
+func (c *Where[M]) Eq(value any) *Query[M] {
 	if c.andOr == "and" {
 		c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
 	} else if c.andOr == "or" {

@@ -20,7 +20,7 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 	receiptRepository := repo.ReceiptRepository{}.New()
 
 	_, err := repo.Transaction{}.RunInTransaction(
-		func(tx *repo.Transaction) (interface{}, error) {
+		func(tx *repo.Transaction) (any, error) {
 			books := []*domain.Book{}
 
 			// create books if not exists

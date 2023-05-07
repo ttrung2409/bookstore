@@ -2,7 +2,7 @@ package domain
 
 import "github.com/google/uuid"
 
-type DataObject interface{}
+type DataObject any
 
 const EmptyId = ""
 

@@ -24,7 +24,7 @@ func (*command) AcceptOrder(order Order) error {
 	orderRepository := repo.OrderRepository{}.New()
 
 	_, err := repo.Transaction{}.RunInTransaction(
-		func(tx *repo.Transaction) (interface{}, error) {
+		func(tx *repo.Transaction) (any, error) {
 			stock, err := bookRepository.GetStock(funk.Map(order.Items, func(item OrderItem) string {
 				return item.BookId
 			}).([]string), tx)
@@ -54,7 +54,7 @@ func (*command) CancelOrder(orderId string) error {
 	orderRepository := repo.OrderRepository{}.New()
 
 	_, err := repo.Transaction{}.RunInTransaction(
-		func(tx *repo.Transaction) (interface{}, error) {
+		func(tx *repo.Transaction) (any, error) {
 			order, err := orderRepository.Get(orderId, tx)
 			if err != nil {
 				return nil, err
@@ -79,7 +79,7 @@ func (*command) DeliverOrder(orderId string) error {
 	orderRepository := repo.OrderRepository{}.New()
 
 	_, err := repo.Transaction{}.RunInTransaction(
-		func(tx *repo.Transaction) (interface{}, error) {
+		func(tx *repo.Transaction) (any, error) {
 			order, err := orderRepository.Get(orderId, tx)
 			if err != nil {
 				return nil, err

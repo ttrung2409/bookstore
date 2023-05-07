@@ -8,7 +8,7 @@ type Transaction struct {
 	db *gorm.DB
 }
 
-type TransactionalFunc func(tx *Transaction) (interface{}, error)
+type TransactionalFunc func(tx *Transaction) (any, error)
 
 func (Transaction) New() *Transaction {
 	var tx *gorm.DB
@@ -21,7 +21,7 @@ func (Transaction) New() *Transaction {
 
 func (Transaction) RunInTransaction(
 	fn TransactionalFunc,
-) (interface{}, error) {
+) (any, error) {
 	tx := Transaction{}.New()
 
 	var err error
