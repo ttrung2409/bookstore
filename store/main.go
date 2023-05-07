@@ -3,17 +3,13 @@ package main
 import (
 	"context"
 	"os/signal"
-	"store/container"
 	"store/integration"
-	repository "store/repository"
+	"store/repository"
 	server "store/rest"
 	"syscall"
 )
 
 func main() {
-	builder := container.ContainerBuilder()
-
-	repository.RegisterDependencies(builder)
 
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
