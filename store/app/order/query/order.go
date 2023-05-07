@@ -43,7 +43,7 @@ func (Order) fromDataObject(order domain.OrderData) Order {
 	}
 }
 
-func (OrderItem) fromDataObject(item domain.OrderItemData) OrderItem {
+func (OrderItem) fromDataObject(item domain.OrderItem) OrderItem {
 	return OrderItem{
 		Book: Book{}.fromDataObject(item.Book),
 		Qty:  item.Qty,

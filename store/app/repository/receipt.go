@@ -5,6 +5,5 @@ import (
 )
 
 type ReceiptRepository interface {
-	Get(id string, tx Transaction) (*domain.Receipt, error)
 	Create(receipt *domain.Receipt, tx Transaction) error
 }

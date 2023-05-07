@@ -115,7 +115,7 @@ func (c *where[M]) Eq(value interface{}) repo.Query[M] {
 	if c.andOr == "and" {
 		c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
 	} else if c.andOr == "or" {
-		c.query.db = c.query.db.Where(fmt.Sprintf("%s = ?", c.field), value)
+		c.query.db = c.query.db.Or(fmt.Sprintf("%s = ?", c.field), value)
 	}
 
 	return c.query

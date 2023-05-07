@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"store/app/domain/events"
 	"time"
+
+	"github.com/thoas/go-funk"
 )
 
 type OrderStatus string
@@ -18,7 +20,7 @@ const (
 type OrderData struct {
 	Id                      string `gorm:"primaryKey"`
 	Status                  OrderStatus
-	Items                   []OrderItemData `gorm:"foreignKey:OrderId"`
+	Items                   []OrderItem `gorm:"foreignKey:OrderId"`
 	CustomerId              string
 	CustomerName            string
 	CustomerPhone           string
@@ -28,7 +30,7 @@ type OrderData struct {
 }
 
 func (o OrderData) Clone() OrderData {
-	items := []OrderItemData{}
+	items := []OrderItem{}
 	for _, item := range o.Items {
 		items = append(items, item.Clone())
 	}
@@ -41,15 +43,15 @@ func (o OrderData) Clone() OrderData {
 	}
 }
 
-type OrderItemData struct {
+type OrderItem struct {
 	OrderId string
 	BookId  string
 	Book    BookData `gorm:"foreignKey:Id"`
 	Qty     int
 }
 
-func (item OrderItemData) Clone() OrderItemData {
-	return OrderItemData{
+func (item OrderItem) Clone() OrderItem {
+	return OrderItem{
 		OrderId: item.OrderId,
 		BookId:  item.BookId,
 		Book:    item.Book,
@@ -59,11 +61,12 @@ func (item OrderItemData) Clone() OrderItemData {
 
 type Order struct {
 	eventSource
-	state OrderData
-	stock *Stock
+	order           OrderData
+	stock           Stock
+	stockAdjustment StockAdjustment
 }
 
-func (Order) New(order OrderData, stock StockData) *Order {
+func (Order) New(order OrderData, stock Stock) *Order {
 	cloned := order.Clone()
 	if cloned.Id == "" {
 		cloned.Id = NewId()
@@ -71,67 +74,84 @@ func (Order) New(order OrderData, stock StockData) *Order {
 
 	return &Order{
 		eventSource: eventSource{pendingEvents: []Event{}},
-		state:       order.Clone(),
-		stock:       Stock{}.New(stock),
+		order:       order.Clone(),
 	}
 }
 
 func (order *Order) State() struct {
 	OrderData
-	Stock StockData
+	StockAdjustment StockAdjustment
 } {
 	return struct {
 		OrderData
-		Stock StockData
+		StockAdjustment StockAdjustment
 	}{
-		OrderData: order.state.Clone(),
-		Stock:     order.stock.State(),
+		OrderData:       order.order.Clone(),
+		StockAdjustment: order.stockAdjustment.Clone(),
 	}
 }
 
 func (order *Order) Accept() error {
-	if !order.stock.enoughForOrder(*order) {
+	stockEnoughForOrder := true
+
+	for _, item := range order.order.Items {
+		if stockItem, ok := order.stock[item.BookId]; ok {
+			if item.Qty > stockItem.OnhandQty-stockItem.ReservedQty {
+				stockEnoughForOrder = false
+			}
+		}
+	}
+
+	if !stockEnoughForOrder {
 		order.pendingEvents = append(
 			order.pendingEvents,
-			&events.OrderRejected{OrderId: order.state.Id},
+			&events.OrderRejected{OrderId: order.order.Id},
 		)
 
 		return ErrNotEnoughStock
 	}
 
-	order.state.Status = OrderStatusAccepted
-	order.stock = order.stock.reserveForOrder(*order)
+	order.order.Status = OrderStatusAccepted
+	order.stockAdjustment = funk.Map(order.order.Items, func(item OrderItem) StockAdjustmentItem {
+		return StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty, StockType: StockTypeReserved}
+	}).(StockAdjustment)
 
 	order.pendingEvents = append(
 		order.pendingEvents,
-		&events.OrderAccepted{OrderId: order.state.Id},
+		&events.OrderAccepted{OrderId: order.order.Id},
 	)
 
 	return nil
 }
 
 func (order *Order) Deliver() error {
-	if order.state.Status != OrderStatusAccepted {
+	if order.order.Status != OrderStatusAccepted {
 		return fmt.Errorf(
 			"order status is '%s', no delivery allowed",
-			order.state.Status,
+			order.order.Status,
 		)
 	}
 
-	order.stock = order.stock.decreaseByOrder(*order)
+	order.order.Status = OrderStatusDelivered
+	order.stockAdjustment = funk.Map(order.order.Items, func(item OrderItem) StockAdjustmentItem {
+		return StockAdjustmentItem{BookId: item.BookId, Qty: -item.Qty, StockType: StockTypeOnhand}
+	}).(StockAdjustment)
 
 	return nil
 }
 
 func (order *Order) Cancel() error {
-	if order.state.Status != OrderStatusAccepted {
+	if order.order.Status != OrderStatusAccepted {
 		return fmt.Errorf(
 			"order status is '%s', no cancellation allowed",
-			order.state.Status,
+			order.order.Status,
 		)
 	}
 
-	order.stock = order.stock.releaseReservation(*order)
+	order.order.Status = OrderStatusCancelled
+	order.stockAdjustment = funk.Map(order.order.Items, func(item OrderItem) StockAdjustmentItem {
+		return StockAdjustmentItem{BookId: item.BookId, Qty: -item.Qty, StockType: StockTypeReserved}
+	}).(StockAdjustment)
 
 	return nil
 }

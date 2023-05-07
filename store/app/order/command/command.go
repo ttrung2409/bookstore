@@ -32,7 +32,7 @@ func (*command) AcceptOrder(order Order) error {
 				return item.BookId
 			}).([]string))
 
-			order := domain.Order{}.New(order.toDataObject(), stock.State())
+			order := domain.Order{}.New(order.toDataObject(), stock)
 
 			if err := order.Accept(); err != nil {
 				return nil, err

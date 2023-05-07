@@ -23,9 +23,9 @@ func (o *Order) toDataObject() domain.OrderData {
 		CustomerName:            o.Customer.Name,
 		CustomerPhone:           o.Customer.Phone,
 		CustomerDeliveryAddress: o.Customer.DeliveryAddress,
-		Items: funk.Map(o.Items, func(item OrderItem) domain.OrderItemData {
-			return domain.OrderItemData{OrderId: o.Id, BookId: item.BookId, Qty: item.Qty}
-		}).([]domain.OrderItemData),
+		Items: funk.Map(o.Items, func(item OrderItem) domain.OrderItem {
+			return domain.OrderItem{OrderId: o.Id, BookId: item.BookId, Qty: item.Qty}
+		}).([]domain.OrderItem),
 	}
 }
 

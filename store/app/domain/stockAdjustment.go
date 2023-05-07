@@ -2,15 +2,23 @@ package domain
 
 import "github.com/thoas/go-funk"
 
-type StockAdjustmentData []StockAdjustmentItemData
+type StockAdjustment []StockAdjustmentItem
 
-func (adjustment StockAdjustmentData) Clone() StockAdjustmentData {
-	return funk.Map(adjustment, func(item StockAdjustmentItemData) StockAdjustmentItemData {
-		return StockAdjustmentItemData{BookId: item.BookId, Qty: item.Qty}
-	}).(StockAdjustmentData)
+type StockType string
+
+const (
+	StockTypeOnhand   StockType = "Onhand"
+	StockTypeReserved StockType = "Reserved"
+)
+
+type StockAdjustmentItem struct {
+	BookId    string
+	Qty       int
+	StockType StockType
 }
 
-type StockAdjustmentItemData struct {
-	BookId string
-	Qty    int
+func (adjustment StockAdjustment) Clone() StockAdjustment {
+	return funk.Map(adjustment, func(item StockAdjustmentItem) StockAdjustmentItem {
+		return StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty}
+	}).(StockAdjustment)
 }

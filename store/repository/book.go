@@ -33,7 +33,7 @@ func (r *bookRepository) CreateIfNotExist(
 func (r *bookRepository) GetStock(
 	bookIds string,
 	tx repo.Transaction,
-) (*domain.Stock, error) {
+) (domain.Stock, error) {
 
 	books, err := r.query(tx).
 		Select("id", "onhand_qty", "reserved_qty").
@@ -44,20 +44,19 @@ func (r *bookRepository) GetStock(
 		return nil, err
 	}
 
-	stock := funk.Map(books, func(book domain.BookData) (string, domain.StockItemData) {
-		return book.Id, domain.StockItemData{
+	stock := funk.Map(books, func(book domain.BookData) (string, domain.StockItem) {
+		return book.Id, domain.StockItem{
 			BookId:      book.Id,
 			OnhandQty:   book.OnhandQty,
 			ReservedQty: book.ReservedQty,
 		}
-	}).(domain.StockData)
+	}).(domain.Stock)
 
-	return domain.Stock{}.New(stock), nil
+	return stock, nil
 }
 
-func (r *bookRepository) adjustOnhandQty(
-	id string,
-	qty int,
+func (r *bookRepository) adjustStock(
+	adjustment domain.StockAdjustmentItem,
 	tx repo.Transaction,
 ) error {
 	db := Db()
@@ -65,10 +64,20 @@ func (r *bookRepository) adjustOnhandQty(
 		db = tx.(*transaction).db
 	}
 
-	result := db.
-		Model(&domain.BookData{}).
-		Where("id = ?", id).
-		Update("onhand_qty", gorm.Expr("onhand_qty + ?", qty))
+	var result *gorm.DB
+
+	switch adjustment.StockType {
+	case domain.StockTypeOnhand:
+		result = db.
+			Model(&domain.BookData{}).
+			Where("id = ?", adjustment.BookId).
+			Update("onhand_qty", gorm.Expr("onhand_qty + ?", adjustment.Qty))
+	case domain.StockTypeReserved:
+		result = db.
+			Model(&domain.BookData{}).
+			Where("id = ?", adjustment.BookId).
+			Update("reserved_qty", gorm.Expr("reserved_qty + ?", adjustment.Qty))
+	}
 
 	if result.Error != nil {
 		return result.Error

@@ -15,27 +15,27 @@ type ReceiptData struct {
 	Id        string `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Items     []ReceiptItemData `gorm:"foreignKey:ReceiptId"`
+	Items     []ReceiptItem `gorm:"foreignKey:ReceiptId"`
 }
 
 func (r ReceiptData) Clone() ReceiptData {
 	return ReceiptData{
 		Id: r.Id,
-		Items: funk.Map(r.Items, func(item ReceiptItemData) ReceiptItemData {
+		Items: funk.Map(r.Items, func(item ReceiptItem) ReceiptItem {
 			return item.Clone()
-		}).([]ReceiptItemData),
+		}).([]ReceiptItem),
 	}
 }
 
-type ReceiptItemData struct {
+type ReceiptItem struct {
 	ReceiptId string
 	BookId    string
-	Book      Book `gorm:"foreignKey:Id"`
+	Book      BookData `gorm:"foreignKey:Id"`
 	Qty       int
 }
 
-func (item ReceiptItemData) Clone() ReceiptItemData {
-	return ReceiptItemData{
+func (item ReceiptItem) Clone() ReceiptItem {
+	return ReceiptItem{
 		ReceiptId: item.ReceiptId,
 		BookId:    item.BookId,
 		Book:      item.Book,
@@ -44,22 +44,8 @@ func (item ReceiptItemData) Clone() ReceiptItemData {
 }
 
 type Receipt struct {
-	state                 ReceiptData
-	onhandStockAdjustment StockAdjustmentData
-}
-
-func (Receipt) New(receipt ReceiptData) *Receipt {
-	cloned := receipt.Clone()
-	if cloned.Id == "" {
-		cloned.Id = NewId()
-	}
-
-	return &Receipt{
-		state: cloned,
-		onhandStockAdjustment: funk.Map(receipt.Items, func(item ReceiptItemData) StockAdjustmentItemData {
-			return StockAdjustmentItemData{BookId: item.BookId, Qty: item.Qty}
-		}).(StockAdjustmentData),
-	}
+	state           ReceiptData
+	stockAdjustment StockAdjustment
 }
 
 func (Receipt) NewFromReceivingBooks(books []ReceivingBook) *Receipt {
@@ -67,10 +53,10 @@ func (Receipt) NewFromReceivingBooks(books []ReceivingBook) *Receipt {
 		Id: NewId(),
 	}
 
-	items := []ReceiptItemData{}
+	items := []ReceiptItem{}
 
 	for _, book := range books {
-		items = append(items, ReceiptItemData{
+		items = append(items, ReceiptItem{
 			ReceiptId: receipt.Id,
 			BookId:    book.Id,
 			Qty:       book.ReceivingQty,
@@ -81,21 +67,21 @@ func (Receipt) NewFromReceivingBooks(books []ReceivingBook) *Receipt {
 
 	return &Receipt{
 		state: receipt,
-		onhandStockAdjustment: funk.Map(receipt.Items, func(item ReceiptItemData) StockAdjustmentItemData {
-			return StockAdjustmentItemData{BookId: item.BookId, Qty: item.Qty}
-		}).(StockAdjustmentData),
+		stockAdjustment: funk.Map(receipt.Items, func(item ReceiptItem) StockAdjustmentItem {
+			return StockAdjustmentItem{BookId: item.BookId, Qty: item.Qty}
+		}).(StockAdjustment),
 	}
 }
 
 func (receipt *Receipt) State() struct {
 	ReceiptData
-	OnhandStockAdjustment StockAdjustmentData
+	StockAdjustment StockAdjustment
 } {
 	return struct {
 		ReceiptData
-		OnhandStockAdjustment StockAdjustmentData
+		StockAdjustment StockAdjustment
 	}{
-		ReceiptData:           receipt.state.Clone(),
-		OnhandStockAdjustment: receipt.onhandStockAdjustment.Clone(),
+		ReceiptData:     receipt.state.Clone(),
+		StockAdjustment: receipt.stockAdjustment.Clone(),
 	}
 }
