@@ -137,6 +137,11 @@ func (order *Order) Deliver() error {
 		return StockAdjustmentItem{BookId: item.BookId, Qty: -item.Qty, StockType: StockTypeOnhand}
 	}).(StockAdjustment)
 
+	order.pendingEvents = append(
+		order.pendingEvents,
+		&events.OrderDelivered{OrderId: order.order.Id},
+	)
+
 	return nil
 }
 
