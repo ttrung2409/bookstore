@@ -11,7 +11,7 @@ type OrderRepository struct {
 }
 
 func (OrderRepository) New() *OrderRepository {
-	return &OrderRepository{postgresRepository: postgresRepository[domain.OrderData]{eventDispatcher: GetEventDispatcher(), db: GetDb()}}
+	return &OrderRepository{postgresRepository: postgresRepository[domain.OrderData]{db: GetDb()}}
 }
 
 func (r *OrderRepository) Get(id string, tx *Transaction) (*domain.Order, error) {
@@ -66,9 +66,6 @@ func (r *OrderRepository) Create(order *domain.Order, tx *Transaction) error {
 		}
 	}
 
-	// TODO make sure events are delivered at least once
-	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents()...)
-
 	return nil
 }
 
@@ -104,9 +101,6 @@ func (r *OrderRepository) Update(order *domain.Order, tx *Transaction) error {
 			}
 		}
 	}
-
-	// TODO make sure events are delivered at least once
-	go r.eventDispatcher.Dispatch("order", orderData.Id, order.PendingEvents()...)
 
 	return nil
 }

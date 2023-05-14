@@ -2,6 +2,7 @@ package command
 
 import (
 	"store/app/domain"
+	"store/kafka"
 	repo "store/repository"
 
 	"github.com/thoas/go-funk"
@@ -42,6 +43,9 @@ func (*command) AcceptOrder(order Order) error {
 			if err := orderRepository.Create(order, tx); err != nil {
 				return nil, err
 			}
+
+			// TODO make sure events are delivered at least once
+			go kafka.GetEventDispatcher().Dispatch("order", order.State().Id, order.PendingEvents()...)
 
 			return nil, nil
 		},
@@ -92,6 +96,9 @@ func (*command) DeliverOrder(orderId string) error {
 			if err = orderRepository.Update(order, tx); err != nil {
 				return nil, err
 			}
+
+			// TODO make sure events are delivered at least once
+			go kafka.GetEventDispatcher().Dispatch("order", order.State().Id, order.PendingEvents()...)
 
 			return nil, nil
 		},

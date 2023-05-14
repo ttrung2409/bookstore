@@ -8,8 +8,7 @@ import (
 )
 
 type postgresRepository[M domain.DataObject] struct {
-	eventDispatcher EventDispatcher
-	db              *gorm.DB
+	db *gorm.DB
 }
 
 func (r *postgresRepository[M]) query(tx *Transaction) *Query[M] {

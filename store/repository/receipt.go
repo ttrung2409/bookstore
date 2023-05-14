@@ -9,7 +9,7 @@ type ReceiptRepository struct {
 }
 
 func (ReceiptRepository) New() *ReceiptRepository {
-	return &ReceiptRepository{postgresRepository: postgresRepository[domain.ReceiptData]{eventDispatcher: GetEventDispatcher(), db: GetDb()}}
+	return &ReceiptRepository{postgresRepository: postgresRepository[domain.ReceiptData]{db: GetDb()}}
 }
 
 func (r *ReceiptRepository) Create(

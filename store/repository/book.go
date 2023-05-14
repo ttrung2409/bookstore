@@ -12,7 +12,7 @@ type BookRepository struct {
 }
 
 func (BookRepository) New() *BookRepository {
-	return &BookRepository{postgresRepository: postgresRepository[domain.BookData]{eventDispatcher: GetEventDispatcher(), db: GetDb()}}
+	return &BookRepository{postgresRepository: postgresRepository[domain.BookData]{db: GetDb()}}
 }
 
 func (r *BookRepository) CreateIfNotExist(
