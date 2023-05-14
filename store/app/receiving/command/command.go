@@ -34,11 +34,18 @@ func (*command) Receive(request ReceiveBooksRequest) error {
 			}
 
 			// create book receipt
-			receivingBooks := []domain.ReceivingBook{}
+			var receivingBooks = make([]struct {
+				Id  string
+				Qty int
+			}, len(request.Items))
+
 			for index, item := range request.Items {
 				receivingBooks = append(
 					receivingBooks,
-					domain.ReceivingBook{BookData: books[index].State(), ReceivingQty: item.Qty},
+					struct {
+						Id  string
+						Qty int
+					}{Id: books[index].State().Id, Qty: item.Qty},
 				)
 			}
 

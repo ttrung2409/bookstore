@@ -44,8 +44,8 @@ type Receipt struct {
 }
 
 func (Receipt) NewFromReceivingBooks(books []struct {
-	Id           string
-	ReceivingQty int
+	Id  string
+	Qty int
 }) *Receipt {
 	receipt := ReceiptData{
 		Id: NewId(),
@@ -57,7 +57,7 @@ func (Receipt) NewFromReceivingBooks(books []struct {
 		items = append(items, ReceiptItem{
 			ReceiptId: receipt.Id,
 			BookId:    book.Id,
-			Qty:       book.ReceivingQty,
+			Qty:       book.Qty,
 		})
 	}
 
