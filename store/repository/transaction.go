@@ -27,7 +27,7 @@ func (Transaction) RunInTransaction(
 	var err error
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			tx.rollback()
 		}
 	}()
 
@@ -37,7 +37,7 @@ func (Transaction) RunInTransaction(
 		return nil, err
 	}
 
-	err = tx.Commit()
+	err = tx.commit()
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (Transaction) RunInTransaction(
 	return result, nil
 }
 
-func (tx *Transaction) Commit() error {
+func (tx *Transaction) commit() error {
 	if result := tx.db.Commit(); result.Error != nil {
 		return result.Error
 	}
@@ -53,7 +53,7 @@ func (tx *Transaction) Commit() error {
 	return nil
 }
 
-func (tx *Transaction) Rollback() error {
+func (tx *Transaction) rollback() error {
 	if result := tx.db.Rollback(); result.Error != nil {
 		return result.Error
 	}
