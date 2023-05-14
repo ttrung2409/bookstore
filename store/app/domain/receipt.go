@@ -6,11 +6,6 @@ import (
 	"github.com/thoas/go-funk"
 )
 
-type ReceivingBook struct {
-	BookData
-	ReceivingQty int
-}
-
 type ReceiptData struct {
 	Id        string `gorm:"primaryKey"`
 	CreatedAt time.Time
@@ -48,7 +43,10 @@ type Receipt struct {
 	stockAdjustment StockAdjustment
 }
 
-func (Receipt) NewFromReceivingBooks(books []ReceivingBook) *Receipt {
+func (Receipt) NewFromReceivingBooks(books []struct {
+	Id           string
+	ReceivingQty int
+}) *Receipt {
 	receipt := ReceiptData{
 		Id: NewId(),
 	}
