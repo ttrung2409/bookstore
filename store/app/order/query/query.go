@@ -3,10 +3,20 @@ package query
 import (
 	"store/app/domain"
 	repo "store/repository"
+	"time"
+
+	"github.com/thoas/go-funk"
 )
 
+type OrderListItem = struct {
+	Id        string
+	CreatedAt time.Time
+	Customer  Customer
+	Status    domain.OrderStatus
+}
+
 type Query interface {
-	FindDeliverableOrders() ([]Order, error)
+	FindDeliverableOrders() ([]OrderListItem, error)
 	GetOrderDetails(id string) (Order, error)
 }
 
@@ -16,8 +26,16 @@ func New() Query {
 
 type query struct{}
 
-func (*query) FindDeliverableOrders() ([]Order, error) {
-	records, err := repo.Query[domain.OrderData]{}.New().
+func (*query) FindDeliverableOrders() ([]OrderListItem, error) {
+	orders, err := repo.Query[domain.OrderData]{}.New().
+		Select(
+			"id",
+			"created_at",
+			"customer_id",
+			"customer_name",
+			"customer_phone",
+			"customer_delivery_address",
+			"status").
 		Where("status = ?", domain.OrderStatusAccepted).
 		Find()
 
@@ -25,13 +43,18 @@ func (*query) FindDeliverableOrders() ([]Order, error) {
 		return nil, err
 	}
 
-	var orders []Order
-	for _, record := range records {
-		order := Order{}.fromDataObject(record)
-		orders = append(orders, order)
-	}
-
-	return orders, nil
+	return funk.Map(orders, func(order domain.OrderData) OrderListItem {
+		return OrderListItem{
+			Id:        order.Id,
+			CreatedAt: order.CreatedAt,
+			Customer: Customer{
+				Name:            order.CustomerName,
+				Phone:           order.CustomerPhone,
+				DeliveryAddress: order.CustomerDeliveryAddress,
+			},
+			Status: order.Status,
+		}
+	}).([]OrderListItem), nil
 }
 
 func (*query) GetOrderDetails(id string) (Order, error) {

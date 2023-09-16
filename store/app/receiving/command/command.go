@@ -5,6 +5,13 @@ import (
 	repo "store/repository"
 )
 
+type ReceiveBooksRequest struct {
+	Items []struct {
+		Book
+		Qty int
+	}
+}
+
 type Command interface {
 	Receive(request ReceiveBooksRequest) error
 }
