@@ -2,8 +2,10 @@ package command
 
 import (
 	"store/app/domain"
-	"store/kafka"
+	"store/app/messaging"
+	"store/container"
 	repo "store/repository"
+	"store/utils"
 
 	"github.com/thoas/go-funk"
 )
@@ -23,6 +25,8 @@ type command struct{}
 func (*command) AcceptOrder(order Order) error {
 	bookRepository := repo.BookRepository{}.New()
 	orderRepository := repo.OrderRepository{}.New()
+
+	dispatcher := container.Instance().Get(utils.Nameof((*messaging.EventDispatcher)(nil))).(messaging.EventDispatcher)
 
 	_, err := repo.Transaction{}.RunInTransaction(
 		func(tx *repo.Transaction) (any, error) {
@@ -45,7 +49,7 @@ func (*command) AcceptOrder(order Order) error {
 			}
 
 			// TODO make sure events are delivered at least once
-			go kafka.GetEventDispatcher().Dispatch("order", order.State().Id, order.PendingEvents()...)
+			go dispatcher.Dispatch("order", order.State().Id, order.PendingEvents()...)
 
 			return nil, nil
 		},
@@ -82,6 +86,8 @@ func (*command) CancelOrder(orderId string) error {
 func (*command) DeliverOrder(orderId string) error {
 	orderRepository := repo.OrderRepository{}.New()
 
+	dispatcher := container.Instance().Get(utils.Nameof((*messaging.EventDispatcher)(nil))).(messaging.EventDispatcher)
+
 	_, err := repo.Transaction{}.RunInTransaction(
 		func(tx *repo.Transaction) (any, error) {
 			order, err := orderRepository.Get(orderId, tx)
@@ -98,7 +104,7 @@ func (*command) DeliverOrder(orderId string) error {
 			}
 
 			// TODO make sure events are delivered at least once
-			go kafka.GetEventDispatcher().Dispatch("order", order.State().Id, order.PendingEvents()...)
+			go dispatcher.Dispatch("order", order.State().Id, order.PendingEvents()...)
 
 			return nil, nil
 		},

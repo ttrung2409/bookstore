@@ -4,7 +4,6 @@ import (
 	"context"
 	"os/signal"
 	"store/integration"
-	"store/kafka"
 	server "store/rest"
 	"syscall"
 )
@@ -31,6 +30,4 @@ func main() {
 
 	server.Stop()
 	integration.Stop()
-
-	kafka.GetEventDispatcher().Dispose()
 }

@@ -23,21 +23,6 @@ func (e kafkaEvent) Value() []byte {
 	return serialized
 }
 
-type EventDispatcher interface {
-	Dispatch(topic string, key string, events ...domain.Event) error
-	Dispose()
-}
-
-var dispatcher EventDispatcher
-
-func GetEventDispatcher() EventDispatcher {
-	if dispatcher == nil {
-		dispatcher = &eventDispatcher{producers: map[string]Producer{}}
-	}
-
-	return dispatcher
-}
-
 type eventDispatcher struct {
 	producers map[string]Producer
 }
@@ -64,12 +49,16 @@ func (d *eventDispatcher) Dispatch(topic string, key string, events ...domain.Ev
 	return nil
 }
 
-func (d *eventDispatcher) Dispose() {
+func (d *eventDispatcher) Dispose() error {
 	if d.producers == nil {
-		return
+		return nil
 	}
 
 	for _, producer := range d.producers {
-		producer.Dispose()
+		if error := producer.Dispose(); error != nil {
+			return error
+		}
 	}
+
+	return nil
 }
